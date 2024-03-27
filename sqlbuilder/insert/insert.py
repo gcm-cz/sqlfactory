@@ -1,0 +1,136 @@
+from __future__ import annotations
+
+from collections.abc import Collection
+from typing import Any
+
+from .values import Values
+from ..column import ColumnArg, Column, Table
+from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
+from ..statement import Statement, StatementWithArgs
+
+
+class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
+    """
+    INSERT statement
+
+    Statement is conditional, which means it won't be executed if no rows would be inserted (which throws SQL error).
+
+    >>> Insert.into("table")("column1", "column2", "column3").values((1, 2, 3), (4, 5, 6))
+    >>> "INSERT INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
+
+    >>> Insert("table", ignore=True)("column1", "column2", "column3").values((1, 2, 3), (4, 5, 6))
+    >>> "INSERT IGNORE INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
+    """
+
+    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False):
+        """
+        :param table: Table to insert into
+        :param ignore: use INSERT IGNORE?
+        :param replace: use REPLACE?
+        """
+
+        super().__init__()
+
+        if ignore and replace:
+            raise AttributeError("Only one of ignore or replace can be specified.")
+
+        self._ignore = ignore
+        self._replace = replace
+
+        self._table = table if isinstance(table, Table) else Table(table)
+        self._columns: list[Column] = []
+        self._values: list[Collection[Any]] = []
+        self._on_duplicate_key_update_set: list[tuple[Column, str]] = []
+        self._on_duplicate_key_update_args: list[Any] = []
+
+    @classmethod
+    def into(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Insert:
+        """Specify table to insert into."""
+        return cls(table, ignore=ignore, replace=replace)
+
+    @classmethod
+    def INTO(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Insert:
+        """Alias for into() to provide better SQL compatibility"""
+        return cls.into(table, ignore=ignore, replace=replace)
+
+    def __call__(self, *columns: ColumnArg):
+        if not columns:
+            raise AttributeError("At least one column must be specified.")
+
+        if self._columns:
+            raise AttributeError("Insert columns has already been specified.")
+
+        for column in columns:
+            if not isinstance(column, (Column, str)):
+                raise AttributeError("Statements cannot be used as INSERT columns.")
+
+        self._columns = [column if isinstance(column, Column) else Column(column) for column in columns]
+        return self
+
+    def values(self, *rows: Collection[Any]):
+        self._values.extend(rows)
+        return self
+
+    def VALUES(self, *rows: Collection[Any]):
+        """Alias for values() to provide better SQL compatibility."""
+        return self.values(*rows)
+
+    def on_duplicate_key_update(self, **kwargs: Values | Statement | Any):
+        for column, stmt in kwargs.items():
+            if not isinstance(column, Column):
+                column = Column(column)
+
+            self._on_duplicate_key_update_set.append((column, str(stmt) if isinstance(stmt, Statement) else "%s"))
+            if isinstance(stmt, StatementWithArgs):
+                self._on_duplicate_key_update_args.extend(stmt.args)
+            elif not isinstance(stmt, Statement):
+                self._on_duplicate_key_update_args.append(stmt)
+
+        return self
+
+    def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any):
+        """Alias for on_duplicate_key_update() to provide better SQL compatibility."""
+        return self.on_duplicate_key_update(**kwargs)
+
+    def __bool__(self) -> bool:
+        """Do not execute empty INSERT statement."""
+        return bool(self._values)
+
+    def __str__(self) -> str:
+        if not self._columns:
+            raise AttributeError("At least one column must be specified.")
+
+        if self._replace:
+            q = [f"REPLACE INTO {str(self._table)}"]
+        else:
+            q = [f"INSERT{' IGNORE' if self._ignore else ''} INTO {str(self._table)}"]
+
+        if self._columns:
+            q.append(f"({', '.join(map(str, self._columns))})")
+
+        q.append("VALUES")
+
+        count_columns = len(self._columns)
+
+        for idx, row in enumerate(self._values):
+            if len(row) != count_columns:
+                raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
+
+            q.append(f"({', '.join(['%s'] * len(row))}){',' if idx < len(self._values) - 1 else ''}")
+
+        if self._on_duplicate_key_update_set:
+            q.append("ON DUPLICATE KEY UPDATE")
+            q.append(", ".join(map(
+                lambda update_set: f"{str(update_set[0])} = {update_set[1]}",
+                self._on_duplicate_key_update_set
+            )))
+
+        return " ".join(q)
+
+    @property
+    def args(self) -> list[Any]:
+        return [v for row in self._values for v in row] + self._on_duplicate_key_update_args
+
+
+# Alias for Insert, for better SQL compatibility
+INSERT = Insert

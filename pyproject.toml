@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "py-sqlbuilder"
+version = "0.1.0"
+description = ""
+authors = ["Michal Kuchta <niximor@gmail.com>"]
+readme = "README.md"
+packages = [{include = "sqlbuilder"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.1"
+pytest-asyncio = "^0.23.6"
+pylint = "^3.1.0"
+mypy = "^1.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
