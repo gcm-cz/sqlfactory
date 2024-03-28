@@ -1,19 +1,28 @@
+"""BETWEEN condition generator"""
+
 from typing import Any
 
 from .base import Condition, StatementOrColumn
-from ..column import Column
+from ..entities import Column
 from ..statement import Statement, StatementWithArgs
 
 
+# pylint: disable=too-few-public-methods  # As everything is handled by base classes.
 class Between(Condition):
+    # pylint: disable=duplicate-code  # It does not make sense to generalize two-row statement used on two places.
     """
     Provides generation for following syntax:
-        `column` BETWEEN <lower_bound> AND <upper_bound>
-        `column` NOT BETWEEN <lower_bound> AND <upper_bound>
-        <statement> BETWEEN <lower_bound> AND <upper_bound>
-        <statement> NOT BETWEEN <lower_bound> AND <upper_bound>
+
+    - `column` BETWEEN <lower_bound> AND <upper_bound>
+    - `column` NOT BETWEEN <lower_bound> AND <upper_bound>
+    - <statement> BETWEEN <lower_bound> AND <upper_bound>
+    - <statement> NOT BETWEEN <lower_bound> AND <upper_bound>
+
     """
-    def __init__(self, column: StatementOrColumn, lower_bound: Any | Statement, upper_bound: Any | Statement, *, negative: bool = False):
+    def __init__(
+            self, column: StatementOrColumn, lower_bound: Any | Statement, upper_bound: Any | Statement, *,
+            negative: bool = False
+    ):
         lower_bound_s = "%s"
         upper_bound_s = "%s"
 

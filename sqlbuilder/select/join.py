@@ -1,6 +1,8 @@
+"""JOIN statements for SQL queries."""
+
 from typing import Any
 
-from sqlbuilder.column import Table
+from sqlbuilder.entities import Table
 from sqlbuilder.condition.base import ConditionBase
 from sqlbuilder.statement import StatementWithArgs
 
@@ -17,6 +19,9 @@ class Join(StatementWithArgs):
 
     @property
     def join_spec(self) -> str:
+        """
+        Returns the JOIN type itself for generation of SQL query.
+        """
         return "JOIN"
 
     def __str__(self):
@@ -27,8 +32,8 @@ class Join(StatementWithArgs):
 
         if self.on:
             return f"{self.join_spec} {table} ON {str(self.on)}"
-        else:
-            return f"{self.join_spec} {table}"
+
+        return f"{self.join_spec} {table}"
 
     @property
     def args(self) -> list[Any]:

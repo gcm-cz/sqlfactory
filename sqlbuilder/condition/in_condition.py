@@ -1,13 +1,18 @@
+"""IN condition, used for checking whether column value is in given list of values."""
+
 from collections.abc import Collection
 from typing import overload, Any
 
-from ..column import Column
+from ..entities import Column
 from ..statement import StatementWithArgs, Statement
 from .base import Condition, StatementOrColumn
 
 
+# pylint: disable=too-few-public-methods   # Everything is handled by super classes.
 class In(Condition):
     """
+    IN condition:
+
     - `column` IN (%s, %s, %s)
     - <statement> IN (%s, %s, %s)
 
@@ -22,15 +27,26 @@ class In(Condition):
     """
 
     @overload
-    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *, negative: bool = False):
+    def __init__(
+            self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *,
+            negative: bool = False
+    ):
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
     def __init__(self, column: StatementOrColumn, values: Collection[Any], *, negative: bool = False):
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
 
-    # pylint: disable=consider-using-f-string
-    def __init__(self, column: StatementOrColumn | tuple[StatementOrColumn, ...], values: Collection[Any | tuple[Any, ...]], *, negative: bool = False):
+    # pylint: disable=consider-using-f-string, too-many-branches  # Yes, IN statement is rather complex.
+    def __init__(
+            self, column: StatementOrColumn | tuple[StatementOrColumn, ...],
+            values: Collection[Any | tuple[Any, ...]], *, negative: bool = False
+    ):
+        """
+        :param column: Column to compare, or tuple of columns for multi-column comparison.
+        :param values: Values to compare (list of values, or list of tuples of values).
+        :param negative: Whether to perform negative comparison (NOT IN)
+        """
         add_none = False
 
         if None in values:

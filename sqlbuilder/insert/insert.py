@@ -1,10 +1,12 @@
+"""INSERT statement builder."""
+
 from __future__ import annotations
 
 from collections.abc import Collection
 from typing import Any
 
 from .values import Values
-from ..column import ColumnArg, Column, Table
+from ..entities import ColumnArg, Column, Table
 from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
 from ..statement import Statement, StatementWithArgs
 
@@ -48,6 +50,7 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
         """Specify table to insert into."""
         return cls(table, ignore=ignore, replace=replace)
 
+    # pylint: disable=invalid-name
     @classmethod
     def INTO(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Insert:
         """Alias for into() to provide better SQL compatibility"""
@@ -68,14 +71,37 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
         return self
 
     def values(self, *rows: Collection[Any]):
+        """
+        Specify values to insert. Each row should be one collection. The semantics is identical to the SQL syntax.
+
+        >>> Insert.into("table")("a", "b").values(
+        >>>    ("row 1, column a", "row 1, column b"),
+        >>>    ("row 2, column a", "row 2, column b")
+        >>> )
+        """
         self._values.extend(rows)
         return self
 
+    # pylint: disable=invalid-name
     def VALUES(self, *rows: Collection[Any]):
         """Alias for values() to provide better SQL compatibility."""
         return self.values(*rows)
 
     def on_duplicate_key_update(self, **kwargs: Values | Statement | Any):
+        """
+        MySQL / MariaDB specific. Specify columns to update if row already exists (duplicate key check is triggered).
+
+        Specify individual columns to be updated as keyword arguments.
+
+        You can use Values() function to access value from currently inserted row's values, e.g.:
+        >>> Insert.into("table")("a", "b").values(
+        >>>     (1, 2),
+        >>>     (3, 4)
+        >>> ).on_duplicate_key_update(
+        >>>     a=Values("a"),          # Set column "a" to the value of column "a" from the row being inserted
+        >>>     b=Column("b") + 1       # Increment value of column "b" by 1 each time the duplicate is detected.
+        >>> )
+        """
         for column, stmt in kwargs.items():
             if not isinstance(column, Column):
                 column = Column(column)
@@ -88,6 +114,7 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
 
         return self
 
+    # pylint: disable=invalid-name
     def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any):
         """Alias for on_duplicate_key_update() to provide better SQL compatibility."""
         return self.on_duplicate_key_update(**kwargs)
@@ -97,6 +124,7 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
         return bool(self._values)
 
     def __str__(self) -> str:
+        """Constructs INSERT statement from provided data."""
         if not self._columns:
             raise AttributeError("At least one column must be specified.")
 

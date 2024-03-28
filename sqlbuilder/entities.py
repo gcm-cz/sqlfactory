@@ -1,3 +1,6 @@
+"""Classes representing database entities."""
+
+from __future__ import annotations
 from typing import Any
 
 from .statement import Statement, Raw, StatementWithArgs
@@ -5,9 +8,22 @@ from .condition.simple import Gt, Ge, Eq, Lt, Le, Ne
 
 
 class Column(Statement):
-    """Column (optionally with table and database) as statement"""
+    """
+    Column (optionally with table and database) as statement.
+
+    Provides shorthand for creating conditional SQL statements and arithmetic SQL statements. You can use Column
+    instance to directly create condition using simple operators (==, !=, <, <=, >, >=) or arithmetic operations
+    (+, -, *, /, %).
+
+    >>> Column("table.column") == 5
+    >>> # Produces Eq(Column("table.column"), 5)
+
+    >>> Column("table.column") + 5
+    >>> # Produces Raw("`table`.`column` + %s", 5)
+    """
     def __init__(self, column: str):
         super().__init__()
+
         self._column = column.split(".")
         if len(self._column) > 3:
             raise ValueError("Invalid column name (contains more than <database>.<table>.<column>).")
@@ -105,9 +121,60 @@ class Column(Statement):
             else []
         )
 
+    def __and__(self, other) -> StatementWithArgs:
+        return Raw(
+            f"{str(self)} & {str(other) if isinstance(other, Statement) else '%s'}",
+            *other.args if isinstance(other, StatementWithArgs)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __or__(self, other) -> StatementWithArgs:
+        return Raw(
+            f"{str(self)} | {str(other) if isinstance(other, Statement) else '%s'}",
+            *other.args if isinstance(other, StatementWithArgs)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __xor__(self, other) -> StatementWithArgs:
+        return Raw(
+            f"{str(self)} ^ {str(other) if isinstance(other, Statement) else '%s'}",
+            *other.args if isinstance(other, StatementWithArgs)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __lshift__(self, other):
+        return Raw(
+            f"{str(self)} << {str(other) if isinstance(other, Statement) else '%s'}",
+            *other.args if isinstance(other, StatementWithArgs)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __rshift__(self, other):
+        return Raw(
+            f"{str(self)} >> {str(other) if isinstance(other, Statement) else '%s'}",
+            *other.args if isinstance(other, StatementWithArgs)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __neg__(self):
+        return Raw(f"~{str(self)}")
+
 
 class Table(Statement):
-    """Table (optionally with database) as statement"""
+    """
+    Table (optionally with database) as statement
+
+    By accessing Table's undefined attributes, instance of Column is returned. This allows to easily access columns of
+    that table, and reference them in SQL statements.
+
+    >>> Table("database.table").column_name == 5
+    >>> # Produces Eq(Column("database.table.column_name"), 5)
+    """
 
     def __init__(self, table: str):
         """

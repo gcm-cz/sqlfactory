@@ -1,8 +1,10 @@
+"""ORDER BY mixin for query generator"""
+
 from __future__ import annotations
 from enum import Enum
-from typing import Any, Generic, TypeVar, Collection
+from typing import Any, Generic, TypeVar, Collection, Literal
 
-from ..column import Column, ColumnArg
+from ..entities import Column, ColumnArg
 from ..statement import Statement, StatementWithArgs
 
 
@@ -15,10 +17,10 @@ class Direction(str, Enum):
 OrderColumn = ColumnArg | Statement
 
 
-class Order(list[tuple[OrderColumn, Direction]], StatementWithArgs):
+class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], StatementWithArgs):
     """ORDER BY statement as list of columns to use for ordering"""
     def __str__(self):
-        if not len(self):
+        if not self:
             return ""
 
         out = []
@@ -27,14 +29,14 @@ class Order(list[tuple[OrderColumn, Direction]], StatementWithArgs):
             if isinstance(column, str):
                 column = Column(column)
 
-            out.append(f"{str(column)} {direction.value}")
+            out.append(f"{str(column)} {direction.value if isinstance(direction, Direction) else direction}")
 
         return f"ORDER BY {', '.join(out)}"
 
     @property
     def args(self) -> list[Any]:
         out = []
-        for column, direction in self:
+        for column, _ in self:
             if isinstance(column, StatementWithArgs):
                 out.extend(column.args)
 
@@ -69,6 +71,7 @@ class WithOrder(Generic[T]):
         self._order.append((column, direction))
         return self
 
+    # pylint: disable=invalid-name
     def ORDER_BY(self, column: OrderColumn, direction: Direction) -> T:
         """Alias for order_by() to be more SQL-like with all capitals."""
         return self.order_by(column, direction)

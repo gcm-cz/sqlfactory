@@ -1,12 +1,16 @@
+"""LIKE statement"""
+
 from typing import Any
 
 from .base import Condition, StatementOrColumn
-from ..column import Column
+from ..entities import Column
 from ..statement import Statement, StatementWithArgs
 
 
 class Like(Condition):
     """
+    SQL LIKE statement
+
     `column` LIKE %s
     `column` NOT LIKE %s
     <statement> LIKE %s
@@ -36,3 +40,10 @@ class Like(Condition):
                 f"{str(column)}{' NOT' if negative else ''} LIKE %s",
                 *args
             )
+
+    @staticmethod
+    def escape(s: str) -> str:
+        """
+        Escape string for use in LIKE statement
+        """
+        return s.replace("%", "%%").replace("_", "__")

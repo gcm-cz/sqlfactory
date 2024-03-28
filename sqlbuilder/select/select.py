@@ -1,3 +1,5 @@
+"""SELECT statement builder."""
+
 from __future__ import annotations
 
 from collections.abc import Collection
@@ -5,7 +7,7 @@ from typing import Any, overload
 
 from .column_list import ColumnList
 from .join import Join, LeftJoin
-from ..column import ColumnArg, Table
+from ..entities import ColumnArg, Table
 from ..condition.base import ConditionBase
 from ..execute import ExecutableStatementWithArgs
 from ..mixins.limit import WithLimit, Limit
@@ -14,7 +16,9 @@ from ..mixins.where import WithWhere
 from ..statement import StatementWithArgs, Statement
 
 
+# pylint: disable=too-many-ancestors  # Intentional, as this class is a combination of multiple mixins.
 class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select'], WithLimit['Select']):
+    # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     SELECT statement
 
@@ -23,6 +27,11 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
     >>>     .order_by("column2")
     >>>     .limit(2, 10)
     >>>     .execute(cursor))
+
+    Known limitations:
+    - JOINs are not checked for uniqueness, so it is possible to add same JOIN multiple times. For now, it is up to
+      user to ensure that JOINs are unique. This may be changed in the future, but it is not simple task, as joins
+      needs to be in certain order.
     """
     def __init__(
             self,
@@ -72,6 +81,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         return self
 
     def _append_join(self, join: Join) -> Select:
+        """Append join to list of joins."""
         if not self._join:
             self._join = []
 
@@ -101,7 +111,8 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
 
         return self._append_join(Join(table, on, alias))
 
-    def JOIN(self, table: str, on: ConditionBase = None, alias: str = None) -> Select:
+    # pylint: disable=invalid-name
+    def JOIN(self, table: str | Table | Join, on: ConditionBase = None, alias: str = None) -> Select:
         """Alias for join() to be more SQL-like with all capitals."""
         return self.join(table, on, alias)
 
@@ -109,6 +120,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         """Append LEFT JOIN clause to the query."""
         return self.join(LeftJoin(table, on, alias))
 
+    # pylint: disable=invalid-name
     def LEFT_JOIN(self, table: str, on: ConditionBase = None, alias: str = None) -> Select:
         """Alias for left_join() to be more SQL-like with all capitals."""
         return self.left_join(table, on, alias)
@@ -125,6 +137,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         self._group_by = ColumnList([column] + list(columns))
         return self
 
+    # pylint: disable=invalid-name
     def GROUP_BY(self, column: Statement | ColumnArg, *columns: Statement | ColumnArg) -> Select:
         """Alias for group_by() to be more SQL-like with all capitals."""
         return self.group_by(column, *columns)
@@ -134,6 +147,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         self._having = condition
         return self
 
+    # pylint: disable=invalid-name
     def HAVING(self, condition: ConditionBase) -> Select:
         """Alias for having() to be more SQL-like with all capitals."""
         return self.having(condition)

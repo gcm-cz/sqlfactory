@@ -1,14 +1,12 @@
+"""Base classes for SQL functions"""
+
 from typing import Any
 
 from ..statement import StatementWithArgs, Statement
-from ..column import Column
 
 
-#
 class Function(StatementWithArgs):
-    """
-    Generic function with name, and optional number of arguments.
-    """
+    """Generic function with name and variable number of arguments."""
     def __init__(self, function: str, *args: Statement | Any):
         self.function = function
         self._args = args
@@ -37,6 +35,3 @@ class Function(StatementWithArgs):
                 out.append(arg)
 
         return out
-
-
-

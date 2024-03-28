@@ -27,3 +27,8 @@ def test_like_with_statements_as_arg():
     like_condition = Like("column1", statement1)
     assert str(like_condition) == "`column1` LIKE CONCAT(%s, `column1`, %s)"
     assert like_condition.args == ["%", "value%"]
+
+
+def test_like_escape():
+    assert Like.escape("a%b_c") == "a%%b__c"
+    assert Like.escape("a%%b__c") == "a%%%%b____c"

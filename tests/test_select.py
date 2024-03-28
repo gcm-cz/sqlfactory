@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder import Select, Eq, Direction, Column, ColumnList, Join, Aliased, SelectColumn
+from sqlbuilder import Select, Eq, Direction, Column, ColumnList, Join, Aliased, SelectColumn, Limit
 from sqlbuilder.func.control import IfNull
 
 
@@ -114,6 +114,21 @@ def test_select_limit():
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LIMIT %s"
     assert select_condition.args == [5]
+
+
+def test_select_limit_instance():
+    select_condition = (
+        Select("column1", "column2", table="table")
+        .limit(Limit(10))
+    )
+
+    assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LIMIT %s"
+    assert select_condition.args == [10]
+
+
+def test_select_limit_instance_invalid():
+    with pytest.raises(AttributeError):
+        Select("column1", table="table").limit(Limit(10), 100)
 
 
 def test_select_where():

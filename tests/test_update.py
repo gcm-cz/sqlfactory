@@ -92,3 +92,9 @@ def test_update_column_equality():
     s.add(UpdateColumn("foo", "baz"))
 
     assert len(s) == 1
+
+
+def test_update_column_without_args():
+    upd = UpdateColumn("foo", Column("bar"))
+    assert str(upd) == "`foo` = `bar`"
+    assert upd.args == []

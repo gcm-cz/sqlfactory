@@ -1,13 +1,15 @@
+"""Column list for usage in SELECT statement."""
+
 from __future__ import annotations
 from typing import Iterable, Any
 
-from sqlbuilder.column import ColumnArg, Column
+from sqlbuilder.entities import ColumnArg, Column
 from sqlbuilder.statement import StatementWithArgs, Statement
 
 
 class ColumnList(StatementWithArgs, list[Statement]):
     """
-    Set of columns.
+    Unique(ish) set of columns to be used in SELECT statement.
     """
     def __init__(self, iterable: Iterable[Statement | ColumnArg] = None):
         if iterable:

@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder.column import Table
+from sqlbuilder.entities import Table
 from sqlbuilder.condition.simple import Eq
 from sqlbuilder.select.join import Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin, InnerJoin, CrossJoin
 

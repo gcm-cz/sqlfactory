@@ -1,7 +1,9 @@
+"""UPDATE statement builder."""
+
 from __future__ import annotations
 from typing import Any, Optional
 
-from ..column import ColumnArg, Column, Table
+from ..entities import ColumnArg, Column, Table
 from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
 from ..mixins.limit import WithLimit, Limit
 from ..mixins.where import WithWhere
@@ -34,12 +36,28 @@ class UpdateColumn(StatementWithArgs):
         """
         Return arguments for the update statement.
         """
-        return self._value.args if isinstance(self._value, StatementWithArgs) else [self._value] if not isinstance(self._value, Statement) else []
+        if isinstance(self._value, StatementWithArgs):
+            return self._value.args
+
+        if not isinstance(self._value, Statement):
+            return [self._value]
+
+        return []
 
 
-class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWhere, WithLimit):
+# pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
+class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Update']):
     """
     Builds UPDATE statement SQL query.
+
+    This is conditional SQL statement, so you can check whether it should be executed (would update any columns)
+    by calling bool() on it. Also, if you are using execute() method of the statement, the execution won't be
+    performed if bool() returns False.
+
+    >>> Update("table").set("column1", 1).where(Eq("column2", 2))
+
+    >>> t = Table("table")
+    >>> Update(t).set(t.column1, 1).where(t.column2 == 2)
     """
     def __init__(
             self,
@@ -48,6 +66,13 @@ class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWh
             where: Optional[Condition] = None,
             limit: Optional[Limit] = None
     ):
+        """
+        :param table: Table to update.
+        :param fields: List of UpdateColumn instances containing columns to be updated. This is not very pleasant way
+            to create the statement, use set() method instead.
+        :param where: WHERE condition
+        :param limit: Limit number of updated rows
+        """
         super().__init__(where=where, limit=limit)
         self.table = table if isinstance(table, Table) else Table(table)
         self.fields: list[UpdateColumn] = list(fields)
@@ -92,6 +117,9 @@ class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWh
         return out
 
     def __bool__(self):
+        """
+        Return True if there are any fields to be updated and the statement should be executed.
+        """
         return bool(self.fields)
 
     def append(self, field: UpdateColumn):
@@ -113,6 +141,7 @@ class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWh
         """
         return self.append(UpdateColumn(field, value))
 
+    # pylint: disable=invalid-name
     def SET(self, field: str, value: Any):
         """Alias for set() for better SQL compatibility"""
         return self.set(field, value)

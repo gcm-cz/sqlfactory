@@ -1,3 +1,5 @@
+"""Base classes to implement SQL conditions."""
+
 from __future__ import annotations
 
 from abc import ABC
@@ -10,7 +12,8 @@ StatementOrColumn = str | Statement
 
 class ConditionBase(StatementWithArgs, ConditionalStatement, ABC):
     """
-    Generic condition interface, that can be chained with other conditions using & or | operators.
+    Generic condition interface, that can be chained with other conditions using & or | operators. All condition
+    classes should inherit from this one, as there are checks through the library for instances of this class.
     """
     def __and__(self, other: ConditionBase) -> And:
         if isinstance(self, And):
@@ -65,7 +68,8 @@ class Condition(ConditionBase):
 
 class CompoundCondition(ConditionBase):
     """
-    Base class for joining multiple conditions together.
+    Base class for joining multiple conditions together using specified operator. As there are only two operators
+    (AND and OR), this class is not meant to be used directly, but rather through And and Or classes.
     """
     def __init__(self, operator: str, *conditions: ConditionBase | str):
         """

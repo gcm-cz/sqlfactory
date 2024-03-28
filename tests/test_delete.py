@@ -1,6 +1,6 @@
 import pytest
 from sqlbuilder import Delete, In, Direction
-from sqlbuilder.column import Table
+from sqlbuilder.entities import Table
 from sqlbuilder.mixins.limit import Limit
 
 

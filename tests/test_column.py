@@ -111,3 +111,45 @@ def test_column_mod():
     mod = c % 5
     assert str(mod) == "`column` % %s"
     assert mod.args == [5]
+
+
+def test_column_and():
+    c = Column("column")
+    and_ = c & 5
+    assert str(and_) == "`column` & %s"
+    assert and_.args == [5]
+
+
+def test_column_or():
+    c = Column("column")
+    or_ = c | 5
+    assert str(or_) == "`column` | %s"
+    assert or_.args == [5]
+
+
+def test_column_xor():
+    c = Column("column")
+    xor = c ^ 5
+    assert str(xor) == "`column` ^ %s"
+    assert xor.args == [5]
+
+
+def test_column_lshift():
+    c = Column("column")
+    lshift = c << 5
+    assert str(lshift) == "`column` << %s"
+    assert lshift.args == [5]
+
+
+def test_column_rshift():
+    c = Column("column")
+    rshift = c >> 5
+    assert str(rshift) == "`column` >> %s"
+    assert rshift.args == [5]
+
+
+def test_column_neg():
+    c = Column("column")
+    neg = -c
+    assert str(neg) == "~`column`"
+    assert neg.args == []

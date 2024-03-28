@@ -1,6 +1,8 @@
+"""DELETE statement builder"""
+
 from typing import Any
 
-from ..column import Table
+from ..entities import Table
 from ..condition.base import ConditionBase
 from ..execute import ExecutableStatementWithArgs
 from ..mixins.limit import WithLimit, Limit
@@ -8,7 +10,8 @@ from ..mixins.order import WithOrder, OrderArg
 from ..mixins.where import WithWhere
 
 
-class Delete(ExecutableStatementWithArgs, WithWhere, WithOrder, WithLimit):
+# pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
+class Delete(ExecutableStatementWithArgs, WithWhere['Delete'], WithOrder['Delete'], WithLimit['Delete']):
     """
     DELETE statement
 
@@ -22,10 +25,17 @@ class Delete(ExecutableStatementWithArgs, WithWhere, WithOrder, WithLimit):
             order: OrderArg = None,
             limit: Limit = None
     ):
+        """
+        :param table: Table to delete from
+        :param where: WHERE condition
+        :param order: Ordering of matched rows, usefull when limiting number of deleted rows.
+        :param limit: Limit number of deleted rows.
+        """
         super().__init__(where=where, order=order, limit=limit)
         self.table = table if isinstance(table, Table) else Table(table)
 
     def __str__(self):
+        """Construct the DELETE statement."""
         q = [f"DELETE FROM {str(self.table)}"]
 
         if self._where:
@@ -42,6 +52,7 @@ class Delete(ExecutableStatementWithArgs, WithWhere, WithOrder, WithLimit):
 
     @property
     def args(self) -> list[Any]:
+        """DELETE statement arguments."""
         return (
             (self._where.args if self._where else []) +
             (self._order.args if self._order else []) +

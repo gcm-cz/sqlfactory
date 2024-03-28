@@ -1,3 +1,5 @@
+"""Conditions for WHERE, ON, HAVING clauses in SQL statements."""
+
 from .base import ConditionBase, Condition, And, Or
 from .between import Between
 from .in_condition import In
