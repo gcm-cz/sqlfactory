@@ -1,0 +1,54 @@
+stages:
+  - test
+  - build
+  - release
+
+test:
+  image: registry.srv.gcm.cz/baseimage/python:3.11
+  stage: test
+  script:
+    - poetry install --no-root --with=dev
+    - poetry run pytest --cov=sqlbuilder --cov-report=xml --cov-report=term
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+pylint:
+  image: registry.srv.gcm.cz/baseimage/python:3.11
+  stage: test
+  script:
+    - poetry install --no-root --with=dev
+    - poetry run pylint sqlbuilder
+
+build-wheel:
+  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  stage: build
+  script:
+    - /ci/build-wheel.sh
+  artifacts:
+    paths:
+      - dist/*
+
+release-wheel:
+  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  stage: release
+  dependencies:
+      - build-wheel
+  only:
+      - tags
+  script:
+      - /ci/release-wheel.sh
+
+release-wheel-official:
+  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  stage: release
+  variables:
+    PYPI_REPO: https://pypi.org/legacy/
+  dependencies:
+      - build-wheel
+  only:
+      - tags
+  script:
+      - /ci/release-wheel.sh
