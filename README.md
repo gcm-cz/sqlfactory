@@ -1,5 +1,9 @@
 # py-SQLBuilder
 
+![Pipeline](https://gitlab.com/gcm-cz/py-sqlbuilder/badges/main/pipeline.svg)
+![Coverage](https://gitlab.com/gcm-cz/py-sqlbuilder/badges/main/coverage.svg)
+![Latest release](https://gitlab.com/gcm-cz/py-sqlbuilder/-/badges/release.svg)
+
 A zero-dependency SQL builder library!
 
 Convenient classes for building SQL queries in Python. Main purpose of this library is to ease construction of SQL
