@@ -7,8 +7,9 @@ test:
   image: registry.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --no-root --with=dev
+    - poetry install --with=dev
     - poetry run pytest --cov=sqlbuilder --cov-report=xml --cov-report=term
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
       coverage_report:
@@ -19,7 +20,7 @@ pylint:
   image: registry.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --no-root --with=dev
+    - poetry install --with=dev
     - poetry run pylint sqlbuilder
 
 build-wheel:

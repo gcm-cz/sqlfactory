@@ -169,14 +169,14 @@ def update_books(c: Cursor, books: list[BookUpdate]) -> list[tuple[str, tuple[An
     return out
 
 
-def test_select_books_by_authos():
+def test_select_books_by_authors():
     c = Cursor()
     sql, args = select_books_by_authors(c, ["John Doe"], ["title", "author"])
     assert sql == "SELECT `books`.`title` AS `title`, `authors`.`name` AS `author` FROM `books` JOIN `authors` ON `books`.`author` = `authors`.`id` WHERE `authors`.`name` IN (%s) ORDER BY `title` ASC, `authors`.`name` ASC LIMIT %s, %s"
     assert args == ("John Doe", 0, 10)
 
 
-def test_update_books():
+def test_update_books_func():
     c = Cursor()
     row1, row2 = update_books(c, [BookUpdate(1, title="New Title"), BookUpdate(2, author="New Author")])
 
