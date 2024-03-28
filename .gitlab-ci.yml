@@ -45,6 +45,7 @@ release-wheel:
 release-wheel-official:
   image: registry.srv.gcm.cz/baseimage/python:3.11-ci
   stage: release
+  when: manual
   variables:
     PYPI_REPO: https://pypi.org/legacy/
   dependencies:
