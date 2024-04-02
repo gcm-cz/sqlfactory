@@ -41,6 +41,9 @@ release-wheel:
       - tags
   script:
       - /ci/release-wheel.sh
+  release:
+      tag_name: $CI_COMMIT_TAG
+      description: "$CI_COMMIT_TAG"
 
 release-wheel-official:
   image: registry.srv.gcm.cz/baseimage/python:3.11-ci
@@ -48,6 +51,7 @@ release-wheel-official:
   when: manual
   variables:
     PYPI_REPO: https://pypi.org/legacy/
+    PYPI_TOKEN: $PYPI_TOKEN_OFFICIAL
   dependencies:
       - build-wheel
   only:
