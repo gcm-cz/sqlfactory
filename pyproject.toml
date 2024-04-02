@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-SQLBuilder"
+name = "sqlfactory"
 version = "1.0.0"
 description = "Convenient classes for building SQL queries in Python. Main purpose of this library is to ease construction of SQL queries in Python code. It is not an ORM (and don't intend to be), just a plain SQL query builder with syntax as similar to actual SQL as possible."
 authors = ["Michal Kuchta <niximor@gmail.com>"]
