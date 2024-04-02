@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[project.urls]
+[tool.poetry.urls]
 Homepage = "https://gitlab.com/gcm-cz/sqlfactory"
 Repository = "https://gitlab.com/gcm-cz/sqlfactory"
 Issues = "https://gitlab.com/gcm-cz/sqlfactory/-/issues"
