@@ -1,7 +1,7 @@
 """Numeric SQL functions (https://mariadb.com/kb/en/numeric-functions/)"""
 from typing import Any, overload
 
-from sqlbuilder.func.base import Function
+from sqlfactory.func.base import Function
 
 
 # pylint: disable=too-few-public-methods

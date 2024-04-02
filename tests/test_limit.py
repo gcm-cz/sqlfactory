@@ -1,6 +1,6 @@
 import pytest
 
-from sqlbuilder import Limit, Select
+from sqlfactory import Limit, Select
 
 
 def test_empty_limit():

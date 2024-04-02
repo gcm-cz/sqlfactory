@@ -3,8 +3,8 @@
 from __future__ import annotations
 from typing import Iterable, Any
 
-from sqlbuilder.entities import ColumnArg, Column
-from sqlbuilder.statement import StatementWithArgs, Statement
+from sqlfactory.entities import ColumnArg, Column
+from sqlfactory.statement import StatementWithArgs, Statement
 
 
 class ColumnList(StatementWithArgs, list[Statement]):

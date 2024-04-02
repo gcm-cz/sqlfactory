@@ -1,5 +1,5 @@
-from sqlbuilder import Raw, Column
-from sqlbuilder.func.control import IfNull
+from sqlfactory import Raw, Column
+from sqlfactory.func.control import IfNull
 
 
 def test_raw():

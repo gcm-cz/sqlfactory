@@ -1,5 +1,5 @@
-from sqlbuilder import Order, Direction
-from sqlbuilder.func.control import IfNull
+from sqlfactory import Order, Direction
+from sqlfactory.func.control import IfNull
 
 
 def test_empty_order():

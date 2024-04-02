@@ -2,4 +2,4 @@
 
 import logging
 
-logger = logging.getLogger("sqlbuilder")
+logger = logging.getLogger("sqlfactory")

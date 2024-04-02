@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from sqlbuilder.entities import ColumnArg, Column
-from sqlbuilder.statement import StatementWithArgs, Statement
+from sqlfactory.entities import ColumnArg, Column
+from sqlfactory.statement import StatementWithArgs, Statement
 
 
 # pylint: disable=too-few-public-methods

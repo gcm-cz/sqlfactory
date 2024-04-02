@@ -1,7 +1,7 @@
 import pytest
-from sqlbuilder import Update, Eq, Column, Limit
-from sqlbuilder.func.str import Concat
-from sqlbuilder.update.update import UpdateColumn, UPDATE
+from sqlfactory import Update, Eq, Column, Limit
+from sqlfactory.func.str import Concat
+from sqlfactory.update.update import UpdateColumn, UPDATE
 
 
 def test_update():

@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder.func.misc import GetLock, Inet6Aton, Inet6Ntoa, InetAton, InetNtoa, IsFreeLock, IsIpv4, IsIpv4Compat, IsIpv4Mapped, IsIpv6, IsUsedLock, MasterGtidWait, MasterPosWait, ReleaseAllLocks, ReleaseLock, Sleep, SysGuid, Uuid, UuidShort
+from sqlfactory.func.misc import GetLock, Inet6Aton, Inet6Ntoa, InetAton, InetNtoa, IsFreeLock, IsIpv4, IsIpv4Compat, IsIpv4Mapped, IsIpv6, IsUsedLock, MasterGtidWait, MasterPosWait, ReleaseAllLocks, ReleaseLock, Sleep, SysGuid, Uuid, UuidShort
 
 
 def test_get_lock():

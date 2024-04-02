@@ -2,9 +2,9 @@
 
 from typing import Any
 
-from sqlbuilder.entities import Table
-from sqlbuilder.condition.base import ConditionBase
-from sqlbuilder.statement import StatementWithArgs
+from sqlfactory.entities import Table
+from sqlfactory.condition.base import ConditionBase
+from sqlfactory.statement import StatementWithArgs
 
 
 class Join(StatementWithArgs):

@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Convenient classes for building SQL queries in Python. Main purpose of this library is to ease construction of SQL queries in Python code. It is not an ORM (and don't intend to be), just a plain SQL query builder with syntax as similar to actual SQL as possible."
 authors = ["Michal Kuchta <niximor@gmail.com>"]
 readme = "README.md"
-packages = [{include = "sqlbuilder"}]
+packages = [{include = "sqlfactory"}]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Development Status :: 5 - Production/Stable",
@@ -17,9 +17,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.com/gcm-cz/py-sqlbuilder"
-Repository = "https://gitlab.com/gcm-cz/py-sqlbuilder"
-Issues = "https://gitlab.com/gcm-cz/py-sqlbuilder/-/issues"
+Homepage = "https://gitlab.com/gcm-cz/sqlfactory"
+Repository = "https://gitlab.com/gcm-cz/sqlfactory"
+Issues = "https://gitlab.com/gcm-cz/sqlfactory/-/issues"
 
 [tool.poetry.dependencies]
 python = "^3.11"

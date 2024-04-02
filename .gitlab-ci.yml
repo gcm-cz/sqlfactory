@@ -8,7 +8,7 @@ test:
   stage: test
   script:
     - poetry install --with=dev
-    - poetry run pytest --cov=sqlbuilder --cov-report=xml --cov-report=term
+    - poetry run pytest --cov=sqlfactory --cov-report=xml --cov-report=term
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
@@ -21,7 +21,7 @@ pylint:
   stage: test
   script:
     - poetry install --with=dev
-    - poetry run pylint sqlbuilder
+    - poetry run pylint sqlfactory
 
 build-wheel:
   image: registry.srv.gcm.cz/baseimage/python:3.11-ci

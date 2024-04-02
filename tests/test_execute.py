@@ -1,7 +1,7 @@
 import pytest
 from typing import Any
 
-from sqlbuilder import Select, Eq, Insert
+from sqlfactory import Select, Eq, Insert
 
 
 class DbDriverWithExecuteTuple():

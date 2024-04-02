@@ -1,7 +1,7 @@
 import pytest
-from sqlbuilder import Delete, In, Direction
-from sqlbuilder.entities import Table
-from sqlbuilder.mixins.limit import Limit
+from sqlfactory import Delete, In, Direction
+from sqlfactory.entities import Table
+from sqlfactory.mixins.limit import Limit
 
 
 def test_delete():

@@ -1,8 +1,8 @@
 import pytest
 
-from sqlbuilder import Column
-from sqlbuilder.func.control import IfNull
-from sqlbuilder.func.datetime import Interval, AddMonths, AddDate, AddTime, ConvertTz, CurDate, CurrentDate, CurrentTime, CurrentTimestamp, CurTime, Date, DateDiff, DateAdd, DateFormat, DateSub, Day, DayName, DayOfMonth, DayOfWeek, DayOfYear, Extract, FormatPicoTime, FromDays, FromUnixTime, GetFormat, Hour, LastDay, LocalTime, LocalTimestamp, MakeDate, MakeTime, Microsecond, Minute, MonthName, Now, PeriodAdd, PeriodDiff, Quarter, Second, SecToTime, StrToDate, SubDate, SubTime, SysDate, Time, TimeDiff, Timestamp, TimeFormat, TimeToSec, ToDays, ToSeconds, UnixTimestamp, UtcDate, UtcTime, UtcTimestamp, Week, WeekDay, WeekOfYear, Year, YearWeek
+from sqlfactory import Column
+from sqlfactory.func.control import IfNull
+from sqlfactory.func.datetime import Interval, AddMonths, AddDate, AddTime, ConvertTz, CurDate, CurrentDate, CurrentTime, CurrentTimestamp, CurTime, Date, DateDiff, DateAdd, DateFormat, DateSub, Day, DayName, DayOfMonth, DayOfWeek, DayOfYear, Extract, FormatPicoTime, FromDays, FromUnixTime, GetFormat, Hour, LastDay, LocalTime, LocalTimestamp, MakeDate, MakeTime, Microsecond, Minute, MonthName, Now, PeriodAdd, PeriodDiff, Quarter, Second, SecToTime, StrToDate, SubDate, SubTime, SysDate, Time, TimeDiff, Timestamp, TimeFormat, TimeToSec, ToDays, ToSeconds, UnixTimestamp, UtcDate, UtcTime, UtcTimestamp, Week, WeekDay, WeekOfYear, Year, YearWeek
 
 
 def test_interval():

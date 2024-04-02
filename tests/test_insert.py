@@ -1,6 +1,6 @@
 import pytest
-from sqlbuilder import Insert, Column, INSERT, Values
-from sqlbuilder.func.str import Concat
+from sqlfactory import Insert, Column, INSERT, Values
+from sqlfactory.func.str import Concat
 
 
 def test_insert():

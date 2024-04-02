@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder.condition.base import And, Or, Condition
+from sqlfactory.condition.base import And, Or, Condition
 
 
 def test_and():

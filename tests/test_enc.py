@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder.func.enc import AesDecrypt, AesEncrypt, Compress, DesDecrypt, DesEncrypt, Encode, Decode, Encrypt, Kdf, OldPassword, Password, MD5, RandomBytes, Sha1, Sha2, Uncompress, UncompressLength
+from sqlfactory.func.enc import AesDecrypt, AesEncrypt, Compress, DesDecrypt, DesEncrypt, Encode, Decode, Encrypt, Kdf, OldPassword, Password, MD5, RandomBytes, Sha1, Sha2, Uncompress, UncompressLength
 
 
 def test_aes_decrypt():

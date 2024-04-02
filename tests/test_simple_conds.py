@@ -3,9 +3,9 @@ Test suite for the condition.simple module.
 """
 import pytest
 
-from sqlbuilder import Column
-from sqlbuilder.condition.simple import Equals, NotEquals, GreaterThanOrEquals, GreaterThan, LessThanOrEquals, LessThan
-from sqlbuilder.func.str import Concat
+from sqlfactory import Column
+from sqlfactory.condition.simple import Equals, NotEquals, GreaterThanOrEquals, GreaterThan, LessThanOrEquals, LessThan
+from sqlfactory.func.str import Concat
 
 
 def test_equals():

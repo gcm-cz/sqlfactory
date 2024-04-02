@@ -1,6 +1,6 @@
 import pytest
-from sqlbuilder import Select, Eq, Direction, Column, ColumnList, Join, Aliased, SelectColumn, Limit
-from sqlbuilder.func.control import IfNull
+from sqlfactory import Select, Eq, Direction, Column, ColumnList, Join, Aliased, SelectColumn, Limit
+from sqlfactory.func.control import IfNull
 
 
 def test_select():

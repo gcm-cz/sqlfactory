@@ -5,7 +5,7 @@ Test suite for examples from the README.
 from dataclasses import dataclass
 from typing import Any
 
-from sqlbuilder import SELECT, Table, Select, And, Eq, In, Insert, INSERT, Update, SelectColumn, Column, Direction
+from sqlfactory import SELECT, Table, Select, And, Eq, In, Insert, INSERT, Update, SelectColumn, Column, Direction
 
 
 def test_select_books():

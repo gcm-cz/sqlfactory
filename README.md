@@ -1,8 +1,8 @@
-# py-SQLBuilder
+# SQLFactory
 
-![Pipeline](https://gitlab.com/gcm-cz/py-sqlbuilder/badges/main/pipeline.svg)
-![Coverage](https://gitlab.com/gcm-cz/py-sqlbuilder/badges/main/coverage.svg)
-![Latest release](https://gitlab.com/gcm-cz/py-sqlbuilder/-/badges/release.svg)
+![Pipeline](https://gitlab.com/gcm-cz/sqlfactory/badges/main/pipeline.svg)
+![Coverage](https://gitlab.com/gcm-cz/sqlfactory/badges/main/coverage.svg)
+![Latest release](https://gitlab.com/gcm-cz/sqlfactory/-/badges/release.svg)
 
 A zero-dependency SQL builder library!
 
@@ -14,7 +14,7 @@ Let's have look at few examples, because examples tell much more than a thousand
 
 TL;DR:
 ```python
-sql = Select(...)
+sql = Select("column1", "column2", table="books").where(Eq("column1", "value") & In("column2", [1, 2, 3]))
 
 # Will do the args magic for you
 sql.execute(cursor)
@@ -39,19 +39,19 @@ SELECT column1, column2, column3 FROM books WHERE column1 = 'value' AND column2 
 All the following examples are equivalent and produce the same SQL query:
 
 ```python
-from sqlbuilder import SELECT, Table, Select, And, Eq, In
+from sqlfactory import SELECT, Table, Select, And, Eq, In
 
 # The most naive and most explicit approach
 Select("column1", "column2", "column3", table="books", where=And(Eq("column1", "value"), In("column2", [1, 2, 3])))
 
 # A little more like a SQL:
-SELECT("column1", "column2", "column3", table="books") \
+SELECT("column1", "column2", "column3", table="books")
     .WHERE(Eq("column1", "value") & In("column2", [1, 2, 3]))
 
 # A little more like a python, but still SQL:
 books = Table("books")
-SELECT(books.column1, books.column2, books.column3, table=books) \
-    .WHERE((books.column1 == "value") & In(books.column2, [1,2,3]))
+SELECT(books.column1, books.column2, books.column3, table=books)
+    .WHERE((books.column1 == "value") & In(books.column2, [1, 2, 3]))
 ```
 
 ---
@@ -63,23 +63,23 @@ INSERT INTO books (column1, column2, column3) VALUES ('value1', 'value2', 'value
 ```
 
 ```python
-from sqlbuilder import Insert, INSERT, Table
+from sqlfactory import Insert, INSERT, Table
 
 Insert.into("books")("column1", "column2", "column3").VALUES(
-    ("value1", "value2", "value3"), 
+    ("value1", "value2", "value3"),
     ("value4", "value5", "value6")
 )
 
 # Of course, you can use Table object as well
 books = Table("books")
 INSERT.INTO(books)(books.column1, books.column2, books.column3).VALUES(
-    ("value1", "value2", "value3"), 
+    ("value1", "value2", "value3"),
     ("value4", "value5", "value6")
 )
 
 # The INTO is not necessary, you can call INSERT constructor directly:
 INSERT("books")("column1", "column2", "column3").VALUES(
-    ("value1", "value2", "value3"), 
+    ("value1", "value2", "value3"),
     ("value4", "value5", "value6")
 )
 ```
@@ -93,18 +93,18 @@ UPDATE books SET column1 = 'value1', column2 = 'value2' WHERE column3 = 'value3'
 ```
 
 ```python
-from sqlbuilder import Update, Table, Eq
+from sqlfactory import Update, Table, Eq
 
-Update("books") \
-    .set("column1", "value1")\
-    .set("column2", "value2")\
+Update("books")
+    .set("column1", "value1")
+    .set("column2", "value2")
     .where(Eq("column3", "value3"))
 
 # Of course, you can use Table object as well
 books = Table("books")
-Update(books)\
-    .set(books.column1, "value1")\
-    .set(books.column2, "value2")\
+Update(books)
+    .set(books.column1, "value1")
+    .set(books.column2, "value2")
     .where(books.column3 == "value3")
 ```
 
@@ -120,8 +120,9 @@ together.
 Let's have a look at a few more practical examples:
 
 ```python
-from sqlbuilder import Select, In, Direction, Eq, Column, SelectColumn
+from sqlfactory import Select, In, Direction, Eq, Column, SelectColumn
 from dataclasses import dataclass
+
 
 @dataclass
 class Book:
@@ -131,48 +132,50 @@ class Book:
     year: str
 
 
-def select_books_by_authors(c: DictCursor, authors: list[str], book_properties: set[str] = None, offset: int = 0, limit: int = 10):
+def select_books_by_authors(c: DictCursor, authors: list[str], book_properties: set[str] = None, offset: int = 0,
+                            limit: int = 10):
     """
     Returns books written by specific authors. Returns list of books paginated by specified offset and limit, ordered
     by book title and author name.
     """
-    
+
     if book_properties is None:
         book_properties = {"title", "author", "year"}
-    
+
     property_column = {
         "title": SelectColumn("books.title", alias="title"),
         "author": SelectColumn("authors.name", alias="author"),
         "year": SelectColumn("books.year", alias="year")
     }
-        
+
     select = (
         # Map dataclass attributes to SQL columns by using mapping table.
         Select(*[property_column[book_property] for book_property in book_properties], table="books")
-        
+
         # As Eq expects firt argument to be column and second argument to be value, we need to provide hint, that
         # authors.id is a column, not a value.
         .join("authors", on=Eq("books.author", Column("authors.id")))
-        
+
         # In is intelligent, it will work even when authors list is empty (will produce False, which in turn will
         # return empty result, as no author has been matched).
         .where(In("authors.name", authors))
-        
+
         # Multiple ORDER BY columns is supported
         .order_by("title", Direction.ASC)
         .order_by("authors.name", Direction.ASC)
-        
+
         # Limit and offset are supported as well
         .limit(offset, limit)
     )
-    
+
     select.execute(c)
     return [Book(**row) for row in c.fetchall()]
 ```
 
 ```python
-from sqlbuilder import Update, Eq
+from sqlfactory import Update, Eq
 from dataclasses import dataclass
+
 
 @dataclass
 class BookUpdate:
@@ -186,14 +189,14 @@ def update_books(c: Cursor, books: list[BookUpdate]):
     """Update multiple books at once. Attributes that has None value won't be modified at all."""
     for book in books:
         update = Update("books", where=Eq("id", book.id))
-        
+
         if book.title is not None:
             update.set("title", book.title)
         if book.author is not None:
             update.set("author", book.author)
         if book.year is not None:
             update.set("year", book.year)
-            
+
         # It can even be done as one-liner, but it gets ugly pretty quickly, so it's not recommended for readability:
         # list(map(update.set, [(attr, getattr(book, attr)) for attr in ["title", "author", "year"] if getattr(book, attr) is not None]))
 

@@ -1,8 +1,8 @@
 import pytest
 
-from sqlbuilder import Column
-from sqlbuilder.condition.between import Between
-from sqlbuilder.func.str import Concat
+from sqlfactory import Column
+from sqlfactory.condition.between import Between
+from sqlfactory.func.str import Concat
 
 
 def test_between():

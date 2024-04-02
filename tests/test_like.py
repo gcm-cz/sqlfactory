@@ -1,6 +1,6 @@
-from sqlbuilder import Column
-from sqlbuilder.condition.like import Like
-from sqlbuilder.func.str import Concat
+from sqlfactory import Column
+from sqlfactory.condition.like import Like
+from sqlfactory.func.str import Concat
 
 
 def test_like():

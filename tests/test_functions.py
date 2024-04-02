@@ -1,7 +1,7 @@
-from sqlbuilder import Column
-from sqlbuilder.func.agg import AggregateFunction, Avg, BitAnd, BitOr, BitXor, Count, Max, Min, Std, Sum
-from sqlbuilder.func.control import IfNull, NullIf, If
-from sqlbuilder.func.str import Ascii, Bin, BitLength, Char, CharLength, Chr, Concat, ConcatWs, Repeat, \
+from sqlfactory import Column
+from sqlfactory.func.agg import AggregateFunction, Avg, BitAnd, BitOr, BitXor, Count, Max, Min, Std, Sum
+from sqlfactory.func.control import IfNull, NullIf, If
+from sqlfactory.func.str import Ascii, Bin, BitLength, Char, CharLength, Chr, Concat, ConcatWs, Repeat, \
     Replace, Reverse, Right, RPad, RTrim, SFormat, Space, Substr, Substring, SubstringIndex, ToBase64, ToChar, Trim, \
     Unhex, Upper, Ord, OctetLength, Mid, Ltrim, Lpad, Lower, Locate, Length, Left, InStr, Hex
 

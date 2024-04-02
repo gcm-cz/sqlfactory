@@ -1,5 +1,5 @@
 import pytest
-from sqlbuilder.func.numeric import Abs, ACos, ASin, ATan, ATan2, Ceil, Ceiling, Cos, Cot, Degrees, Exp, Floor, \
+from sqlfactory.func.numeric import Abs, ACos, ASin, ATan, ATan2, Ceil, Ceiling, Cos, Cot, Degrees, Exp, Floor, \
     Greatest, Least, Log, Log10, Mod, Pi, Pow, Radians, Rand, Round, Sign, Sin, Sqrt, Tan, Truncate, Log2, Div, Conv, \
     Crc32, Ln, Oct, Power, Crc32C, BitCount
 

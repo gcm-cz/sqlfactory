@@ -1,5 +1,5 @@
-from sqlbuilder import In, Column
-from sqlbuilder.func.str import Concat
+from sqlfactory import In, Column
+from sqlfactory.func.str import Concat
 
 
 def test_in_single_column():

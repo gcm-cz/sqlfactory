@@ -2,7 +2,7 @@
 
 from typing import TypeVar, Generic, overload
 
-from sqlbuilder.statement import StatementWithArgs, ConditionalStatement
+from sqlfactory.statement import StatementWithArgs, ConditionalStatement
 
 T = TypeVar("T")
 
