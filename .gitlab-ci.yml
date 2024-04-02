@@ -50,7 +50,7 @@ release-wheel-official:
   stage: release
   when: manual
   variables:
-    PYPI_REPO: https://pypi.org/legacy/
+    PYPI_REPO: https://upload.pypi.org/legacy/
     PYPI_TOKEN: $PYPI_TOKEN_OFFICIAL
   dependencies:
       - build-wheel
