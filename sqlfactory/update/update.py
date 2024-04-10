@@ -1,14 +1,15 @@
 """UPDATE statement builder."""
 
 from __future__ import annotations
+
 from typing import Any, Optional
 
+from ..condition.base import ConditionBase
 from ..entities import ColumnArg, Column, Table
 from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
 from ..mixins.limit import WithLimit, Limit
 from ..mixins.where import WithWhere
 from ..statement import StatementWithArgs, Statement
-from ..condition.base import Condition
 
 
 class UpdateColumn(StatementWithArgs):
@@ -63,7 +64,7 @@ class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWh
             self,
             table: Table | str,
             *fields: UpdateColumn,
-            where: Optional[Condition] = None,
+            where: Optional[ConditionBase] = None,
             limit: Optional[Limit] = None
     ):
         """
