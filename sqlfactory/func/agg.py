@@ -3,6 +3,7 @@
 from typing import Literal
 
 from .base import Function
+from .. import Raw
 from ..entities import Column, ColumnArg
 
 
@@ -47,7 +48,11 @@ class Count(Function):
     def __init__(self, column: ColumnArg | Literal['*']):
         super().__init__(
             "COUNT",
-            column if isinstance(column, Column) or column == '*' else Column(column)
+            column
+            if isinstance(column, Column)
+            else
+                Raw(column) if column == "*"
+                else Column(column)
         )
 
 

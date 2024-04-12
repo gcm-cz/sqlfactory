@@ -1,5 +1,6 @@
 import pytest
 from sqlfactory import Select, Eq, Direction, Column, ColumnList, Join, Aliased, SelectColumn, Limit
+from sqlfactory.func.agg import Count
 from sqlfactory.func.control import IfNull
 
 
@@ -292,3 +293,9 @@ def test_aliased_with_args():
 
     # Test aliased statement property access
     assert aliased.function == "IFNULL"
+
+
+def test_select_count_star():
+    sel = Select(Count("*"), table="table_with_rows")
+    assert str(sel) == "SELECT COUNT(*) FROM `table_with_rows`"
+    assert sel.args == []
