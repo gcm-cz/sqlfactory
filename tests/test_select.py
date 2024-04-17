@@ -299,3 +299,20 @@ def test_select_count_star():
     sel = Select(Count("*"), table="table_with_rows")
     assert str(sel) == "SELECT COUNT(*) FROM `table_with_rows`"
     assert sel.args == []
+
+
+def test_select_column_compare():
+    # Test comparison of SelectColumn instances
+    assert SelectColumn("column1") == SelectColumn("column1")
+    assert SelectColumn("column1") != SelectColumn("column2")
+    assert SelectColumn("column1") != SelectColumn("column1", "alias")
+    assert SelectColumn("column1") != "column1"
+    assert SelectColumn("column1") == Column("column1")
+
+
+def test_select_column_uniqueness_regression():
+    sel = ColumnList()
+    sel.add("column1")
+    sel.add(SelectColumn("column2", alias="column3"))
+
+    assert len(sel) == 2

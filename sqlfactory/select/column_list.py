@@ -23,11 +23,14 @@ class ColumnList(StatementWithArgs, list[Statement]):
     def __contains__(self, other: Statement):
         """This needs custom implementation over default list.__contains__ because we need to compare Column objects,
         which would generate Eq() instances instead of doing comparison."""
+        if isinstance(other, Column):
+            other = str(other)
+
         for item in self:
-            if isinstance(item, Column) and isinstance(other, Column):
-                if str(item) == str(other):
-                    return True
-            elif item == other:
+            if isinstance(item, Column):
+                item = str(item)
+
+            if item == other:
                 return True
 
         return False
