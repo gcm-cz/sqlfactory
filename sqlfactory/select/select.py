@@ -157,7 +157,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         return self.having(condition)
 
     def __str__(self):
-        out = ["SELECT", str(self.columns), f"FROM {", ".join(map(str, self.table))}"]
+        out = ["SELECT", str(self.columns), f"FROM {', '.join(map(str, self.table))}"]
 
         if self._join:
             out.extend(map(str, self._join))
