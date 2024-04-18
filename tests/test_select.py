@@ -316,3 +316,9 @@ def test_select_column_uniqueness_regression():
     sel.add(SelectColumn("column2", alias="column3"))
 
     assert len(sel) == 2
+
+
+def test_multiple_tables():
+    sel = Select("table1.t", "table2.u", table=["table1", "table2"])
+    assert str(sel) == "SELECT `table1`.`t`, `table2`.`u` FROM `table1`, `table2`"
+    assert sel.args == []

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection
+from functools import reduce
 from typing import Any, overload
 
 from .column_list import ColumnList
@@ -37,7 +38,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
             self,
             *columns: Statement | ColumnArg,
             select: ColumnList = None,
-            table: Table | str | Statement = None,
+            table: Table | str | Statement | Collection[Table | str | Statement] = None,
             join: Collection[Join] = None,
             where: ConditionBase = None,
             group_by: ColumnList | Collection[Statement | ColumnArg] = None,
@@ -70,7 +71,10 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
             self.table = ""
             raise AttributeError("Missing required keyword argument table.")
 
-        self.table = Table(table) if isinstance(table, str) else table
+        if not isinstance(table, Collection) or isinstance(table, str):
+            table = [table]
+
+        self.table = [Table(t) if isinstance(t, str) else t for t in table]
         self._join = list(join) if join is not None else None
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
         self._having = having
@@ -153,7 +157,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         return self.having(condition)
 
     def __str__(self):
-        out = ["SELECT", str(self.columns), f"FROM {str(self.table)}"]
+        out = ["SELECT", str(self.columns), f"FROM {", ".join(map(str, self.table))}"]
 
         if self._join:
             out.extend(map(str, self._join))
@@ -188,7 +192,11 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
 
         return (
             out +
-            (self.table.args if isinstance(self.table, StatementWithArgs) else []) +
+            reduce(
+                lambda acc, t: acc + (t.args if isinstance(t, StatementWithArgs) else []),
+                self.table,
+                []
+            ) +
             (self._where.args if self._where else []) +
             (self._group_by.args if self._group_by else []) +
             (self._having.args if self._having else []) +
