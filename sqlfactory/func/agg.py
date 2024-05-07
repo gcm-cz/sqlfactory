@@ -3,7 +3,7 @@
 from typing import Literal
 
 from .base import Function
-from .. import Raw
+from .. import Raw, StatementWithArgs
 from ..entities import Column, ColumnArg
 
 
@@ -44,16 +44,26 @@ class BitXor(AggregateFunction):
 
 # pylint: disable=too-few-public-methods
 class Count(Function):
-    """COUNT(<column>)"""
-    def __init__(self, column: ColumnArg | Literal['*']):
-        super().__init__(
-            "COUNT",
-            column
-            if isinstance(column, Column)
-            else
-                Raw(column) if column == "*"
-                else Column(column)
-        )
+    """
+    - COUNT(<column>)
+    - COUNT(DISTINCT <column>)
+    """
+    def __init__(self, column: ColumnArg | Literal['*'], *, distinct: bool = False):
+        if isinstance(column, str) and column == '*':
+            column = Raw('*')
+        elif isinstance(column, str):
+            column = Column(column)
+
+        if distinct:
+            super().__init__(
+                "COUNT",
+                Raw(f"DISTINCT {str(column)}", *column.args if isinstance(column, StatementWithArgs) else [])
+            )
+        else:
+            super().__init__(
+                "COUNT",
+                column
+            )
 
 
 # pylint: disable=too-few-public-methods

@@ -42,6 +42,20 @@ def test_count():
     assert count_func.args == []
 
 
+def test_count_distinct():
+    count_func = Count("column1", distinct=True)
+    assert str(count_func) == "COUNT(DISTINCT `column1`)"
+    assert count_func.args == []
+
+    count_func = Count("*", distinct=True)
+    assert str(count_func) == "COUNT(DISTINCT *)"
+    assert count_func.args == []
+
+    count_func = Count(Column("foo"), distinct=True)
+    assert str(count_func) == "COUNT(DISTINCT `foo`)"
+    assert count_func.args == []
+
+
 def test_max():
     max_func = Max("column1")
     assert str(max_func) == "MAX(`column1`)"
