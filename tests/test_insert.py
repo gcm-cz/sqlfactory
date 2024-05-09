@@ -1,5 +1,7 @@
 import pytest
 from sqlfactory import Insert, Column, INSERT, Values
+from sqlfactory.func.control import IfNull
+from sqlfactory.func.datetime import Now
 from sqlfactory.func.str import Concat
 
 
@@ -89,3 +91,13 @@ def test_invalid_number_of_insert_columns():
 
     with pytest.raises(AttributeError):
         str(Insert("table")("a", "b").values((1, 2), (1, 2, 3)))
+
+
+def test_insert_expression():
+    ins = Insert("table")("a", "b").values((Now(), "hello"))
+    assert str(ins) == "INSERT INTO `table` (`a`, `b`) VALUES (NOW(), %s)"
+    assert ins.args == ["hello"]
+
+    ins = Insert("table")("a", "b").values(("hello", IfNull(Column("a"), "world")))
+    assert str(ins) == "INSERT INTO `table` (`a`, `b`) VALUES (%s, IFNULL(`a`, %s))"
+    assert ins.args == ["hello", "world"]

@@ -141,10 +141,18 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
         count_columns = len(self._columns)
 
         for idx, row in enumerate(self._values):
+            row_placeholders = []
+
             if len(row) != count_columns:
                 raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
 
-            q.append(f"({', '.join(['%s'] * len(row))}){',' if idx < len(self._values) - 1 else ''}")
+            for value in row:
+                if isinstance(value, Statement):
+                    row_placeholders.append(str(value))
+                else:
+                    row_placeholders.append("%s")
+
+            q.append(f"({', '.join(row_placeholders)}){',' if idx < len(self._values) - 1 else ''}")
 
         if self._on_duplicate_key_update_set:
             q.append("ON DUPLICATE KEY UPDATE")
@@ -157,7 +165,18 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
 
     @property
     def args(self) -> list[Any]:
-        return [v for row in self._values for v in row] + self._on_duplicate_key_update_args
+        out = []
+
+        for row in self._values:
+            for v in row:
+                if isinstance(v, StatementWithArgs):
+                    out.extend(v.args)
+                elif not isinstance(v, Statement):
+                    out.append(v)
+
+        out.extend(self._on_duplicate_key_update_args)
+
+        return out
 
 
 # Alias for Insert, for better SQL compatibility
