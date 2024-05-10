@@ -40,10 +40,7 @@ class UpdateColumn(Statement):
         if isinstance(self._value, Statement):
             return self._value.args
 
-        if not isinstance(self._value, Statement):
-            return [self._value]
-
-        return []
+        return [self._value]
 
 
 # pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
