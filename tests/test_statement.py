@@ -1,4 +1,4 @@
-from sqlfactory import Raw, Column
+from sqlfactory import Raw, Column, Statement, Statement
 from sqlfactory.func.control import IfNull
 
 
@@ -27,3 +27,4 @@ def test_uniqueness_of_funcs():
 
 def test_not_equal_with_string():
     assert Raw("abc") != "abc"
+

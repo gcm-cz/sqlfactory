@@ -1,11 +1,12 @@
 """ORDER BY mixin for query generator"""
 
 from __future__ import annotations
+
 from enum import Enum
 from typing import Any, Generic, TypeVar, Collection, Literal
 
 from ..entities import Column, ColumnArg
-from ..statement import Statement, StatementWithArgs
+from ..statement import Statement
 
 
 class Direction(str, Enum):
@@ -17,7 +18,7 @@ class Direction(str, Enum):
 OrderColumn = ColumnArg | Statement
 
 
-class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], StatementWithArgs):
+class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], Statement):
     """ORDER BY statement as list of columns to use for ordering"""
     def __str__(self):
         if not self:
@@ -37,7 +38,7 @@ class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], Statem
     def args(self) -> list[Any]:
         out = []
         for column, _ in self:
-            if isinstance(column, StatementWithArgs):
+            if isinstance(column, Statement):
                 out.extend(column.args)
 
         return out

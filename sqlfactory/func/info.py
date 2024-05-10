@@ -2,7 +2,7 @@
 from typing import Any
 
 from .base import Function
-from .. import Statement, StatementWithArgs, Raw, Column
+from .. import Statement, Statement, Raw, Column
 
 
 # pylint: disable=too-few-public-methods
@@ -47,7 +47,7 @@ class Collate(Raw):
         super().__init__(
             f"{str(expression) if isinstance(expression, Statement) else '%s'} COLLATE {collation}",
             *(
-                expression.args if isinstance(expression, StatementWithArgs)
+                expression.args if isinstance(expression, Statement)
                 else [expression] if not isinstance(expression, Statement)
                 else []
             )

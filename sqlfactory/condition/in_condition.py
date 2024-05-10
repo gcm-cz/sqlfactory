@@ -4,7 +4,7 @@ from collections.abc import Collection
 from typing import overload, Any
 
 from ..entities import Column
-from ..statement import StatementWithArgs, Statement
+from ..statement import Statement, Statement
 from .base import Condition, StatementOrColumn
 
 
@@ -39,8 +39,11 @@ class In(Condition):
 
     # pylint: disable=consider-using-f-string, too-many-branches  # Yes, IN statement is rather complex.
     def __init__(
-            self, column: StatementOrColumn | tuple[StatementOrColumn, ...],
-            values: Collection[Any | tuple[Any, ...]], *, negative: bool = False
+            self,
+            column: StatementOrColumn | tuple[StatementOrColumn, ...],
+            values: Collection[Any | tuple[Any, ...]],
+            *,
+            negative: bool = False
     ):
         """
         :param column: Column to compare, or tuple of columns for multi-column comparison.
@@ -49,9 +52,13 @@ class In(Condition):
         """
         add_none = False
 
-        if None in values:
-            add_none = True
-            values = list(filter(lambda v: v is not None, values))
+        for value in values:
+            if value is None:
+                add_none = True
+                break
+
+        if add_none:
+            values = [value for value in values if value is not None]
 
         args = []
 
@@ -63,14 +70,14 @@ class In(Condition):
         if values:
             if isinstance(column, tuple):
                 for stmt in column:
-                    if isinstance(stmt, StatementWithArgs):
+                    if isinstance(stmt, Statement):
                         args.extend(stmt.args)
 
                 for value_tuple in values:
                     for value in value_tuple:
                         if not isinstance(value, Statement):
                             args.append(value)
-                        elif isinstance(value, StatementWithArgs):
+                        elif isinstance(value, Statement):
                             args.extend(value.args)
 
                 super().__init__(
@@ -91,17 +98,17 @@ class In(Condition):
                     ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in values])
                 )
 
-                if isinstance(column, StatementWithArgs):
+                if isinstance(column, Statement):
                     args.extend(column.args)
 
                 for value in values:
-                    if isinstance(value, StatementWithArgs):
+                    if isinstance(value, Statement):
                         args.extend(value.args)
                     elif not isinstance(value, Statement):
                         args.append(value)
 
                 if add_none:
-                    if isinstance(column, StatementWithArgs):
+                    if isinstance(column, Statement):
                         args.extend(column.args)
 
                     super().__init__(
@@ -115,7 +122,7 @@ class In(Condition):
                     )
         elif add_none:
             # This could happen only if there is just a one column, not multi-column statement.
-            if isinstance(column, StatementWithArgs):
+            if isinstance(column, Statement):
                 args.extend(column.args)
 
             super().__init__(

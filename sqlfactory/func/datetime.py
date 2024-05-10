@@ -2,11 +2,11 @@
 from typing import Any, Literal
 
 from .base import Function
-from .. import StatementWithArgs, Statement, Raw
+from .. import Statement, Statement, Raw
 
 
 # pylint: disable=too-many-instance-attributes
-class Interval(StatementWithArgs):
+class Interval(Statement):
     """
     INTERVAL statement for DATE_ADD, DATE_SUB and similar functions.
     """
@@ -80,7 +80,7 @@ class Interval(StatementWithArgs):
             if value is None:
                 continue
 
-            if isinstance(value, StatementWithArgs):
+            if isinstance(value, Statement):
                 args.extend(value.args)
 
             elif not isinstance(value, Statement):
@@ -266,7 +266,7 @@ class Extract(Function):
     Extracts part of date.
     """
     def __init__(self, unit: str, date: Any):
-        args = [date] if not isinstance(date, Statement) else date.args if isinstance(date, StatementWithArgs) else []
+        args = [date] if not isinstance(date, Statement) else date.args if isinstance(date, Statement) else []
         super().__init__(
             "EXTRACT",
             Raw(

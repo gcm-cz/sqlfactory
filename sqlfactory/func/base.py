@@ -2,10 +2,11 @@
 
 from typing import Any
 
-from ..statement import StatementWithArgs, Statement
+from ..entities import Expression
+from ..statement import Statement, Statement
 
 
-class Function(StatementWithArgs):
+class Function(Expression):
     """Generic function with name and variable number of arguments."""
     def __init__(self, function: str, *args: Statement | Any):
         self.function = function
@@ -29,7 +30,7 @@ class Function(StatementWithArgs):
     def args(self) -> list[Any]:
         out = []
         for arg in self._args:
-            if isinstance(arg, StatementWithArgs):
+            if isinstance(arg, Statement):
                 out.extend(arg.args)
             elif not isinstance(arg, Statement):
                 out.append(arg)

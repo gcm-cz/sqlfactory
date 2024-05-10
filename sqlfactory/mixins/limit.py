@@ -2,12 +2,12 @@
 
 from typing import TypeVar, Generic, overload
 
-from sqlfactory.statement import StatementWithArgs, ConditionalStatement
+from sqlfactory.statement import Statement, ConditionalStatement
 
 T = TypeVar("T")
 
 
-class Limit(ConditionalStatement, StatementWithArgs):
+class Limit(ConditionalStatement, Statement):
     """LIMIT statement"""
 
     @overload

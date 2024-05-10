@@ -8,37 +8,6 @@ from typing import Any
 
 class Statement(ABC):
     """
-    Base class of serializable SQL statement. This class cannot hold any data, it is just an interface
-    for other classes to implement.
-
-    Everything that should be serialized to SQL should inherit from this class or it's subclasses, as many
-    checks in code are based on instance of this class.
-
-    To retrieve SQL statement, call str() on the instance.
-    """
-
-    @abstractmethod
-    def __str__(self) -> str:
-        """Return SQL statement representing the statement."""
-
-    def __repr__(self):
-        """Representation for debugging purposes, it is not used in SQL generation."""
-        return self.__str__()
-
-    def __hash__(self):
-        """Return hash of this statement to be able to use it in unique collections."""
-        return hash(str(self))
-
-    def __eq__(self, other: 'Statement'):
-        """Compares this statement to other."""
-        if not isinstance(other, Statement):
-            return False
-
-        return str(self) == str(other)
-
-
-class StatementWithArgs(Statement):
-    """
     Base class of serializable SQL statement with arguments that should be escaped. This class cannot hold any data,
     it is just an interface for other classes to implement.
 
@@ -48,37 +17,34 @@ class StatementWithArgs(Statement):
     To retrieve SQL statement, call `str()` on the instance. To retrieve arguments, access `args` property.
     """
 
+    @abstractmethod
+    def __str__(self) -> str:
+        """Return SQL statement representing the statement."""
+
     @property
     @abstractmethod
     def args(self) -> list[Any]:
         """Return arguments representing `%s` placeholders in statement returned by `__str__()`. Number of items
         in returned list must match number of `%s` placeholders in string returned by calling `__str__()`."""
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Return hash of this statement to be able to use it in unique collections."""
-        return super().__hash__() + sum(map(hash, self.args))
+        return hash(str(self)) + sum(map(hash, self.args))
 
-    def __eq__(self, other: 'StatementWithArgs'):
+    def __eq__(self, other: 'Statement') -> bool:
         """Compares this statement to other."""
-
-        # If other is not instance of StatementWithArgs (it is basic statement probably) and we have no args,
-        # we can compare it as normal statement.
-        if not isinstance(other, StatementWithArgs):
-            if not self.args:
-                return super().__eq__(other)
-
-            # If we have args and other does not, they are not equal.
+        if str(self) != str(other):
             return False
 
-        return self.args == other.args and super().__eq__(other)
+        return isinstance(other, Statement) and self.args == other.args
 
-    def __repr__(self):
-        """Representation of statement including the arguments."""
+    def __repr__(self) -> str:
+        """Representation of statement including the arguments, if any."""
         args = list(map(repr, self.args))
         if args:
-            return f"{super().__repr__()} with arguments [{', '.join(args)}]"
+            return f"{self.__str__()} with arguments [{', '.join(args)}]"
 
-        return super().__repr__()
+        return self.__str__()
 
 
 # pylint: disable=too-few-public-methods  # As this is just an interface.
@@ -96,7 +62,7 @@ class ConditionalStatement(ABC):
         """
 
 
-class Raw(StatementWithArgs):
+class Raw(Statement):
     """
     RAW string statement (with optional args), that won't be processed in any way.
     """

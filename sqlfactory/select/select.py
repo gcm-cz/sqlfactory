@@ -10,15 +10,15 @@ from .column_list import ColumnList
 from .join import Join, LeftJoin
 from ..entities import ColumnArg, Table
 from ..condition.base import ConditionBase
-from ..execute import ExecutableStatementWithArgs
+from ..execute import ExecutableStatement
 from ..mixins.limit import WithLimit, Limit
 from ..mixins.order import WithOrder, OrderArg
 from ..mixins.where import WithWhere
-from ..statement import StatementWithArgs, Statement
+from ..statement import Statement
 
 
 # pylint: disable=too-many-ancestors  # Intentional, as this class is a combination of multiple mixins.
-class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select'], WithLimit['Select']):
+class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], WithLimit['Select']):
     # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     SELECT statement
@@ -193,7 +193,7 @@ class Select(ExecutableStatementWithArgs, WithWhere['Select'], WithOrder['Select
         return (
             out +
             reduce(
-                lambda acc, t: acc + (t.args if isinstance(t, StatementWithArgs) else []),
+                lambda acc, t: acc + (t.args if isinstance(t, Statement) else []),
                 self.table,
                 []
             ) +

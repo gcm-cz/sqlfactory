@@ -3,11 +3,11 @@
 from __future__ import annotations
 from typing import Iterable, Any
 
-from sqlfactory.entities import ColumnArg, Column
-from sqlfactory.statement import StatementWithArgs, Statement
+from sqlfactory.entities import ColumnArg, Column, Expression
+from sqlfactory.statement import Statement, Statement
 
 
-class ColumnList(StatementWithArgs, list[Statement]):
+class ColumnList(Statement, list[Statement]):
     """
     Unique(ish) set of columns to be used in SELECT statement.
     """
@@ -21,17 +21,23 @@ class ColumnList(StatementWithArgs, list[Statement]):
             super().__init__()
 
     def __contains__(self, other: Statement):
-        """This needs custom implementation over default list.__contains__ because we need to compare Column objects,
-        which would generate Eq() instances instead of doing comparison."""
-        if isinstance(other, Column):
+        """This needs custom implementation over default list.__contains__ because we need to compare Expression
+        objects, which would generate Eq() instances instead of doing comparison."""
+        if isinstance(other, Expression):
+            args = other.args
             other = str(other)
+        else:
+            args = []
 
         for item in self:
-            if isinstance(item, Column):
+            if isinstance(item, Expression):
+                item_args = item.args
                 item = str(item)
+            else:
+                item_args = []
 
             if item == other:
-                return True
+                return args == item_args
 
         return False
 
@@ -67,7 +73,7 @@ class ColumnList(StatementWithArgs, list[Statement]):
         out = []
 
         for item in self:
-            if isinstance(item, StatementWithArgs):
+            if isinstance(item, Statement):
                 out.extend(item.args)
 
         return out

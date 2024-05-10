@@ -4,7 +4,7 @@ from typing import Any
 
 from .base import Condition, StatementOrColumn
 from ..entities import Column
-from ..statement import Statement, StatementWithArgs
+from ..statement import Statement, Statement
 
 
 # pylint: disable=too-few-public-methods  # As everything is handled by base classes.
@@ -31,19 +31,19 @@ class Between(Condition):
 
         args = []
 
-        if isinstance(column, StatementWithArgs):
+        if isinstance(column, Statement):
             args.extend(column.args)
 
         if isinstance(lower_bound, Statement):
             lower_bound_s = str(lower_bound)
-            if isinstance(lower_bound, StatementWithArgs):
+            if isinstance(lower_bound, Statement):
                 args.extend(lower_bound.args)
         else:
             args.append(lower_bound)
 
         if isinstance(upper_bound, Statement):
             upper_bound_s = str(upper_bound)
-            if isinstance(upper_bound, StatementWithArgs):
+            if isinstance(upper_bound, Statement):
                 args.extend(upper_bound.args)
         else:
             args.append(upper_bound)

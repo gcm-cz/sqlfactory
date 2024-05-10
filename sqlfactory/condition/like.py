@@ -4,7 +4,7 @@ from typing import Any
 
 from .base import Condition, StatementOrColumn
 from ..entities import Column
-from ..statement import Statement, StatementWithArgs
+from ..statement import Statement, Statement
 
 
 class Like(Condition):
@@ -22,10 +22,10 @@ class Like(Condition):
         if not isinstance(column, Statement):
             column = Column(column)
 
-        if isinstance(column, StatementWithArgs):
+        if isinstance(column, Statement):
             args.extend(column.args)
 
-        if isinstance(value, StatementWithArgs):
+        if isinstance(value, Statement):
             args.extend(value.args)
         else:
             args.append(value)

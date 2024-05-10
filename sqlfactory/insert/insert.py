@@ -7,11 +7,11 @@ from typing import Any
 
 from .values import Values
 from ..entities import ColumnArg, Column, Table
-from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
-from ..statement import Statement, StatementWithArgs
+from ..execute import ConditionalExecutableStatement
+from ..statement import Statement
 
 
-class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
+class Insert(ConditionalExecutableStatement):
     """
     INSERT statement
 
@@ -107,7 +107,7 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
                 column = Column(column)
 
             self._on_duplicate_key_update_set.append((column, str(stmt) if isinstance(stmt, Statement) else "%s"))
-            if isinstance(stmt, StatementWithArgs):
+            if isinstance(stmt, Statement):
                 self._on_duplicate_key_update_args.extend(stmt.args)
             elif not isinstance(stmt, Statement):
                 self._on_duplicate_key_update_args.append(stmt)
@@ -169,7 +169,7 @@ class Insert(ConditionalExecutableStatement, ExecutableStatementWithArgs):
 
         for row in self._values:
             for v in row:
-                if isinstance(v, StatementWithArgs):
+                if isinstance(v, Statement):
                     out.extend(v.args)
                 elif not isinstance(v, Statement):
                     out.append(v)

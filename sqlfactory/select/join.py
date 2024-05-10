@@ -4,10 +4,10 @@ from typing import Any
 
 from sqlfactory.entities import Table
 from sqlfactory.condition.base import ConditionBase
-from sqlfactory.statement import StatementWithArgs
+from sqlfactory.statement import Statement
 
 
-class Join(StatementWithArgs):
+class Join(Statement):
     """JOIN statement"""
     def __init__(self, table: str | Table, on: ConditionBase = None, alias: str = None):
         if isinstance(table, str):

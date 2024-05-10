@@ -3,7 +3,7 @@
 from typing import Literal
 
 from .base import Function
-from .. import Raw, StatementWithArgs
+from .. import Raw, Statement
 from ..entities import Column, ColumnArg
 
 
@@ -57,7 +57,7 @@ class Count(Function):
         if distinct:
             super().__init__(
                 "COUNT",
-                Raw(f"DISTINCT {str(column)}", *column.args if isinstance(column, StatementWithArgs) else [])
+                Raw(f"DISTINCT {str(column)}", *column.args if isinstance(column, Statement) else [])
             )
         else:
             super().__init__(

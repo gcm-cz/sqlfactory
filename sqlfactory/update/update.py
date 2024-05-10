@@ -6,13 +6,13 @@ from typing import Any, Optional
 
 from ..condition.base import ConditionBase
 from ..entities import ColumnArg, Column, Table
-from ..execute import ExecutableStatementWithArgs, ConditionalExecutableStatement
+from ..execute import ConditionalExecutableStatement
 from ..mixins.limit import WithLimit, Limit
 from ..mixins.where import WithWhere
-from ..statement import StatementWithArgs, Statement
+from ..statement import Statement
 
 
-class UpdateColumn(StatementWithArgs):
+class UpdateColumn(Statement):
     """
     Represents one field that should be updated.
     """
@@ -37,7 +37,7 @@ class UpdateColumn(StatementWithArgs):
         """
         Return arguments for the update statement.
         """
-        if isinstance(self._value, StatementWithArgs):
+        if isinstance(self._value, Statement):
             return self._value.args
 
         if not isinstance(self._value, Statement):
@@ -47,7 +47,7 @@ class UpdateColumn(StatementWithArgs):
 
 
 # pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
-class Update(ExecutableStatementWithArgs, ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Update']):
+class Update(ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Update']):
     """
     Builds UPDATE statement SQL query.
 

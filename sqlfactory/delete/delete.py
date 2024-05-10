@@ -4,14 +4,14 @@ from typing import Any
 
 from ..entities import Table
 from ..condition.base import ConditionBase
-from ..execute import ExecutableStatementWithArgs
+from ..execute import ExecutableStatement
 from ..mixins.limit import WithLimit, Limit
 from ..mixins.order import WithOrder, OrderArg
 from ..mixins.where import WithWhere
 
 
 # pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
-class Delete(ExecutableStatementWithArgs, WithWhere['Delete'], WithOrder['Delete'], WithLimit['Delete']):
+class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], WithLimit['Delete']):
     """
     DELETE statement
 

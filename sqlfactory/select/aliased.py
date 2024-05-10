@@ -3,11 +3,11 @@
 from typing import Any
 
 from sqlfactory.entities import ColumnArg, Column
-from sqlfactory.statement import StatementWithArgs, Statement
+from sqlfactory.statement import Statement, Statement
 
 
 # pylint: disable=too-few-public-methods
-class Aliased(StatementWithArgs):
+class Aliased(Statement):
     """Aliased generic statement. Only to be used in SELECT statement, where AS statement is only valid."""
     def __init__(self, statement: Statement | ColumnArg, alias: str = None):
         super().__init__()
@@ -22,7 +22,7 @@ class Aliased(StatementWithArgs):
 
     @property
     def args(self) -> list[Any]:
-        return self._statement.args if isinstance(self._statement, StatementWithArgs) else []
+        return self._statement.args if isinstance(self._statement, Statement) else []
 
     def __getattr__(self, name):
         """Proxy to access attributes of inner (non-aliased) statement."""

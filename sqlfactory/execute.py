@@ -5,7 +5,7 @@ from abc import ABC
 from typing import Protocol, Any, overload
 
 from .logger import logger
-from .statement import Statement, StatementWithArgs, ConditionalStatement
+from .statement import Statement, ConditionalStatement
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
@@ -105,27 +105,9 @@ class ExecutableStatement(Statement, ABC):
 
         sig = inspect.signature(call)
         if any(map(lambda p: p.kind == inspect.Parameter.VAR_POSITIONAL, sig.parameters.values())):
-            return call(str(self), *args)
+            return call(str(self), *self.args, *args)
 
-        return call(str(self), tuple(args))
-
-
-class ExecutableStatementWithArgs(StatementWithArgs, ExecutableStatement, ABC):
-    """
-    Base class of executable SQL statement with arguments that should be escaped.
-    """
-    def execute(self, trx: MaybeAsyncHasQueryOrExecute, *args):
-        """
-        Execute statement on db driver (db-agnostic, just expects method `query` or `execute` on given driver).
-        Passes staement arguments to the driver's method. Returns response of the driver's method.
-        This is just a shortland for calling driver.execute(str(self), *self.args).
-
-        :param trx: DB driver with query() or execute() method, which accepts either tuple as arguments,
-         or multiple arguments following the query.
-        :param args: Additional arguments to append to the end of argument list (you probably don't need this).
-        :return: The same as db driver's execute/query method. If driver is async, returns awaitable response.
-        """
-        return super().execute(trx, *self.args, *args)  # type: ignore
+        return call(str(self), tuple(self.args + list(args)))
 
 
 class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, ABC):

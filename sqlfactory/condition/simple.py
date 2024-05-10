@@ -3,7 +3,7 @@
 from typing import Any
 
 from .base import Condition, StatementOrColumn
-from ..statement import Statement, StatementWithArgs
+from ..statement import Statement, Statement
 
 
 # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
@@ -25,10 +25,10 @@ class SimpleCondition(Condition):
 
         args = []
 
-        if isinstance(column, StatementWithArgs):
+        if isinstance(column, Statement):
             args.extend(column.args)
 
-        if isinstance(value, StatementWithArgs):
+        if isinstance(value, Statement):
             args.extend(value.args)
 
         elif not isinstance(value, Statement):

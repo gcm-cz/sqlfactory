@@ -6,11 +6,12 @@ from abc import ABC
 from collections.abc import Iterable
 from typing import Any
 
-from ..statement import StatementWithArgs, ConditionalStatement, Statement
+from ..statement import ConditionalStatement, Statement
+
 StatementOrColumn = str | Statement
 
 
-class ConditionBase(StatementWithArgs, ConditionalStatement, ABC):
+class ConditionBase(Statement, ConditionalStatement, ABC):
     """
     Generic condition interface, that can be chained with other conditions using & or | operators. All condition
     classes should inherit from this one, as there are checks through the library for instances of this class.

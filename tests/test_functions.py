@@ -306,3 +306,9 @@ def test_hex():
     hex_func = Hex('ABC')
     assert str(hex_func) == "HEX(%s)"
     assert hex_func.args == ['ABC']
+
+
+def test_function_expression():
+    expr = IfNull(Column("column1"), 0) + 1
+    assert str(expr) == "IFNULL(`column1`, %s) + %s"
+    assert expr.args == [0, 1]

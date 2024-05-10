@@ -3,11 +3,137 @@
 from __future__ import annotations
 from typing import Any
 
-from .statement import Statement, Raw, StatementWithArgs
+from .statement import Statement, Raw, Statement
 from .condition.simple import Gt, Ge, Eq, Lt, Le, Ne
 
 
-class Column(Statement):
+class Expression(Statement):
+    """
+    Expression as statement
+
+    Represents expression that can be used in SQL statements. It provides basic methods for creating complex
+    expressions by combining columns, functions and literals together to one arithmetic function.
+    """
+
+    def __gt__(self, other: Statement | Any) -> Gt:
+        """Shorthand to produce conditional SQL statement <column> > <other>."""
+        return Gt(self, other)
+
+    def __ge__(self, other: Statement | Any) -> Ge:
+        """Shorthand to produce conditional SQL statement <column> >= <other>."""
+        return Ge(self, other)
+
+    def __lt__(self, other: Statement | Any) -> Lt:
+        """Shorthand to produce conditional SQL statement <column> < <other>."""
+        return Lt(self, other)
+
+    def __le__(self, other: Statement | Any) -> Le:
+        """Shorthand to produce conditional SQL statement <column> <= <other>."""
+        return Le(self, other)
+
+    def __eq__(self, other: Statement | Any) -> Eq:
+        """Shorthand to produce conditional SQL statement <column> = <other>."""
+        return Eq(self, other)
+
+    def __ne__(self, other: Statement | Any) -> Ne:
+        """Shorthand to produce conditional SQL statement <column> != <other>."""
+        return Ne(self, other)
+
+    def __add__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} + {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __sub__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} - {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __mul__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} * {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __truediv__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} / {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __mod__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} % {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __and__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} & {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __or__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} | {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __xor__(self, other) -> Statement:
+        return Raw(
+            f"{str(self)} ^ {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __lshift__(self, other):
+        return Raw(
+            f"{str(self)} << {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __rshift__(self, other):
+        return Raw(
+            f"{str(self)} >> {str(other) if isinstance(other, Statement) else '%s'}",
+            *self.args,
+            *other.args if isinstance(other, Statement)
+            else [other] if not isinstance(other, Statement)
+            else []
+        )
+
+    def __neg__(self):
+        return Raw(f"~{str(self)}", *self.args)
+
+
+class Column(Expression):
     """
     Column (optionally with table and database) as statement.
 
@@ -57,112 +183,10 @@ class Column(Statement):
     def __hash__(self):
         return hash(str(self))
 
-    def __gt__(self, other: Statement | Any) -> Gt:
-        """Shorthand to produce conditional SQL statement <column> > <other>."""
-        return Gt(self, other)
-
-    def __ge__(self, other: Statement | Any) -> Ge:
-        """Shorthand to produce conditional SQL statement <column> >= <other>."""
-        return Ge(self, other)
-
-    def __lt__(self, other: Statement | Any) -> Lt:
-        """Shorthand to produce conditional SQL statement <column> < <other>."""
-        return Lt(self, other)
-
-    def __le__(self, other: Statement | Any) -> Le:
-        """Shorthand to produce conditional SQL statement <column> <= <other>."""
-        return Le(self, other)
-
-    def __eq__(self, other: Statement | Any) -> Eq:
-        """Shorthand to produce conditional SQL statement <column> = <other>."""
-        return Eq(self, other)
-
-    def __ne__(self, other: Statement | Any) -> Ne:
-        """Shorthand to produce conditional SQL statement <column> != <other>."""
-        return Ne(self, other)
-
-    def __add__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} + {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __sub__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} - {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __mul__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} * {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __truediv__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} / {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __mod__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} % {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __and__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} & {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __or__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} | {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __xor__(self, other) -> StatementWithArgs:
-        return Raw(
-            f"{str(self)} ^ {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __lshift__(self, other):
-        return Raw(
-            f"{str(self)} << {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __rshift__(self, other):
-        return Raw(
-            f"{str(self)} >> {str(other) if isinstance(other, Statement) else '%s'}",
-            *other.args if isinstance(other, StatementWithArgs)
-            else [other] if not isinstance(other, Statement)
-            else []
-        )
-
-    def __neg__(self):
-        return Raw(f"~{str(self)}")
+    @property
+    def args(self) -> list[Any]:
+        """Column does not have any arguments."""
+        return []
 
 
 class Table(Statement):
@@ -207,6 +231,11 @@ class Table(Statement):
     def __getattr__(self, name: str) -> Column:
         """Returns column of that table."""
         return Column(f"{'.'.join(self._table)}.{name}")
+
+    @property
+    def args(self) -> list[Any]:
+        """Table does not have any arguments."""
+        return []
 
 
 # Alias for column that can be passed as instance of column or as string.
