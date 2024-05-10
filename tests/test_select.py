@@ -322,3 +322,9 @@ def test_multiple_tables():
     sel = Select("table1.t", "table2.u", table=["table1", "table2"])
     assert str(sel) == "SELECT `table1`.`t`, `table2`.`u` FROM `table1`, `table2`"
     assert sel.args == []
+
+
+def test_column_list_non_statement():
+    cl = ColumnList()
+    with pytest.raises(AttributeError):
+        "column1" in cl

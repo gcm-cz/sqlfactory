@@ -8,4 +8,4 @@ from .select import *
 from .update import *
 
 from .entities import Table, Column
-from .statement import Statement, Statement, Raw
+from .statement import Statement, Raw

@@ -1,10 +1,11 @@
 """Column list for usage in SELECT statement."""
 
 from __future__ import annotations
+
 from typing import Iterable, Any
 
-from sqlfactory.entities import ColumnArg, Column, Expression
-from sqlfactory.statement import Statement, Statement
+from sqlfactory.entities import ColumnArg, Column
+from sqlfactory.statement import Statement
 
 
 class ColumnList(Statement, list[Statement]):
@@ -23,21 +24,12 @@ class ColumnList(Statement, list[Statement]):
     def __contains__(self, other: Statement):
         """This needs custom implementation over default list.__contains__ because we need to compare Expression
         objects, which would generate Eq() instances instead of doing comparison."""
-        if isinstance(other, Expression):
-            args = other.args
-            other = str(other)
-        else:
-            args = []
+        if not isinstance(other, Statement):
+            raise AttributeError("ColumnList can only contain Statement objects.")
 
         for item in self:
-            if isinstance(item, Expression):
-                item_args = item.args
-                item = str(item)
-            else:
-                item_args = []
-
-            if item == other:
-                return args == item_args
+            if str(item) == str(other) and item.args == other.args:
+                return True
 
         return False
 

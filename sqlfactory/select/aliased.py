@@ -3,7 +3,7 @@
 from typing import Any
 
 from sqlfactory.entities import ColumnArg, Column
-from sqlfactory.statement import Statement, Statement
+from sqlfactory.statement import Statement
 
 
 # pylint: disable=too-few-public-methods
@@ -22,7 +22,7 @@ class Aliased(Statement):
 
     @property
     def args(self) -> list[Any]:
-        return self._statement.args if isinstance(self._statement, Statement) else []
+        return self._statement.args
 
     def __getattr__(self, name):
         """Proxy to access attributes of inner (non-aliased) statement."""

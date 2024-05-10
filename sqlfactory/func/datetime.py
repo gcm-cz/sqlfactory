@@ -2,7 +2,7 @@
 from typing import Any, Literal
 
 from .base import Function
-from .. import Statement, Statement, Raw
+from .. import Statement, Raw
 
 
 # pylint: disable=too-many-instance-attributes

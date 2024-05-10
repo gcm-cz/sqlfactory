@@ -3,7 +3,7 @@
 from typing import Any
 
 from ..entities import Expression
-from ..statement import Statement, Statement
+from ..statement import Statement
 
 
 class Function(Expression):

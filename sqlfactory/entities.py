@@ -1,10 +1,11 @@
 """Classes representing database entities."""
 
 from __future__ import annotations
+
 from typing import Any
 
-from .statement import Statement, Raw, Statement
 from .condition.simple import Gt, Ge, Eq, Lt, Le, Ne
+from .statement import Raw, Statement
 
 
 class Expression(Statement):

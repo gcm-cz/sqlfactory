@@ -2,7 +2,7 @@
 from typing import Any
 
 from .base import Function
-from .. import Statement, Statement, Raw, Column
+from .. import Statement, Raw, Column
 
 
 # pylint: disable=too-few-public-methods

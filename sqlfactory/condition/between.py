@@ -4,7 +4,7 @@ from typing import Any
 
 from .base import Condition, StatementOrColumn
 from ..entities import Column
-from ..statement import Statement, Statement
+from ..statement import Statement
 
 
 # pylint: disable=too-few-public-methods  # As everything is handled by base classes.

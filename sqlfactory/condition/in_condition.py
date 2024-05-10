@@ -3,9 +3,9 @@
 from collections.abc import Collection
 from typing import overload, Any
 
-from ..entities import Column
-from ..statement import Statement, Statement
 from .base import Condition, StatementOrColumn
+from ..entities import Column
+from ..statement import Statement
 
 
 # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
