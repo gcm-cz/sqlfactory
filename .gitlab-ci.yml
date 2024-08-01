@@ -4,7 +4,7 @@ stages:
   - release
 
 test:
-  image: registry.srv.gcm.cz/baseimage/python:3.11
+  image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
     - poetry install --with=dev
@@ -17,14 +17,14 @@ test:
         path: coverage.xml
 
 pylint:
-  image: registry.srv.gcm.cz/baseimage/python:3.11
+  image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
     - poetry install --with=dev
     - poetry run pylint sqlfactory
 
 build-wheel:
-  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  image: harbor.srv.gcm.cz/baseimage/python:3.11-ci
   stage: build
   script:
     - /ci/build-wheel.sh
@@ -33,7 +33,7 @@ build-wheel:
       - dist/*
 
 release-wheel:
-  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  image: harbor.srv.gcm.cz/baseimage/python:3.11-ci
   stage: release
   dependencies:
       - build-wheel
@@ -43,7 +43,7 @@ release-wheel:
       - /ci/release-wheel.sh
 
 release-wheel-official:
-  image: registry.srv.gcm.cz/baseimage/python:3.11-ci
+  image: harbor.srv.gcm.cz/baseimage/python:3.11-ci
   stage: release
   when: manual
   variables:
