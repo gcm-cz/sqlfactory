@@ -328,3 +328,9 @@ def test_column_list_non_statement():
     cl = ColumnList()
     with pytest.raises(AttributeError):
         "column1" in cl
+
+
+def test_select_for_update():
+    sel = Select("a", "b", table="tbl", for_update=True)
+    assert str(sel) == "SELECT `a`, `b` FROM `tbl` FOR UPDATE"
+    assert sel.args == []

@@ -44,7 +44,8 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
             group_by: ColumnList | Collection[Statement | ColumnArg] = None,
             having: ConditionBase = None,
             order: OrderArg = None,
-            limit: Limit = None
+            limit: Limit = None,
+            for_update: bool = False,
     ):
         """
         :param columns: Columns to select.
@@ -56,6 +57,7 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
         :param having: Having condition
         :param order: Order by columns
         :param limit: Limit results
+        :param for_update: Lock rows for update
         """
         super().__init__(where=where, order=order, limit=limit)
 
@@ -78,6 +80,7 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
         self._join = list(join) if join is not None else None
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
         self._having = having
+        self._for_update = for_update
 
     def add(self, column: Statement | Any) -> Select:
         """Add new statement or column to the set of selected columns"""
@@ -179,6 +182,9 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
 
         if self._limit:
             out.append(str(self._limit))
+
+        if self._for_update:
+            out.append("FOR UPDATE")
 
         return " ".join(out)
 
