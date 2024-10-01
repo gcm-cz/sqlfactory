@@ -27,6 +27,30 @@ def test_in_tuple_columns():
     assert in_condition.args == [1, 2, 3, 4]
 
 
+def test_in_tuple_columns_with_null():
+    in_condition = In(("column1", "column2"), [(1, 2), (None, None), (1, None), (None, 2)])
+    assert str(in_condition) == "((`column1`, `column2`) IN ((%s, %s)) OR (`column1` IS %s AND `column2` IS %s) OR (`column1` = %s AND `column2` IS %s) OR (`column1` IS %s AND `column2` = %s))"
+    assert in_condition.args == [1, 2, None, None, 1, None, None, 2]
+
+
+def test_in_with_only_none_in_values():
+    in_condition = In("column1", [None])
+    assert str(in_condition) == "`column1` IS NULL"
+    assert in_condition.args == []
+
+
+def test_in_tuple_only_none_in_values():
+    in_condition = In(("column1", "column2"), [(None, None)])
+    assert str(in_condition) == "(`column1` IS %s AND `column2` IS %s)"
+    assert in_condition.args == [None, None]
+
+
+def test_not_in_tuple_columns_with_null():
+    in_condition = In(("column1", "column2"), [(1, 2), (None, None), (1, None), (None, 2)], negative=True)
+    assert str(in_condition) == "((`column1`, `column2`) NOT IN ((%s, %s)) AND (`column1` IS NOT %s AND `column2` IS NOT %s) AND (`column1` != %s AND `column2` IS NOT %s) AND (`column1` IS NOT %s AND `column2` != %s))"
+    assert in_condition.args == [1, 2, None, None, 1, None, None, 2]
+
+
 def test_in_tuple_columns_statement():
     in_condition = In((Column("column1"), Column("column2")), [(1, 2), (3, 4)])
     assert str(in_condition) == "(`column1`, `column2`) IN ((%s, %s), (%s, %s))"

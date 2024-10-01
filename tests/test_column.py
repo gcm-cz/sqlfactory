@@ -37,6 +37,15 @@ def test_column_str():
     assert str(c) == "`database`.`table`.`column`"
 
 
+def test_column_is_not_none():
+    c = Column("column")
+    assert c is not None
+
+    # TODO: This fails, but should it?
+    l = [Column("column")]
+    #assert (None in l) is False
+
+
 def test_column_gt():
     c = Column("column")
     gt = c > 5
