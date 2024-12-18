@@ -18,9 +18,9 @@ class Direction(str, Enum):
 OrderColumn = ColumnArg | Statement
 
 
-class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], Statement):
+class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], Statement):  # type: ignore[misc]
     """ORDER BY statement as list of columns to use for ordering"""
-    def __str__(self):
+    def __str__(self) -> str:
         if not self:
             return ""
 
@@ -36,6 +36,7 @@ class Order(list[tuple[OrderColumn, Direction | Literal['ASC', 'DESC']]], Statem
 
     @property
     def args(self) -> list[Any]:
+        """Argument values for the order by statement"""
         out = []
         for column, _ in self:
             if isinstance(column, Statement):
@@ -49,7 +50,7 @@ T = TypeVar('T')
 
 class WithOrder(Generic[T]):
     """Mixin to provide ORDER BY support for query generator."""
-    def __init__(self, *args, order: OrderArg = None, **kwargs):
+    def __init__(self, *args: Any, order: OrderArg | None = None, **kwargs: Any) -> None:
         """
         :param order: Ordering specification - either instance of Order, or collection of columns and directions.
         """
@@ -59,7 +60,7 @@ class WithOrder(Generic[T]):
         else:
             self._order = None
 
-    def order_by(self, column: OrderColumn, direction: Direction) -> T:
+    def order_by(self, column: OrderColumn, direction: Direction) -> WithOrder[T]:
         """
         Add column to be used for ordering. Can be called multiple times, columns will be ordered by order of calls.
         :param column: Column to use for ordering
@@ -73,7 +74,7 @@ class WithOrder(Generic[T]):
         return self
 
     # pylint: disable=invalid-name
-    def ORDER_BY(self, column: OrderColumn, direction: Direction) -> T:
+    def ORDER_BY(self, column: OrderColumn, direction: Direction) -> WithOrder[T]:
         """Alias for order_by() to be more SQL-like with all capitals."""
         return self.order_by(column, direction)
 

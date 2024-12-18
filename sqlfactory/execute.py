@@ -11,49 +11,49 @@ from .statement import Statement, ConditionalStatement
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasQueryWithTupleArgs(Protocol):
     """Protocol defining DB driver with query method that takes arguments as tuple."""
-    def query(self, query: str, args: tuple[Any]): ...
+    def query(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasExecuteWithTupleArgs(Protocol):
     """Protocol defining DB driver with execute method that takes arguments as tuple."""
-    def execute(self, query: str, args: tuple[Any]): ...
+    def execute(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasQueryWithArgs(Protocol):
     """Protocol defining DB driver with query method that takes arguments as multiple arguments."""
-    def query(self, query: str, *args: Any): ...
+    def query(self, query: str, *args: Any) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasExecuteWithArgs(Protocol):
     """Protocol defining DB driver with execute method that takes arguments as tuple."""
-    def execute(self, query: str, args: tuple[Any]): ...
+    def execute(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasAsyncQueryWithTupleArgs(Protocol):
     """Protocol defining DB driver with async query method that takes arguments as tuple."""
-    async def query(self, query: str, args: tuple[Any]): ...
+    async def query(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasAsyncExecuteWithTupleArgs(Protocol):
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
-    async def execute(self, query: str, args: tuple[Any]): ...
+    async def execute(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasAsyncQueryWithArgs(Protocol):
     """Protocol defining DB driver with async query method that takes arguments as multiple arguments."""
-    async def query(self, query: str, *args: Any): ...
+    async def query(self, query: str, *args: Any) -> Any: ...
 
 
 # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
 class HasAsyncExecuteWithArgs(Protocol):
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
-    async def execute(self, query: str, args: tuple[Any]): ...
+    async def execute(self, query: str, args: tuple[Any]) -> Any: ...
 
 
 HasQueryOrExecute = HasQueryWithTupleArgs | HasExecuteWithTupleArgs | HasQueryWithArgs | HasExecuteWithArgs
@@ -80,14 +80,14 @@ class ExecutableStatement(Statement, ABC):
     methods, so you can directly await it.
     """
     @overload
-    def execute(self, trx: HasQueryOrExecute):
+    def execute(self, trx: HasQueryOrExecute, *args: Any) -> Any:
         """Execute statement on sync db driver."""
 
     @overload
-    async def execute(self, trx: HasAsyncQueryOrExecute):
+    async def execute(self, trx: HasAsyncQueryOrExecute, *args: Any) -> Any:
         """Execute statement on async db driver"""
 
-    def execute(self, trx: MaybeAsyncHasQueryOrExecute, *args):
+    def execute(self, trx: MaybeAsyncHasQueryOrExecute, *args: Any) -> Any:
         """
         Execute statement on db driver (db-agnostic, just expects method `query` or `execute` on given driver).
         This is just a shortland for calling driver.execute(str(self), *args).
@@ -117,7 +117,7 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
     This class is used for example for INSERT statements, to not execute empty INSERT. Or to not execute UPDATE
     if there are no columns to be updated.
     """
-    def execute(self, trx: MaybeAsyncHasQueryOrExecute, *args):
+    def execute(self, trx: MaybeAsyncHasQueryOrExecute, *args: Any) -> Any:
         """
         Execute SQL statement using provided db-driver, but only if statement evaluates as True.
         :param trx: DB driver with query() or execute() method, which accepts either tuple as arguments,
@@ -125,7 +125,7 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
         :return:
         """
         if bool(self):
-            return super().execute(trx, *args)  # type: ignore
+            return super().execute(trx, *args)
 
         if inspect.iscoroutinefunction(getattr(trx, "query", getattr(trx, "execute", None))):
             logger.debug("Not executing statement, because it is false.")

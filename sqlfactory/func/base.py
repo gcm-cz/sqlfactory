@@ -8,7 +8,7 @@ from ..statement import Statement
 
 class Function(Expression):
     """Generic function with name and variable number of arguments."""
-    def __init__(self, function: str, *args: Statement | Any):
+    def __init__(self, function: str, *args: Statement | Any) -> None:
         self.function = function
         self._args = args
 
@@ -23,7 +23,7 @@ class Function(Expression):
 
         return out
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.function}({', '.join(self._args_placeholders())})"
 
     @property

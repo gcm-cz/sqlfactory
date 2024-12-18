@@ -38,3 +38,38 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.'MESSAGES CONTROL']
 max-line-length = 130
+max-args = 8
+max-positional-arguments = 8
+disable = [
+    "missing-module-docstring",
+    "too-few-public-methods",
+    "duplicate-code",
+]
+enable = [
+    "useless-suppression"
+]
+load-plugins = [
+    "pylint.extensions.no_self_use",
+]
+
+[tool.mypy]
+# more informative output
+pretty = true
+show_error_codes = true
+show_error_context = true
+
+# stricter rules
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+
+# relaxing rules
+strict_optional = false
+follow_imports = "silent"
+disable_error_code = [
+    "import-untyped",
+]

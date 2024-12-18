@@ -16,17 +16,17 @@ class UpdateColumn(Statement):
     """
     Represents one field that should be updated.
     """
-    def __init__(self, column: ColumnArg, value: Statement | Any):
+    def __init__(self, column: ColumnArg, value: Statement | Any) -> None:
         self._column = column if isinstance(column, Column) else Column(column)
         self._value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{str(self._column)} = {str(self._value) if isinstance(self._value, Statement) else '%s'}"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._column)
 
-    def __eq__(self, other: UpdateColumn):
+    def __eq__(self, other: UpdateColumn | Any) -> bool:
         if not isinstance(other, UpdateColumn):
             return False
 
@@ -63,7 +63,7 @@ class Update(ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Upd
             *fields: UpdateColumn,
             where: Optional[ConditionBase] = None,
             limit: Optional[Limit] = None
-    ):
+    ) -> None:
         """
         :param table: Table to update.
         :param fields: List of UpdateColumn instances containing columns to be updated. This is not very pleasant way
@@ -114,13 +114,13 @@ class Update(ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Upd
 
         return out
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """
         Return True if there are any fields to be updated and the statement should be executed.
         """
         return bool(self.fields)
 
-    def append(self, field: UpdateColumn):
+    def append(self, field: UpdateColumn) -> Update:
         """
         Append new UpdateField to this UPDATE statement. Can be used when set() method is not sufficient.
         """
@@ -130,7 +130,7 @@ class Update(ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Upd
         self.fields.append(field)
         return self
 
-    def set(self, field: ColumnArg, value: Statement | Any):
+    def set(self, field: ColumnArg, value: Statement | Any) -> Update:
         """
         Syntactical sugar for creating simple SET UpdateFields.
         :param field: Field name (without quotes).
@@ -140,7 +140,7 @@ class Update(ConditionalExecutableStatement, WithWhere['Update'], WithLimit['Upd
         return self.append(UpdateColumn(field, value))
 
     # pylint: disable=invalid-name
-    def SET(self, field: str, value: Any):
+    def SET(self, field: str, value: Any) -> Update:
         """Alias for set() for better SQL compatibility"""
         return self.set(field, value)
 

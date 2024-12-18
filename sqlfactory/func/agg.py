@@ -50,19 +50,21 @@ class Count(Function):
     """
     def __init__(self, column: ColumnArg | Literal['*'], *, distinct: bool = False):
         if isinstance(column, str) and column == '*':
-            column = Raw('*')
+            column_stmt: Statement = Raw('*')
         elif isinstance(column, str):
-            column = Column(column)
+            column_stmt = Column(column)
+        else:
+            column_stmt = column
 
         if distinct:
             super().__init__(
                 "COUNT",
-                Raw(f"DISTINCT {str(column)}", *column.args if isinstance(column, Statement) else [])
+                Raw(f"DISTINCT {str(column_stmt)}", *column_stmt.args if isinstance(column_stmt, Statement) else [])
             )
         else:
             super().__init__(
                 "COUNT",
-                column
+                column_stmt
             )
 
 

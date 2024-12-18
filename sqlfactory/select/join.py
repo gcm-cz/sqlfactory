@@ -9,7 +9,12 @@ from sqlfactory.statement import Statement
 
 class Join(Statement):
     """JOIN statement"""
-    def __init__(self, table: str | Table, on: ConditionBase = None, alias: str = None):
+    def __init__(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> None:
+        """
+        :param table: Table to be joined
+        :param on: ON condition
+        :param alias: Alias of the table
+        """
         if isinstance(table, str):
             table = Table(table)
 
@@ -24,7 +29,7 @@ class Join(Statement):
         """
         return "JOIN"
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.alias:
             table = f"{str(self.table)} AS `{self.alias}`"
         else:
@@ -37,6 +42,7 @@ class Join(Statement):
 
     @property
     def args(self) -> list[Any]:
+        """Argument values of the JOIN statement."""
         return self.on.args if self.on else []
 
 

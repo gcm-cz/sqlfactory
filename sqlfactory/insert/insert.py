@@ -24,7 +24,7 @@ class Insert(ConditionalExecutableStatement):
     >>> "INSERT IGNORE INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
     """
 
-    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False):
+    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False) -> None:
         """
         :param table: Table to insert into
         :param ignore: use INSERT IGNORE?
@@ -56,7 +56,7 @@ class Insert(ConditionalExecutableStatement):
         """Alias for into() to provide better SQL compatibility"""
         return cls.into(table, ignore=ignore, replace=replace)
 
-    def __call__(self, *columns: ColumnArg):
+    def __call__(self, *columns: ColumnArg) -> Insert:
         if not columns:
             raise AttributeError("At least one column must be specified.")
 
@@ -70,7 +70,7 @@ class Insert(ConditionalExecutableStatement):
         self._columns = [column if isinstance(column, Column) else Column(column) for column in columns]
         return self
 
-    def values(self, *rows: Collection[Any]):
+    def values(self, *rows: Collection[Any]) -> Insert:
         """
         Specify values to insert. Each row should be one collection. The semantics is identical to the SQL syntax.
 
@@ -83,11 +83,11 @@ class Insert(ConditionalExecutableStatement):
         return self
 
     # pylint: disable=invalid-name
-    def VALUES(self, *rows: Collection[Any]):
+    def VALUES(self, *rows: Collection[Any]) -> Insert:
         """Alias for values() to provide better SQL compatibility."""
         return self.values(*rows)
 
-    def on_duplicate_key_update(self, **kwargs: Values | Statement | Any):
+    def on_duplicate_key_update(self, **kwargs: Values | Statement | Any) -> Insert:
         """
         MySQL / MariaDB specific. Specify columns to update if row already exists (duplicate key check is triggered).
 
@@ -103,10 +103,9 @@ class Insert(ConditionalExecutableStatement):
         >>> )
         """
         for column, stmt in kwargs.items():
-            if not isinstance(column, Column):
-                column = Column(column)
+            column_stmt = Column(column)
 
-            self._on_duplicate_key_update_set.append((column, str(stmt) if isinstance(stmt, Statement) else "%s"))
+            self._on_duplicate_key_update_set.append((column_stmt, str(stmt) if isinstance(stmt, Statement) else "%s"))
             if isinstance(stmt, Statement):
                 self._on_duplicate_key_update_args.extend(stmt.args)
             elif not isinstance(stmt, Statement):
@@ -115,7 +114,7 @@ class Insert(ConditionalExecutableStatement):
         return self
 
     # pylint: disable=invalid-name
-    def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any):
+    def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any) -> Insert:
         """Alias for on_duplicate_key_update() to provide better SQL compatibility."""
         return self.on_duplicate_key_update(**kwargs)
 
@@ -165,6 +164,7 @@ class Insert(ConditionalExecutableStatement):
 
     @property
     def args(self) -> list[Any]:
+        """Argument values for the statement."""
         out = []
 
         for row in self._values:

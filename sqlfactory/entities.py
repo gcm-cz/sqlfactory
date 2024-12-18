@@ -32,15 +32,15 @@ class Expression(Statement):
         """Shorthand to produce conditional SQL statement <column> <= <other>."""
         return Le(self, other)
 
-    def __eq__(self, other: Statement | Any) -> Eq:
+    def __eq__(self, other: Statement | Any) -> Eq:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> = <other>."""
         return Eq(self, other)
 
-    def __ne__(self, other: Statement | Any) -> Ne:
+    def __ne__(self, other: Statement | Any) -> Ne:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> != <other>."""
         return Ne(self, other)
 
-    def __add__(self, other) -> Statement:
+    def __add__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} + {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -49,7 +49,7 @@ class Expression(Statement):
             else []
         )
 
-    def __sub__(self, other) -> Statement:
+    def __sub__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} - {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -58,7 +58,7 @@ class Expression(Statement):
             else []
         )
 
-    def __mul__(self, other) -> Statement:
+    def __mul__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} * {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -67,7 +67,7 @@ class Expression(Statement):
             else []
         )
 
-    def __truediv__(self, other) -> Statement:
+    def __truediv__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} / {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -76,7 +76,7 @@ class Expression(Statement):
             else []
         )
 
-    def __mod__(self, other) -> Statement:
+    def __mod__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} % {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -85,7 +85,7 @@ class Expression(Statement):
             else []
         )
 
-    def __and__(self, other) -> Statement:
+    def __and__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} & {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -94,7 +94,7 @@ class Expression(Statement):
             else []
         )
 
-    def __or__(self, other) -> Statement:
+    def __or__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} | {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -103,7 +103,7 @@ class Expression(Statement):
             else []
         )
 
-    def __xor__(self, other) -> Statement:
+    def __xor__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} ^ {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -112,7 +112,7 @@ class Expression(Statement):
             else []
         )
 
-    def __lshift__(self, other):
+    def __lshift__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} << {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -121,7 +121,7 @@ class Expression(Statement):
             else []
         )
 
-    def __rshift__(self, other):
+    def __rshift__(self, other: Statement | Any) -> Statement:
         return Raw(
             f"{str(self)} >> {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
@@ -130,7 +130,7 @@ class Expression(Statement):
             else []
         )
 
-    def __neg__(self):
+    def __neg__(self) -> Statement:
         return Raw(f"~{str(self)}", *self.args)
 
 
@@ -181,7 +181,7 @@ class Column(Expression):
         except IndexError:
             return None
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
     @property
@@ -201,7 +201,7 @@ class Table(Statement):
     >>> # Produces Eq(Column("database.table.column_name"), 5)
     """
 
-    def __init__(self, table: str):
+    def __init__(self, table: str) -> None:
         """
         :param table: Table name (optionally with database in form <database>.<table>). If database is not specified,
             it is assumed that table is in default database and SQL constructed will not contain any database name.
@@ -212,7 +212,7 @@ class Table(Statement):
         if len(self._table) > 2:
             raise ValueError("Invalid table name (contains more than <database>.<table>).")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ".".join(map(lambda x: f"`{x}`" if not x.startswith("`") else x, self._table))
 
     @property

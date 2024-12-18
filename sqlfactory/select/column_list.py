@@ -8,11 +8,11 @@ from sqlfactory.entities import ColumnArg, Column
 from sqlfactory.statement import Statement
 
 
-class ColumnList(Statement, list[Statement]):
+class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
     """
     Unique(ish) set of columns to be used in SELECT statement.
     """
-    def __init__(self, iterable: Iterable[Statement | ColumnArg] = None):
+    def __init__(self, iterable: Iterable[Statement | ColumnArg] | None = None) -> None:
         if iterable:
             super().__init__(map(
                 lambda i: Column(i) if not isinstance(i, Statement) else i,
@@ -21,7 +21,7 @@ class ColumnList(Statement, list[Statement]):
         else:
             super().__init__()
 
-    def __contains__(self, other: Statement):
+    def __contains__(self, other: Statement) -> bool:  # type: ignore[override]
         """This needs custom implementation over default list.__contains__ because we need to compare Expression
         objects, which would generate Eq() instances instead of doing comparison."""
         if not isinstance(other, Statement):
@@ -37,7 +37,7 @@ class ColumnList(Statement, list[Statement]):
         """Add new columns to the set."""
         return self.append(element)
 
-    def append(self, element: Statement | str) -> ColumnList:
+    def append(self, element: Statement | str) -> ColumnList:  # type: ignore[override]
         """Add new columns to the set."""
         if not isinstance(element, Statement):
             element = Column(element)
@@ -54,14 +54,15 @@ class ColumnList(Statement, list[Statement]):
 
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ", ".join(map(str, self))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "[" + ", ".join(map(repr, self)) + "]"
 
     @property
     def args(self) -> list[Any]:
+        """Argument values of the column list statement."""
         out = []
 
         for item in self:

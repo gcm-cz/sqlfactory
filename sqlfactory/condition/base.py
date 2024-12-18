@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from abc import ABC
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, overload
 
-from ..statement import ConditionalStatement, Statement
+from ..statement import ConditionalStatement, Statement, Raw
 
 StatementOrColumn = str | Statement
 
@@ -56,11 +56,12 @@ class Condition(ConditionBase):
         self.condition = condition
         self._args = list(args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.condition
 
     @property
     def args(self) -> list[Any]:
+        """Argument values of the condition statement."""
         return self._args
 
     def __bool__(self) -> bool:
@@ -72,18 +73,26 @@ class CompoundCondition(ConditionBase):
     Base class for joining multiple conditions together using specified operator. As there are only two operators
     (AND and OR), this class is not meant to be used directly, but rather through And and Or classes.
     """
-    def __init__(self, operator: str, *conditions: ConditionBase | str):
+    def __init__(self, operator: str, *conditions: ConditionBase | Raw | str):
         """
         :param operator: Which operator to use for joining specific conditions.
         :param conditions: Conditions to join using given operator.
         """
         self.operator = operator
-        self._sub_conditions: list[ConditionBase] = [
+        self._sub_conditions: list[ConditionBase | Raw] = [
             Condition(condition) if isinstance(condition, str) else condition
             for condition in conditions
         ]
 
-    def append(self, condition: ConditionBase | str, *args: Any) -> CompoundCondition:
+    @overload
+    def append(self, condition: ConditionBase | Raw) -> CompoundCondition:
+        """Append another condition to the list of conditions."""
+
+    @overload
+    def append(self, condition: str, *args: Any) -> CompoundCondition:
+        """Append another condition to the list of conditions."""
+
+    def append(self, condition: ConditionBase | Raw | str, *args: Any) -> CompoundCondition:
         """
         Append another condition to be joined.
         :param condition: Condition to append
@@ -97,7 +106,7 @@ class CompoundCondition(ConditionBase):
         self._sub_conditions.append(condition)
         return self
 
-    def extend(self, conditions: Iterable[ConditionBase]):
+    def extend(self, conditions: Iterable[ConditionBase | Raw]) -> CompoundCondition:
         """
         Extend condition with list of conditions.
         :param conditions: Conditions to extend this condition with
@@ -106,13 +115,13 @@ class CompoundCondition(ConditionBase):
         return self
 
     @property
-    def sub_conditions(self) -> list[ConditionBase]:
+    def sub_conditions(self) -> list[ConditionBase | Raw]:
         """
         Return filtered list of conditions, which are valid.
         """
         return list(filter(bool, self._sub_conditions))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Create SQL statement of joined conditions.
         """
@@ -134,7 +143,7 @@ class CompoundCondition(ConditionBase):
 
         return out
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """
         Is this compound condition non-empty?
         """

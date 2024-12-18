@@ -9,7 +9,7 @@ class Values(Function):
     """
     VALUES(<column>) for usage in INSERT INTO ... ON DUPLICATE KEY UPDATE column = VALUES(column) statements.
     """
-    def __init__(self, column: ColumnArg):
+    def __init__(self, column: ColumnArg) -> None:
         if not isinstance(column, Column):
             column = Column(column)
 

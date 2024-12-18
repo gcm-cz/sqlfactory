@@ -1,7 +1,7 @@
 """IN condition, used for checking whether column value is in given list of values."""
 
 from collections.abc import Collection
-from typing import overload, Any
+from typing import overload, Any, cast
 
 from .base import Condition, StatementOrColumn, And, Or
 from .simple import Eq, Ne
@@ -29,22 +29,22 @@ class In(Condition):
 
     @overload
     def __init__(
-            self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *,
+            self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], /,
             negative: bool = False
     ):
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
-    def __init__(self, column: StatementOrColumn, values: Collection[Any], *, negative: bool = False):
+    def __init__(self, column: StatementOrColumn, values: Collection[Any], /, negative: bool = False):
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
 
     def __init__(
             self,
             column: StatementOrColumn | tuple[StatementOrColumn, ...],
             values: Collection[Any | tuple[Any, ...]],
-            *,
+            /,
             negative: bool = False
-    ):
+    ) -> None:
         """
         :param column: Column to compare, or tuple of columns for multi-column comparison.
         :param values: Values to compare (list of values, or list of tuples of values).
@@ -53,9 +53,9 @@ class In(Condition):
         is_multi_column = isinstance(column, tuple)
 
         if is_multi_column:
-            stmt, args = self._build_multi_in(column, values, negative=negative)
+            stmt, args = self._build_multi_in(cast(tuple[StatementOrColumn], column), values, negative=negative)
         else:
-            stmt, args = self._build_simple_in(column, values, negative=negative)
+            stmt, args = self._build_simple_in(cast(StatementOrColumn, column), values, negative=negative)
 
         super().__init__(stmt, *args)
 

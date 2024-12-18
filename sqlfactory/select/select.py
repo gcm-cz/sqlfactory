@@ -17,7 +17,6 @@ from ..mixins.where import WithWhere
 from ..statement import Statement
 
 
-# pylint: disable=too-many-ancestors  # Intentional, as this class is a combination of multiple mixins.
 class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], WithLimit['Select']):
     # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
@@ -37,16 +36,16 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
     def __init__(
             self,
             *columns: Statement | ColumnArg,
-            select: ColumnList = None,
-            table: Table | str | Statement | Collection[Table | str | Statement] = None,
-            join: Collection[Join] = None,
-            where: ConditionBase = None,
-            group_by: ColumnList | Collection[Statement | ColumnArg] = None,
-            having: ConditionBase = None,
-            order: OrderArg = None,
-            limit: Limit = None,
+            select: ColumnList | None = None,
+            table: Table | str | Statement | Collection[Table | str | Statement] | None = None,
+            join: Collection[Join] | None = None,
+            where: ConditionBase | None = None,
+            group_by: ColumnList | Collection[Statement | ColumnArg] | None = None,
+            having: ConditionBase | None = None,
+            order: OrderArg | None = None,
+            limit: Limit | None = None,
             for_update: bool = False,
-    ):
+    ) -> None:
         """
         :param columns: Columns to select.
         :param select: Columns to select as instance of ColumnList.
@@ -70,13 +69,12 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
         self.columns = select or ColumnList(columns)
 
         if not table:
-            self.table = ""
             raise AttributeError("Missing required keyword argument table.")
 
         if not isinstance(table, Collection) or isinstance(table, str):
             table = [table]
 
-        self.table = [Table(t) if isinstance(t, str) else t for t in table]
+        self.table: list[Statement] = [Table(t) if isinstance(t, str) else t for t in table]
         self._join = list(join) if join is not None else None
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
         self._having = having
@@ -98,15 +96,15 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
         return self
 
     @overload
-    def join(self, join: Join) -> Select:
+    def join(self, join: Join, /) -> Select:
         """Append JOIN clause to the query (any Join instance)."""
 
     @overload
-    def join(self, table: str | Table, on: ConditionBase = None, alias: str = None) -> Select:
+    def join(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> Select:
         """Append JOIN clause to the query.
         JOIN `table` AS <alias> ON (<condition>) """
 
-    def join(self, table: str | Table | Join, on: ConditionBase = None, alias: str = None) -> Select:
+    def join(self, table: str | Table | Join, on: ConditionBase | None = None, alias: str | None = None) -> Select:
         """Append JOIN clause to the query.
         JOIN `table` AS <alias> ON (<condition>)
         """
@@ -118,17 +116,24 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
 
         return self._append_join(Join(table, on, alias))
 
-    # pylint: disable=invalid-name
-    def JOIN(self, table: str | Table | Join, on: ConditionBase = None, alias: str = None) -> Select:
+    @overload
+    def JOIN(self, join: Join, /) -> Select:  # pylint: disable=invalid-name
         """Alias for join() to be more SQL-like with all capitals."""
-        return self.join(table, on, alias)
 
-    def left_join(self, table: str, on: ConditionBase = None, alias: str = None) -> Select:
+    @overload
+    def JOIN(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> Select:  # pylint: disable=invalid-name
+        """Alias for join() to be more SQL-like with all capitals."""
+
+    def JOIN(self, table: str | Table | Join, on: ConditionBase | None = None, alias: str | None = None) -> Select:  # pylint: disable=invalid-name
+        """Alias for join() to be more SQL-like with all capitals."""
+        return self.join(table, on, alias)  # type: ignore[arg-type]  # mypy searches in overloads
+
+    def left_join(self, table: str, on: ConditionBase | None = None, alias: str | None = None) -> Select:
         """Append LEFT JOIN clause to the query."""
         return self.join(LeftJoin(table, on, alias))
 
     # pylint: disable=invalid-name
-    def LEFT_JOIN(self, table: str, on: ConditionBase = None, alias: str = None) -> Select:
+    def LEFT_JOIN(self, table: str, on: ConditionBase | None = None, alias: str | None = None) -> Select:
         """Alias for left_join() to be more SQL-like with all capitals."""
         return self.left_join(table, on, alias)
 
@@ -159,8 +164,8 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
         """Alias for having() to be more SQL-like with all capitals."""
         return self.having(condition)
 
-    def __str__(self):
-        out = ["SELECT", str(self.columns), f"FROM {', '.join(map(str, self.table))}"]
+    def __str__(self) -> str:
+        out: list[str] = ["SELECT", str(self.columns), f"FROM {', '.join(map(str, self.table))}"]
 
         if self._join:
             out.extend(map(str, self._join))
@@ -190,6 +195,7 @@ class Select(ExecutableStatement, WithWhere['Select'], WithOrder['Select'], With
 
     @property
     def args(self) -> list[Any]:
+        """Argument values for the SELECT statement."""
         out = self.columns.args
 
         if self._join:

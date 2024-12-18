@@ -1,6 +1,6 @@
 """LIMIT statement"""
-
-from typing import TypeVar, Generic, overload
+from __future__ import annotations
+from typing import TypeVar, Generic, overload, Any
 
 from sqlfactory.statement import Statement, ConditionalStatement
 
@@ -11,25 +11,25 @@ class Limit(ConditionalStatement, Statement):
     """LIMIT statement"""
 
     @overload
-    def __init__(self):
+    def __init__(self) -> None:
         """No LIMIT statement"""
 
     @overload
-    def __init__(self, limit: int):
+    def __init__(self, limit: int, /) -> None:
         """
         Just a LIMIT statement without offset
         :param limit: Number of returned rows
         """
 
     @overload
-    def __init__(self, offset: int, limit: int):
+    def __init__(self, offset: int, limit: int, /) -> None:
         """
         LIMIT statement with both offset and limit
         :param offset: Pagination offset (how many rows to skip before returning result)
         :param limit: Number of returned rows
         """
 
-    def __init__(self, offset_or_limit: int = None, limit: int = None):
+    def __init__(self, offset_or_limit: int | None = None, limit: int | None = None) -> None:
         """
         LIMIT statement
         :param offset_or_limit: Pagination offset, or limit if second argument is None
@@ -58,7 +58,8 @@ class Limit(ConditionalStatement, Statement):
 
     @property
     def args(self) -> list[int]:
-        if self.offset is not None:
+        """Argument values of the limit statement"""
+        if self.offset is not None and self.limit is not None:
             return [self.offset, self.limit]
 
         if self.limit is not None:
@@ -69,33 +70,33 @@ class Limit(ConditionalStatement, Statement):
 
 class WithLimit(Generic[T]):
     """Mixin to provide LIMIT support for query generator."""
-    def __init__(self, *args, limit: Limit = None, **kwargs):
+    def __init__(self, *args: Any, limit: Limit | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._limit = limit
 
     @overload
-    def limit(self, limit: Limit) -> T:
+    def limit(self, limit: Limit | None, /) -> WithLimit[T]:
         """
         Limit statement
         :param limit: Instance of Limit
         """
 
     @overload
-    def limit(self, limit: int) -> T:
+    def limit(self, limit: int, /) -> WithLimit[T]:
         """
         Limit statement
         :param limit: Number of returned rows
         """
 
     @overload
-    def limit(self, offset: int, limit: int) -> T:
+    def limit(self, offset: int, limit: int, /) -> WithLimit[T]:
         """
         Limit statement
         :param offset: Pagination offset (how many rows to skip before returning result)
         :param limit: Number of returned rows
         """
 
-    def limit(self, offset_or_limit: int | Limit | None, limit: int = None) -> T:
+    def limit(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> WithLimit[T]:
         """Limit statement"""
         if self._limit is not None:
             raise AttributeError("Limit has already been specified.")
@@ -114,20 +115,20 @@ class WithLimit(Generic[T]):
 
     # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, limit: Limit) -> T:
+    def LIMIT(self, limit: Limit | None, /) -> WithLimit[T]:
         """Alias for limit() to be more SQL-like with all capitals."""
 
     # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, limit: int) -> T:
+    def LIMIT(self, limit: int, /) -> WithLimit[T]:
         """Alias for limit() to be more SQL-like with all capitals."""
 
     # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, offset: int, limit: int) -> T:
+    def LIMIT(self, offset: int, limit: int, /) -> WithLimit[T]:
         """Alias for limit() to be more SQL-like with all capitals."""
 
     # pylint: disable=invalid-name
-    def LIMIT(self, offset_or_limit: int, limit: int = None) -> T:
+    def LIMIT(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> WithLimit[T]:
         """Alias for limit() to be more SQL-like with all capitals."""
-        return self.limit(offset_or_limit, limit)
+        return self.limit(offset_or_limit, limit)  #type: ignore[arg-type]

@@ -23,6 +23,13 @@ pylint:
     - poetry install --with=dev
     - poetry run pylint sqlfactory
 
+mypy:
+  image: harbor.srv.gcm.cz/baseimage/python:3.11
+  stage: test
+  script:
+    - poetry install --with=dev
+    - poetry run mypy sqlfactory
+
 build-wheel:
   image: harbor.srv.gcm.cz/ci/baseimage/python:3.11-ci
   stage: build

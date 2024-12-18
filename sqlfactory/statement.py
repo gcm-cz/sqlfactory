@@ -31,7 +31,7 @@ class Statement(ABC):
         """Return hash of this statement to be able to use it in unique collections."""
         return hash(str(self)) + sum(map(hash, self.args))
 
-    def __eq__(self, other: 'Statement') -> bool:
+    def __eq__(self, other: 'Statement') -> bool:  # type: ignore[override]
         """Compares this statement to other."""
         if str(self) != str(other):
             return False
@@ -67,12 +67,12 @@ class Raw(Statement):
     RAW string statement (with optional args), that won't be processed in any way.
     """
 
-    def __init__(self, sql: str, *args: Any):
+    def __init__(self, sql: str, *args: Any) -> None:
         super().__init__()
         self._statement = sql
         self._args = args
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._statement
 
     @property

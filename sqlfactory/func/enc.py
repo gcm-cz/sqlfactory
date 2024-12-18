@@ -86,7 +86,6 @@ class Kdf(Function):
     """
     Key derivation function.
     """
-    # pylint: disable=too-many-arguments
     def __init__(
             self, key: Any, salt: Any, info_or_iterations: Any = None,
             kdf_name: Literal['hkdf', 'pbkdf2_hmac'] | Statement = None, width: Any = None

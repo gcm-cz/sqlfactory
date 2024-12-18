@@ -10,7 +10,6 @@ from ..mixins.order import WithOrder, OrderArg
 from ..mixins.where import WithWhere
 
 
-# pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
 class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], WithLimit['Delete']):
     """
     DELETE statement
@@ -21,10 +20,10 @@ class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], With
     def __init__(
             self,
             table: Table | str,
-            where: ConditionBase = None,
-            order: OrderArg = None,
-            limit: Limit = None
-    ):
+            where: ConditionBase | None = None,
+            order: OrderArg | None = None,
+            limit: Limit | None = None
+    ) -> None:
         """
         :param table: Table to delete from
         :param where: WHERE condition
@@ -34,9 +33,9 @@ class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], With
         super().__init__(where=where, order=order, limit=limit)
         self.table = table if isinstance(table, Table) else Table(table)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Construct the DELETE statement."""
-        q = [f"DELETE FROM {str(self.table)}"]
+        q: list[str] = [f"DELETE FROM {str(self.table)}"]
 
         if self._where:
             q.append("WHERE")

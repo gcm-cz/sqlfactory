@@ -334,3 +334,11 @@ def test_select_for_update():
     sel = Select("a", "b", table="tbl", for_update=True)
     assert str(sel) == "SELECT `a`, `b` FROM `tbl` FOR UPDATE"
     assert sel.args == []
+
+
+def test_distinct():
+    col = SelectColumn("table.column", distinct=True)
+    assert str(col) == "DISTINCT `table`.`column`"
+
+    col = SelectColumn("table.column", distinct=False)
+    assert str(col) == "`table`.`column`"
