@@ -1,4 +1,4 @@
-from sqlfactory import Column
+from sqlfactory import Column, Raw
 from sqlfactory.func.agg import AggregateFunction, Avg, BitAnd, BitOr, BitXor, Count, Max, Min, Std, Sum
 from sqlfactory.func.control import IfNull, NullIf, If
 from sqlfactory.func.str import Ascii, Bin, BitLength, Char, CharLength, Chr, Concat, ConcatWs, Repeat, \
@@ -78,6 +78,16 @@ def test_sum():
     sum_func = Sum("column1")
     assert str(sum_func) == "SUM(`column1`)"
     assert sum_func.args == []
+
+
+def test_sum_expression():
+    sum_func = Sum(Column("column1") + Column("column2"))
+    assert str(sum_func)== "SUM(`column1` + `column2`)"
+    assert sum_func.args == []
+
+    sum_func = Sum(Raw("column1 + %s", 123))
+    assert str(sum_func)== "SUM(column1 + %s)"
+    assert sum_func.args == [123]
 
 
 def test_ifnull():
