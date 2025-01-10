@@ -209,7 +209,7 @@ def update_books(c: Cursor, books: list[BookUpdate]):
 Just install it from PyPi and use:
 
 ```shell
-pip install py-SQLBuilder
+pip install sqlfactory
 ```
 
 ## Maturity
