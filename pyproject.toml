@@ -5,6 +5,7 @@ description = "Convenient classes for building SQL queries in Python. Main purpo
 authors = ["Michal Kuchta <niximor@gmail.com>"]
 readme = "README.md"
 packages = [{include = "sqlfactory"}]
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Development Status :: 5 - Production/Stable",
@@ -31,6 +32,7 @@ pytest-asyncio = "^0.23.6"
 pylint = "^3.1.0"
 mypy = "^1.9.0"
 pytest-cov = "^5.0.0"
+ruff = "^0.9.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -72,4 +74,34 @@ strict_optional = false
 follow_imports = "silent"
 disable_error_code = [
     "import-untyped",
+]
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+# see https://docs.astral.sh/ruff/rules/ for more information about what checks each option adds
+select = [
+    "F",     # pyflakes
+    "E",     # pycodestyle (former pep8) error
+    "W",     # pycodestyle (former pep8) warning
+    "I",     # isort
+    "N",     # pep8-naming
+    "RUF",   # RUFF's own rules
+    "B",     # flake8-bugbear
+    "S",     # flake8-bandit
+    "A",     # flake8-builtins
+    "ASYNC", # flake8-async
+    "DTZ",   # flake8-datetimez
+    "YTT",   # flake8-annotations
+    "C4",    # flake8-comprehension
+    "G",     # flake8-logging-format
+]
+ignore = [
+    "N818",  # https://docs.astral.sh/ruff/rules/error-suffix-on-exception-name/
+    "S608",  # https://docs.astral.sh/ruff/rules/hardcoded-sql-expression/
+
+    # For better SQL compatibility (which is often written as uppercase), we offer uppercase versions of methods as alternative
+    # to snake_case names. This is why we ignore this rule.
+    "N802",  # https://docs.astral.sh/ruff/rules/function-name-should-be-lowercase/
 ]

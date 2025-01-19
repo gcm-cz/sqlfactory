@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 import pytest
 from typing import Any
 
@@ -5,42 +7,42 @@ from sqlfactory import Select, Eq, Insert
 
 
 class DbDriverWithExecuteTuple():
-    def execute(self, query: str, args: tuple[Any]):
+    def execute(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class DbDriverWithExecuteArgs():
-    def execute(self, query: str, *args: Any):
+    def execute(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class DbDriverWithQueryTuple():
-    def query(self, query: str, args: tuple[Any]):
+    def query(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class DbDriverWithQueryArgs():
-    def query(self, query: str, *args: Any):
+    def query(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class AsyncDbDriverWithExecuteTuple():
-    async def execute(self, query: str, args: tuple[Any]):
+    async def execute(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class AsyncDbDriverWithExecuteArgs():
-    async def execute(self, query: str, *args: Any):
+    async def execute(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class AsyncDbDriverWithQueryTuple():
-    async def query(self, query: str, args: tuple[Any]):
+    async def query(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
 class AsyncDbDriverWithQueryArgs():
-    async def query(self, query: str, *args: Any):
+    async def query(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 

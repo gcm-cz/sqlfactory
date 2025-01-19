@@ -1,12 +1,12 @@
 """IN condition, used for checking whether column value is in given list of values."""
 
 from collections.abc import Collection
-from typing import overload, Any, cast
+from typing import Any, cast, overload
 
-from .base import Condition, StatementOrColumn, And, Or
-from .simple import Eq, Ne
 from ..entities import Column
-from ..statement import Statement, Raw
+from ..statement import Raw, Statement
+from .base import And, Condition, Or, StatementOrColumn
+from .simple import Eq, Ne
 
 
 # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
@@ -29,21 +29,20 @@ class In(Condition):
 
     @overload
     def __init__(
-            self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], /,
-            negative: bool = False
-    ):
+        self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], /, negative: bool = False
+    ) -> None:
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
-    def __init__(self, column: StatementOrColumn, values: Collection[Any], /, negative: bool = False):
+    def __init__(self, column: StatementOrColumn, values: Collection[Any], /, negative: bool = False) -> None:
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
 
     def __init__(
-            self,
-            column: StatementOrColumn | tuple[StatementOrColumn, ...],
-            values: Collection[Any | tuple[Any, ...]],
-            /,
-            negative: bool = False
+        self,
+        column: StatementOrColumn | tuple[StatementOrColumn, ...],
+        values: Collection[Any | tuple[Any, ...]],
+        /,
+        negative: bool = False,
     ) -> None:
         """
         :param column: Column to compare, or tuple of columns for multi-column comparison.
@@ -62,10 +61,7 @@ class In(Condition):
     # pylint: disable=consider-using-f-string
     @staticmethod
     def _build_simple_in(
-            column: StatementOrColumn,
-            values: Collection[Any],
-            *,
-            negative: bool = False
+        column: StatementOrColumn, values: Collection[Any], *, negative: bool = False
     ) -> tuple[str, Collection[Any]]:
         if not isinstance(column, Statement):
             column = Column(column)
@@ -80,7 +76,7 @@ class In(Condition):
             in_stmt = "{} {} ({})".format(
                 str(column),
                 "IN" if not negative else "NOT IN",
-                ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in values])
+                ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in values]),
             )
 
             if isinstance(column, Statement):
@@ -96,35 +92,23 @@ class In(Condition):
                 if isinstance(column, Statement):
                     args.extend(column.args)
 
-                return (
-                    f"({in_stmt} {'OR' if not negative else 'AND'} {str(column)} IS {'NOT ' if negative else ''}NULL)",
-                    args
-                )
+                return (f"({in_stmt} {'OR' if not negative else 'AND'} {column!s} IS {'NOT ' if negative else ''}NULL)", args)
 
-            return (
-                in_stmt,
-                args
-            )
+            return (in_stmt, args)
 
         if add_none:
             # This could happen only if there is just a one column, not multi-column statement.
             if isinstance(column, Statement):
                 args.extend(column.args)
 
-            return (
-                f"{str(column)} IS {'NOT ' if negative else ''}NULL",
-                args
-            )
+            return (f"{column!s} IS {'NOT ' if negative else ''}NULL", args)
 
         return "FALSE" if not negative else "TRUE", []
 
     # pylint: disable=consider-using-f-string
     @staticmethod
     def _build_multi_in(
-            column: tuple[StatementOrColumn, ...],
-            values: Collection[tuple[Any, ...]],
-            *,
-            negative: bool = False
+        column: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *, negative: bool = False
     ) -> tuple[str, Collection[Any]]:
         column = tuple(Column(col) if not isinstance(col, Statement) else col for col in column)
 
@@ -147,10 +131,12 @@ class In(Condition):
         multi_in_stmt = "({}) {} ({})".format(
             ", ".join(map(str, column)),
             "IN" if not negative else "NOT IN",
-            ", ".join(["(" + ", ".join([
-                "%s" if not isinstance(value, Statement) else str(value)
-                for value in value_tuple
-            ]) + ")" for value_tuple in values])
+            ", ".join(
+                [
+                    "(" + ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in value_tuple]) + ")"
+                    for value_tuple in values
+                ]
+            ),
         )
 
         if not values and not none_multi_values:
@@ -168,16 +154,6 @@ class In(Condition):
             or_stmt.append(Raw(multi_in_stmt, *args))
 
         for value_tuple in none_multi_values:
-            or_stmt.append(
-                And(
-                    *[
-                        (Eq if not negative else Ne)(col, value)
-                        for col, value in zip(column, value_tuple)
-                    ]
-                )
-            )
+            or_stmt.append(And(*[(Eq if not negative else Ne)(col, value) for col, value in zip(column, value_tuple)]))
 
-        return (
-            str(or_stmt),
-            or_stmt.args
-        )
+        return (str(or_stmt), or_stmt.args)

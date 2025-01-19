@@ -1,8 +1,10 @@
 """LIMIT statement"""
-from __future__ import annotations
-from typing import TypeVar, Generic, overload, Any
 
-from sqlfactory.statement import Statement, ConditionalStatement
+from __future__ import annotations
+
+from typing import Any, Generic, Self, TypeVar, overload
+
+from sqlfactory.statement import ConditionalStatement, Statement
 
 T = TypeVar("T")
 
@@ -70,33 +72,34 @@ class Limit(ConditionalStatement, Statement):
 
 class WithLimit(Generic[T]):
     """Mixin to provide LIMIT support for query generator."""
+
     def __init__(self, *args: Any, limit: Limit | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._limit = limit
 
     @overload
-    def limit(self, limit: Limit | None, /) -> WithLimit[T]:
+    def limit(self, limit: Limit | None, /) -> Self:
         """
         Limit statement
         :param limit: Instance of Limit
         """
 
     @overload
-    def limit(self, limit: int, /) -> WithLimit[T]:
+    def limit(self, limit: int, /) -> Self:
         """
         Limit statement
         :param limit: Number of returned rows
         """
 
     @overload
-    def limit(self, offset: int, limit: int, /) -> WithLimit[T]:
+    def limit(self, offset: int, limit: int, /) -> Self:
         """
         Limit statement
         :param offset: Pagination offset (how many rows to skip before returning result)
         :param limit: Number of returned rows
         """
 
-    def limit(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> WithLimit[T]:
+    def limit(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> Self:
         """Limit statement"""
         if self._limit is not None:
             raise AttributeError("Limit has already been specified.")
@@ -105,30 +108,29 @@ class WithLimit(Generic[T]):
             self._limit = offset_or_limit
 
             if limit is not None:
-                raise AttributeError(
-                    "When passing Limit instance as first argument, second argument should not be passed.")
+                raise AttributeError("When passing Limit instance as first argument, second argument should not be passed.")
 
         else:
             self._limit = Limit(offset_or_limit, limit)
 
         return self
 
-    # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, limit: Limit | None, /) -> WithLimit[T]:
+    def LIMIT(self, limit: Limit | None, /) -> Self:
+        # pylint: disable=invalid-name
         """Alias for limit() to be more SQL-like with all capitals."""
 
-    # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, limit: int, /) -> WithLimit[T]:
+    def LIMIT(self, limit: int, /) -> Self:
+        # pylint: disable=invalid-name
         """Alias for limit() to be more SQL-like with all capitals."""
 
-    # pylint: disable=invalid-name
     @overload
-    def LIMIT(self, offset: int, limit: int, /) -> WithLimit[T]:
+    def LIMIT(self, offset: int, limit: int, /) -> Self:
+        # pylint: disable=invalid-name
         """Alias for limit() to be more SQL-like with all capitals."""
 
-    # pylint: disable=invalid-name
-    def LIMIT(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> WithLimit[T]:
+    def LIMIT(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> Self:
+        # pylint: disable=invalid-name
         """Alias for limit() to be more SQL-like with all capitals."""
-        return self.limit(offset_or_limit, limit)  #type: ignore[arg-type]
+        return self.limit(offset_or_limit, limit)  # type: ignore[arg-type]

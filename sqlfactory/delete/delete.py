@@ -2,27 +2,24 @@
 
 from typing import Any
 
-from ..entities import Table
 from ..condition.base import ConditionBase
+from ..entities import Table
 from ..execute import ExecutableStatement
-from ..mixins.limit import WithLimit, Limit
-from ..mixins.order import WithOrder, OrderArg
+from ..mixins.limit import Limit, WithLimit
+from ..mixins.order import OrderArg, WithOrder
 from ..mixins.where import WithWhere
 
 
-class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], WithLimit['Delete']):
+class Delete(ExecutableStatement, WithWhere["Delete"], WithOrder["Delete"], WithLimit["Delete"]):
     """
     DELETE statement
 
     >>> Delete("table", where=In("id", [1, 2, 3]))
     >>> "DELETE FROM `table` WHERE `id` IN (1,2,3)"
     """
+
     def __init__(
-            self,
-            table: Table | str,
-            where: ConditionBase | None = None,
-            order: OrderArg | None = None,
-            limit: Limit | None = None
+        self, table: Table | str, where: ConditionBase | None = None, order: OrderArg | None = None, limit: Limit | None = None
     ) -> None:
         """
         :param table: Table to delete from
@@ -35,7 +32,7 @@ class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], With
 
     def __str__(self) -> str:
         """Construct the DELETE statement."""
-        q: list[str] = [f"DELETE FROM {str(self.table)}"]
+        q: list[str] = [f"DELETE FROM {self.table!s}"]
 
         if self._where:
             q.append("WHERE")
@@ -53,9 +50,9 @@ class Delete(ExecutableStatement, WithWhere['Delete'], WithOrder['Delete'], With
     def args(self) -> list[Any]:
         """DELETE statement arguments."""
         return (
-            (self._where.args if self._where else []) +
-            (self._order.args if self._order else []) +
-            (self._limit.args if self._limit else [])
+            (self._where.args if self._where else [])
+            + (self._order.args if self._order else [])
+            + (self._limit.args if self._limit else [])
         )
 
 

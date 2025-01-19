@@ -2,9 +2,9 @@
 
 from typing import Any
 
-from .base import Condition, StatementOrColumn
 from ..entities import Column
 from ..statement import Statement
+from .base import Condition, StatementOrColumn
 
 
 # pylint: disable=too-few-public-methods  # As everything is handled by base classes.
@@ -19,10 +19,10 @@ class Between(Condition):
     - <statement> NOT BETWEEN <lower_bound> AND <upper_bound>
 
     """
+
     def __init__(
-            self, column: StatementOrColumn, lower_bound: Any | Statement, upper_bound: Any | Statement, *,
-            negative: bool = False
-    ):
+        self, column: StatementOrColumn, lower_bound: Any | Statement, upper_bound: Any | Statement, *, negative: bool = False
+    ) -> None:
         lower_bound_s = "%s"
         upper_bound_s = "%s"
 
@@ -48,7 +48,4 @@ class Between(Condition):
         else:
             args.append(upper_bound)
 
-        super().__init__(
-            f"{str(column)} {'NOT ' if negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}",
-            *args
-        )
+        super().__init__(f"{column!s} {'NOT ' if negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}", *args)

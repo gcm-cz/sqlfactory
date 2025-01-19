@@ -31,7 +31,7 @@ class Statement(ABC):
         """Return hash of this statement to be able to use it in unique collections."""
         return hash(str(self)) + sum(map(hash, self.args))
 
-    def __eq__(self, other: 'Statement') -> bool:  # type: ignore[override]
+    def __eq__(self, other: "Statement") -> bool:  # type: ignore[override]
         """Compares this statement to other."""
         if str(self) != str(other):
             return False
@@ -55,6 +55,7 @@ class ConditionalStatement(ABC):
     This class is used for example for INSERT statements, to not execute empty INSERT. Or to not execute UPDATE
     if there are no columns to be updated.
     """
+
     @abstractmethod
     def __bool__(self) -> bool:
         """

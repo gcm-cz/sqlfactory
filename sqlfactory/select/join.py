@@ -2,13 +2,14 @@
 
 from typing import Any
 
-from sqlfactory.entities import Table
 from sqlfactory.condition.base import ConditionBase
+from sqlfactory.entities import Table
 from sqlfactory.statement import Statement
 
 
 class Join(Statement):
     """JOIN statement"""
+
     def __init__(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> None:
         """
         :param table: Table to be joined
@@ -31,12 +32,12 @@ class Join(Statement):
 
     def __str__(self) -> str:
         if self.alias:
-            table = f"{str(self.table)} AS `{self.alias}`"
+            table = f"{self.table!s} AS `{self.alias}`"
         else:
             table = str(self.table)
 
         if self.on:
-            return f"{self.join_spec} {table} ON {str(self.on)}"
+            return f"{self.join_spec} {table} ON {self.on!s}"
 
         return f"{self.join_spec} {table}"
 
@@ -64,6 +65,7 @@ class LeftOuterJoin(Join):
 
 class RightJoin(Join):
     """RIGHT JOIN statement"""
+
     @property
     def join_spec(self) -> str:
         return "RIGHT JOIN"
@@ -71,6 +73,7 @@ class RightJoin(Join):
 
 class RightOuterJoin(Join):
     """RIGHT OUTER JOIN statement"""
+
     @property
     def join_spec(self) -> str:
         return "RIGHT OUTER JOIN"
@@ -78,6 +81,7 @@ class RightOuterJoin(Join):
 
 class InnerJoin(Join):
     """INNER JOIN statement"""
+
     @property
     def join_spec(self) -> str:
         return "INNER JOIN"
@@ -85,6 +89,7 @@ class InnerJoin(Join):
 
 class CrossJoin(Join):
     """CROSS JOIN statement"""
+
     @property
     def join_spec(self) -> str:
         return "CROSS JOIN"

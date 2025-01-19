@@ -2,17 +2,18 @@
 
 from typing import Any
 
-from .base import Condition, StatementOrColumn
 from ..statement import Statement
+from .base import Condition, StatementOrColumn
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class SimpleCondition(Condition):
-    # pylint: disable=duplicate-code  # It does not make sense to generalize two-row statement used on two places.
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Simple condition comparing one column with given value, using specified operator.
     """
-    def __init__(self, column: StatementOrColumn, operator: str, value: Statement | Any):
+
+    def __init__(self, column: StatementOrColumn, operator: str, value: Statement | Any) -> None:
+        # pylint: disable=duplicate-code   # It does not make sense to generalize two-row statement used on two places.
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param operator: Operator to use for comparison.
@@ -21,6 +22,7 @@ class SimpleCondition(Condition):
         if not isinstance(column, Statement):
             # pylint: disable=import-outside-toplevel,cyclic-import
             from ..entities import Column
+
             column = Column(column)
 
         args = []
@@ -35,26 +37,21 @@ class SimpleCondition(Condition):
             args.append(value)
 
         if isinstance(value, Statement):
-            super().__init__(
-                f"{str(column)} {operator} {str(value)}",
-                *args
-            )
+            super().__init__(f"{column!s} {operator} {value!s}", *args)
         else:
-            super().__init__(
-                f"{str(column)} {operator} %s",
-                *args
-            )
+            super().__init__(f"{column!s} {operator} %s", *args)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class Equals(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` = <value>
     - `column` IS NULL
     - <statement> = <value>
     - <statement> IS NULL
     """
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -65,15 +62,16 @@ class Equals(SimpleCondition):
             super().__init__(column, "=", value)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class NotEquals(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` != <value>
     - <statement> != <value>
     - `column` IS NOT NULL
     - <statement> IS NOT NULL
     """
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -84,13 +82,14 @@ class NotEquals(SimpleCondition):
             super().__init__(column, "!=", value)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class GreaterThanOrEquals(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` >= <value>
     - <statement> >= <value>
     """
-    def __init__(self, column: StatementOrColumn, value: Any | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -98,13 +97,14 @@ class GreaterThanOrEquals(SimpleCondition):
         super().__init__(column, ">=", value)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class GreaterThan(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` > <value>
     - <statement> > <value>
     """
-    def __init__(self, column: StatementOrColumn, value: Any | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -112,13 +112,14 @@ class GreaterThan(SimpleCondition):
         super().__init__(column, ">", value)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class LessThanOrEquals(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` <= <value>
     - <statement> <= <value>
     """
-    def __init__(self, column: StatementOrColumn, value: Any | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -126,13 +127,14 @@ class LessThanOrEquals(SimpleCondition):
         super().__init__(column, "<=", value)
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled in base classes.
 class LessThan(SimpleCondition):
+    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     - `column` < <value>
     - <statement> < <value>
     """
-    def __init__(self, column: StatementOrColumn, value: Any | Statement):
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).

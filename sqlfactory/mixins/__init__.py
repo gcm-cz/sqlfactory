@@ -2,4 +2,10 @@
 Classes exported here, however, should be used as their instances are expected as mixin arguments."""
 
 from .limit import Limit
-from .order import Order, Direction
+from .order import Direction, Order
+
+__all__ = [
+    "Direction",
+    "Limit",
+    "Order",
+]

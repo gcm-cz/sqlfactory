@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from abc import ABC
 from collections.abc import Iterable
-from typing import Any, overload
+from typing import Any, Self, overload
 
-from ..statement import ConditionalStatement, Statement, Raw
+from ..statement import ConditionalStatement, Raw, Statement
 
 StatementOrColumn = str | Statement
 
@@ -16,6 +16,7 @@ class ConditionBase(Statement, ConditionalStatement, ABC):
     Generic condition interface, that can be chained with other conditions using & or | operators. All condition
     classes should inherit from this one, as there are checks through the library for instances of this class.
     """
+
     def __and__(self, other: ConditionBase) -> And:
         if isinstance(self, And):
             out = self
@@ -73,26 +74,26 @@ class CompoundCondition(ConditionBase):
     Base class for joining multiple conditions together using specified operator. As there are only two operators
     (AND and OR), this class is not meant to be used directly, but rather through And and Or classes.
     """
-    def __init__(self, operator: str, *conditions: ConditionBase | Raw | str):
+
+    def __init__(self, operator: str, *conditions: ConditionBase | Raw | str) -> None:
         """
         :param operator: Which operator to use for joining specific conditions.
         :param conditions: Conditions to join using given operator.
         """
         self.operator = operator
         self._sub_conditions: list[ConditionBase | Raw] = [
-            Condition(condition) if isinstance(condition, str) else condition
-            for condition in conditions
+            Condition(condition) if isinstance(condition, str) else condition for condition in conditions
         ]
 
     @overload
-    def append(self, condition: ConditionBase | Raw) -> CompoundCondition:
+    def append(self, condition: ConditionBase | Raw) -> Self:
         """Append another condition to the list of conditions."""
 
     @overload
-    def append(self, condition: str, *args: Any) -> CompoundCondition:
+    def append(self, condition: str, *args: Any) -> Self:
         """Append another condition to the list of conditions."""
 
-    def append(self, condition: ConditionBase | Raw | str, *args: Any) -> CompoundCondition:
+    def append(self, condition: ConditionBase | Raw | str, *args: Any) -> Self:
         """
         Append another condition to be joined.
         :param condition: Condition to append
@@ -106,7 +107,7 @@ class CompoundCondition(ConditionBase):
         self._sub_conditions.append(condition)
         return self
 
-    def extend(self, conditions: Iterable[ConditionBase | Raw]) -> CompoundCondition:
+    def extend(self, conditions: Iterable[ConditionBase | Raw]) -> Self:
         """
         Extend condition with list of conditions.
         :param conditions: Conditions to extend this condition with
@@ -162,7 +163,8 @@ class And(CompoundCondition):
         >>> And(Equals("id", 1), Or(Equals("name", "hello"), Equals("name", "world")))
         >>> "(`id` = 1 AND (`name` = 'hello' OR `name` = 'world'))"
     """
-    def __init__(self, *conditions: ConditionBase | str):
+
+    def __init__(self, *conditions: ConditionBase | str) -> None:
         super().__init__("AND", *conditions)
 
 
@@ -174,5 +176,6 @@ class Or(CompoundCondition):
         >>> Or(Equals("id", 1), Equals("name", "hello"))
         >>> "(`id` = 1 OR `name` = 'hello')"
     """
-    def __init__(self, *conditions: ConditionBase | str):
+
+    def __init__(self, *conditions: ConditionBase | str) -> None:
         super().__init__("OR", *conditions)

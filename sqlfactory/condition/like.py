@@ -2,9 +2,9 @@
 
 from typing import Any
 
-from .base import Condition, StatementOrColumn
 from ..entities import Column
 from ..statement import Statement
+from .base import Condition, StatementOrColumn
 
 
 class Like(Condition):
@@ -16,7 +16,8 @@ class Like(Condition):
     <statement> LIKE %s
     <statement> NOT LIKE %s
     """
-    def __init__(self, column: StatementOrColumn, value: Any | Statement, negative: bool = False):
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement, negative: bool = False) -> None:
         args = []
 
         if not isinstance(column, Statement):
@@ -32,14 +33,11 @@ class Like(Condition):
 
         if isinstance(value, Statement):
             super().__init__(
-                f"{str(column)}{' NOT' if negative else ''} LIKE {str(value)}",
+                f"{column!s}{' NOT' if negative else ''} LIKE {value!s}",
                 *args,
             )
         else:
-            super().__init__(
-                f"{str(column)}{' NOT' if negative else ''} LIKE %s",
-                *args
-            )
+            super().__init__(f"{column!s}{' NOT' if negative else ''} LIKE %s", *args)
 
     @staticmethod
     def escape(s: str) -> str:

@@ -1,3 +1,5 @@
 """UPDATE statement builder."""
 
-from .update import Update, UPDATE
+from .update import UPDATE, Update
+
+__all__ = ["UPDATE", "Update"]

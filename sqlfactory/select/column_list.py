@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Any
+from typing import Any, Iterable, Self
 
-from sqlfactory.entities import ColumnArg, Column
+from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.statement import Statement
 
 
@@ -12,12 +12,10 @@ class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
     """
     Unique(ish) set of columns to be used in SELECT statement.
     """
+
     def __init__(self, iterable: Iterable[Statement | ColumnArg] | None = None) -> None:
         if iterable:
-            super().__init__(map(
-                lambda i: Column(i) if not isinstance(i, Statement) else i,
-                iterable
-            ))
+            super().__init__([Column(i) if not isinstance(i, Statement) else i for i in iterable])
         else:
             super().__init__()
 
@@ -33,11 +31,11 @@ class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
 
         return False
 
-    def add(self, element: Statement | str) -> ColumnList:
+    def add(self, element: Statement | str) -> Self:
         """Add new columns to the set."""
         return self.append(element)
 
-    def append(self, element: Statement | str) -> ColumnList:  # type: ignore[override]
+    def append(self, element: Statement | str) -> Self:  # type: ignore[override]
         """Add new columns to the set."""
         if not isinstance(element, Statement):
             element = Column(element)
@@ -47,7 +45,7 @@ class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
 
         return self
 
-    def update(self, iterable: Iterable[Statement | str]) -> ColumnList:
+    def update(self, iterable: Iterable[Statement | str]) -> Self:
         """Add multiple new columns to the set."""
         for item in iterable:
             self.add(item)

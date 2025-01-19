@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import Any
+from typing import Any, Self
 
-from .values import Values
-from ..entities import ColumnArg, Column, Table
+from ..entities import Column, ColumnArg, Table
 from ..execute import ConditionalExecutableStatement
 from ..statement import Statement
+from .values import Values
 
 
 class Insert(ConditionalExecutableStatement):
@@ -46,17 +46,17 @@ class Insert(ConditionalExecutableStatement):
         self._on_duplicate_key_update_args: list[Any] = []
 
     @classmethod
-    def into(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Insert:
+    def into(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Self:
         """Specify table to insert into."""
         return cls(table, ignore=ignore, replace=replace)
 
     # pylint: disable=invalid-name
     @classmethod
-    def INTO(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Insert:
+    def INTO(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Self:
         """Alias for into() to provide better SQL compatibility"""
         return cls.into(table, ignore=ignore, replace=replace)
 
-    def __call__(self, *columns: ColumnArg) -> Insert:
+    def __call__(self, *columns: ColumnArg) -> Self:
         if not columns:
             raise AttributeError("At least one column must be specified.")
 
@@ -70,7 +70,7 @@ class Insert(ConditionalExecutableStatement):
         self._columns = [column if isinstance(column, Column) else Column(column) for column in columns]
         return self
 
-    def values(self, *rows: Collection[Any]) -> Insert:
+    def values(self, *rows: Collection[Any]) -> Self:
         """
         Specify values to insert. Each row should be one collection. The semantics is identical to the SQL syntax.
 
@@ -83,11 +83,11 @@ class Insert(ConditionalExecutableStatement):
         return self
 
     # pylint: disable=invalid-name
-    def VALUES(self, *rows: Collection[Any]) -> Insert:
+    def VALUES(self, *rows: Collection[Any]) -> Self:
         """Alias for values() to provide better SQL compatibility."""
         return self.values(*rows)
 
-    def on_duplicate_key_update(self, **kwargs: Values | Statement | Any) -> Insert:
+    def on_duplicate_key_update(self, **kwargs: Values | Statement | Any) -> Self:
         """
         MySQL / MariaDB specific. Specify columns to update if row already exists (duplicate key check is triggered).
 
@@ -114,7 +114,7 @@ class Insert(ConditionalExecutableStatement):
         return self
 
     # pylint: disable=invalid-name
-    def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any) -> Insert:
+    def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any) -> Self:
         """Alias for on_duplicate_key_update() to provide better SQL compatibility."""
         return self.on_duplicate_key_update(**kwargs)
 
@@ -128,9 +128,9 @@ class Insert(ConditionalExecutableStatement):
             raise AttributeError("At least one column must be specified.")
 
         if self._replace:
-            q = [f"REPLACE INTO {str(self._table)}"]
+            q = [f"REPLACE INTO {self._table!s}"]
         else:
-            q = [f"INSERT{' IGNORE' if self._ignore else ''} INTO {str(self._table)}"]
+            q = [f"INSERT{' IGNORE' if self._ignore else ''} INTO {self._table!s}"]
 
         if self._columns:
             q.append(f"({', '.join(map(str, self._columns))})")
@@ -155,10 +155,7 @@ class Insert(ConditionalExecutableStatement):
 
         if self._on_duplicate_key_update_set:
             q.append("ON DUPLICATE KEY UPDATE")
-            q.append(", ".join(map(
-                lambda update_set: f"{str(update_set[0])} = {update_set[1]}",
-                self._on_duplicate_key_update_set
-            )))
+            q.append(", ".join([f"{update_set[0]!s} = {update_set[1]}" for update_set in self._on_duplicate_key_update_set]))
 
         return " ".join(q)
 

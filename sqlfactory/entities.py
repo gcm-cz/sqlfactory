@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .condition.simple import Gt, Ge, Eq, Lt, Le, Ne
+from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne
 from .statement import Raw, Statement
 
 
@@ -42,96 +42,76 @@ class Expression(Statement):
 
     def __add__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} + {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} + {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __sub__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} - {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} - {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __mul__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} * {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} * {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __truediv__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} / {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} / {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __mod__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} % {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} % {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __and__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} & {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} & {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __or__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} | {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} | {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __xor__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} ^ {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} ^ {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __lshift__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} << {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} << {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __rshift__(self, other: Statement | Any) -> Statement:
         return Raw(
-            f"{str(self)} >> {str(other) if isinstance(other, Statement) else '%s'}",
+            f"{self!s} >> {str(other) if isinstance(other, Statement) else '%s'}",
             *self.args,
-            *other.args if isinstance(other, Statement)
-            else [other] if not isinstance(other, Statement)
-            else []
+            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
         )
 
     def __neg__(self) -> Statement:
-        return Raw(f"~{str(self)}", *self.args)
+        return Raw(f"~{self!s}", *self.args)
 
 
 class Column(Expression):
@@ -148,7 +128,8 @@ class Column(Expression):
     >>> Column("table.column") + 5
     >>> # Produces Raw("`table`.`column` + %s", 5)
     """
-    def __init__(self, column: str):
+
+    def __init__(self, column: str) -> None:
         super().__init__()
 
         self._column = column.split(".")
@@ -156,7 +137,7 @@ class Column(Expression):
             raise ValueError("Invalid column name (contains more than <database>.<table>.<column>).")
 
     def __str__(self) -> str:
-        return ".".join(map(lambda x: f"`{x}`" if not x.startswith("`") else x, self._column))
+        return ".".join(f"`{x}`" if not x.startswith("`") else x for x in self._column)
 
     @property
     def column(self) -> str:
@@ -213,7 +194,7 @@ class Table(Statement):
             raise ValueError("Invalid table name (contains more than <database>.<table>).")
 
     def __str__(self) -> str:
-        return ".".join(map(lambda x: f"`{x}`" if not x.startswith("`") else x, self._table))
+        return ".".join(f"`{x}`" if not x.startswith("`") else x for x in self._table)
 
     @property
     def table(self) -> str | None:

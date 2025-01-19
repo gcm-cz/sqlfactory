@@ -8,6 +8,7 @@ from ..statement import Statement
 
 class Function(Expression):
     """Generic function with name and variable number of arguments."""
+
     def __init__(self, function: str, *args: Statement | Any) -> None:
         self.function = function
         self._args = args
