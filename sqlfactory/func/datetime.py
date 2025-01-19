@@ -624,7 +624,7 @@ class UnixTimestamp(Function):
 
 
 class UtcDate(Function):
-    # pylint: disabl|e=too-few-public-methods
+    # pylint: disable=too-few-public-methods
     """
     Returns current date in UTC.
     """

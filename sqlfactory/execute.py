@@ -2,75 +2,81 @@
 
 import inspect
 from abc import ABC
-from typing import Any, Awaitable, Protocol, TypeAlias, TypeVar, overload
+from typing import Any, Awaitable, Protocol, TypeAlias, TypeVar, cast, overload
 
 from .logger import logger
 from .statement import ConditionalStatement, Statement
 
-R = TypeVar("R", covariant=True)
+R_co = TypeVar("R_co", covariant=True)
 
 
-class HasQueryWithTupleArgs(Protocol[R]):
+class HasQueryWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with query method that takes arguments as tuple."""
 
-    def query(self, query: str, args: tuple[Any]) -> R: ...
+    def query(self, query: str, args: tuple[Any]) -> R_co: ...
 
 
-class HasExecuteWithTupleArgs(Protocol[R]):
+class HasExecuteWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with execute method that takes arguments as tuple."""
 
-    def execute(self, query: str, args: tuple[Any]) -> R: ...
+    def execute(self, query: str, args: tuple[Any]) -> R_co: ...
 
 
-class HasQueryWithArgs(Protocol[R]):
+class HasQueryWithArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with query method that takes arguments as multiple arguments."""
 
-    def query(self, query: str, *args: Any) -> R: ...
+    def query(self, query: str, *args: Any) -> R_co: ...
 
 
-class HasExecuteWithArgs(Protocol[R]):
+class HasExecuteWithArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with execute method that takes arguments as tuple."""
 
-    def execute(self, query: str, *args: Any) -> R: ...
+    def execute(self, query: str, *args: Any) -> R_co: ...
 
 
-class HasAsyncQueryWithTupleArgs(Protocol[R]):
+class HasAsyncQueryWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async query method that takes arguments as tuple."""
 
-    async def query(self, query: str, args: tuple[Any]) -> R: ...
+    async def query(self, query: str, args: tuple[Any]) -> R_co: ...
 
 
-class HasAsyncExecuteWithTupleArgs(Protocol[R]):
+class HasAsyncExecuteWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
 
-    async def execute(self, query: str, args: tuple[Any]) -> R: ...
+    async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
 
 
-class HasAsyncQueryWithArgs(Protocol[R]):
+class HasAsyncQueryWithArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async query method that takes arguments as multiple arguments."""
 
-    async def query(self, query: str, *args: Any) -> R: ...
+    async def query(self, query: str, *args: Any) -> R_co: ...
 
 
-class HasAsyncExecuteWithArgs(Protocol[R]):
+class HasAsyncExecuteWithArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
 
-    async def execute(self, query: str, args: tuple[Any]) -> R: ...
+    async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
 
 
-HasQueryOrExecute: TypeAlias = HasQueryWithTupleArgs[R] | HasExecuteWithTupleArgs[R] | HasQueryWithArgs[R] | HasExecuteWithArgs[R]
-HasAsyncQueryOrExecute: TypeAlias = (
-    HasAsyncQueryWithTupleArgs[R] | HasAsyncExecuteWithTupleArgs[R] | HasAsyncQueryWithArgs[R] | HasAsyncExecuteWithArgs[R]
+HasQueryOrExecute: TypeAlias = (
+    HasQueryWithTupleArgs[R_co] | HasExecuteWithTupleArgs[R_co] | HasQueryWithArgs[R_co] | HasExecuteWithArgs[R_co]
 )
-MaybeAsyncHasQueryOrExecute: TypeAlias = HasQueryOrExecute[R] | HasAsyncQueryOrExecute[R]
+
+HasAsyncQueryOrExecute: TypeAlias = (
+    HasAsyncQueryWithTupleArgs[R_co]
+    | HasAsyncExecuteWithTupleArgs[R_co]
+    | HasAsyncQueryWithArgs[R_co]
+    | HasAsyncExecuteWithArgs[R_co]
+)
+MaybeAsyncHasQueryOrExecute: TypeAlias = HasQueryOrExecute[R_co] | HasAsyncQueryOrExecute[R_co]
 
 
 class ExecutableStatement(Statement, ABC):
@@ -91,14 +97,14 @@ class ExecutableStatement(Statement, ABC):
     """
 
     @overload
-    def execute(self, trx: HasQueryOrExecute[R], *args: Any) -> R:
-        """Execute statement on sync db driver."""
-
-    @overload
-    async def execute(self, trx: HasAsyncQueryOrExecute[R], *args: Any) -> R:
+    async def execute(self, trx: HasAsyncQueryOrExecute[R_co], *args: Any) -> R_co:
         """Execute statement on async db driver"""
 
-    def execute(self, trx: MaybeAsyncHasQueryOrExecute[R], *args: Any) -> R | Awaitable[R]:
+    @overload
+    def execute(self, trx: HasQueryOrExecute[R_co], *args: Any) -> R_co:
+        """Execute statement on sync db driver."""
+
+    def execute(self, trx: MaybeAsyncHasQueryOrExecute[R_co], *args: Any) -> R_co | Awaitable[R_co]:
         """
         Execute statement on db driver (db-agnostic, just expects method `query` or `execute` on given driver).
         This is just a shortland for calling driver.execute(str(self), *args).
@@ -129,15 +135,17 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
     if there are no columns to be updated.
     """
 
-    @overload
-    def execute(self, trx: HasQueryOrExecute[R], *args: Any) -> R:
-        """Execute statement on sync db driver."""
-
-    @overload
-    async def execute(self, trx: HasAsyncQueryOrExecute[R], *args: Any) -> R:
+    @overload  # type: ignore[override]
+    async def execute(self, trx: HasAsyncQueryOrExecute[R_co], *args: Any) -> R_co | bool:
         """Execute statement on async db driver"""
 
-    def execute(self, trx: MaybeAsyncHasQueryOrExecute[R], *args: Any) -> R | bool | Awaitable[R | bool]:
+    @overload
+    def execute(self, trx: HasQueryOrExecute[R_co], *args: Any) -> R_co | bool:
+        # pylint: disable=invalid-overridden-method
+        """Execute statement on sync db driver."""
+
+    def execute(self, trx: MaybeAsyncHasQueryOrExecute[R_co], *args: Any) -> R_co | bool | Awaitable[R_co | bool]:
+        # pylint: disable=invalid-overridden-method
         """
         Execute SQL statement using provided db-driver, but only if statement evaluates as True.
         :param trx: DB driver with query() or execute() method, which accepts either tuple as arguments,
@@ -145,7 +153,7 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
         :return:
         """
         if bool(self):
-            return super().execute(trx, *args)
+            return cast(R_co, super().execute(trx, *args))
 
         if inspect.iscoroutinefunction(getattr(trx, "query", getattr(trx, "execute", None))):
             logger.debug("Not executing statement, because it is false.")
