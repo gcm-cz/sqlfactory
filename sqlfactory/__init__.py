@@ -23,7 +23,7 @@ from .condition import (
 )
 from .delete import DELETE, Delete
 from .entities import Column, Table
-from .insert import INSERT, Insert
+from .insert import INSERT, Insert, Values
 from .mixins import Direction, Limit, Order
 from .select import (
     SELECT,
@@ -87,4 +87,5 @@ __all__ = [
     "Statement",
     "Table",
     "Update",
+    "Values",
 ]
