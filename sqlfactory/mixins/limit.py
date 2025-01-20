@@ -24,23 +24,31 @@ class Limit(ConditionalStatement, Statement):
         """
 
     @overload
-    def __init__(self, offset: int, limit: int, /) -> None:
+    def __init__(self, /, offset: int | None, limit: int | None) -> None:
         """
         LIMIT statement with both offset and limit
         :param offset: Pagination offset (how many rows to skip before returning result)
         :param limit: Number of returned rows
         """
 
-    def __init__(self, offset_or_limit: int | None = None, limit: int | None = None) -> None:
+    def __init__(  # type: ignore[misc]
+        self, offset_or_limit: int | None = None, /, limit: int | None = None, *, offset: int | None = None
+    ) -> None:
         """
         LIMIT statement
         :param offset_or_limit: Pagination offset, or limit if second argument is None
         :param limit: Number of returned rows.
         """
 
+        if offset_or_limit is not None and offset is not None and limit is not None:
+            raise AttributeError("Unable to specify both positional argument offset and keyword argument offset.")
+
         if limit is None:
             limit = offset_or_limit
-            offset_or_limit = None
+            offset_or_limit = offset
+
+        if offset is not None:
+            offset_or_limit = offset
 
         self.offset = offset_or_limit
         self.limit = limit
@@ -85,21 +93,23 @@ class WithLimit(Generic[T]):
         """
 
     @overload
-    def limit(self, limit: int, /) -> Self:
+    def limit(self, limit: int | None, /) -> Self:
         """
         Limit statement
         :param limit: Number of returned rows
         """
 
     @overload
-    def limit(self, offset: int, limit: int, /) -> Self:
+    def limit(self, offset: int | None, limit: int | None) -> Self:
         """
         Limit statement
         :param offset: Pagination offset (how many rows to skip before returning result)
         :param limit: Number of returned rows
         """
 
-    def limit(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> Self:
+    def limit(  # type: ignore[misc]
+        self, offset_or_limit: int | Limit | None = None, /, limit: int | None = None, *, offset: int | None = None
+    ) -> Self:
         """Limit statement"""
         if self._limit is not None:
             raise AttributeError("Limit has already been specified.")
@@ -107,11 +117,18 @@ class WithLimit(Generic[T]):
         if isinstance(offset_or_limit, Limit):
             self._limit = offset_or_limit
 
-            if limit is not None:
+            if limit is not None or offset is not None:
                 raise AttributeError("When passing Limit instance as first argument, second argument should not be passed.")
 
         else:
-            self._limit = Limit(offset_or_limit, limit)
+            if offset_or_limit is not None:
+                if offset is not None:
+                    raise AttributeError("Unable to specify both positional argument offset and keyword argument offset.")
+
+                self._limit = Limit(offset_or_limit, limit)
+
+            else:
+                self._limit = Limit(offset=offset, limit=limit)
 
         return self
 
