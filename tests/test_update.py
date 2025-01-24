@@ -68,7 +68,7 @@ def test_update_with_statement():
 
 def test_update_increment():
     update = UPDATE("table").SET("column", Column("column") + 1)
-    assert str(update) == "UPDATE `table` SET `column` = `column` + %s"
+    assert str(update) == "UPDATE `table` SET `column` = (`column` + %s)"
     assert update.args == [1]
 
 

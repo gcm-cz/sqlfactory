@@ -82,7 +82,7 @@ def test_sum():
 
 def test_sum_expression():
     sum_func = Sum(Column("column1") + Column("column2"))
-    assert str(sum_func)== "SUM(`column1` + `column2`)"
+    assert str(sum_func)== "SUM((`column1` + `column2`))"
     assert sum_func.args == []
 
     sum_func = Sum(Raw("column1 + %s", 123))
@@ -320,5 +320,30 @@ def test_hex():
 
 def test_function_expression():
     expr = IfNull(Column("column1"), 0) + 1
-    assert str(expr) == "IFNULL(`column1`, %s) + %s"
+    assert str(expr) == "(IFNULL(`column1`, %s) + %s)"
     assert expr.args == [0, 1]
+
+
+def test_multiple_expressions():
+    base_price_sum = Sum("table1.base_price") + Sum("table2.base_price")
+    expr = If(
+        Column("discount_price") != None,
+        base_price_sum - Column("discount_price"),
+        If(
+            Column("discount_percentage") != None,
+            base_price_sum * ((Column("discount_percentage") / 100) * -1 + 1),
+            base_price_sum
+        )
+    )
+
+    assert str(expr) == (
+        "IF("
+        "`discount_price` IS NOT %s, "
+        "((SUM(`table1`.`base_price`) + SUM(`table2`.`base_price`)) - `discount_price`), "
+        "IF(`discount_percentage` IS NOT %s, "
+        "((SUM(`table1`.`base_price`) + SUM(`table2`.`base_price`)) * (((`discount_percentage` / %s) * %s) + %s)), "
+        "(SUM(`table1`.`base_price`) + SUM(`table2`.`base_price`))"
+        ")"
+        ")"
+    )
+    assert expr.args == [None, None, 100, -1, 1]
