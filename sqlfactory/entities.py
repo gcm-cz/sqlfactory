@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne
 from .statement import Raw, Statement
+
+if TYPE_CHECKING:
+    from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne
 
 
 class Expression(Statement):
@@ -18,26 +20,38 @@ class Expression(Statement):
 
     def __gt__(self, other: Statement | Any) -> Gt:
         """Shorthand to produce conditional SQL statement <column> > <other>."""
+        from .condition.simple import Gt  # pylint: disable=import-outside-toplevel
+
         return Gt(self, other)
 
     def __ge__(self, other: Statement | Any) -> Ge:
         """Shorthand to produce conditional SQL statement <column> >= <other>."""
+        from .condition.simple import Ge  # pylint: disable=import-outside-toplevel
+
         return Ge(self, other)
 
     def __lt__(self, other: Statement | Any) -> Lt:
         """Shorthand to produce conditional SQL statement <column> < <other>."""
+        from .condition.simple import Lt  # pylint: disable=import-outside-toplevel
+
         return Lt(self, other)
 
     def __le__(self, other: Statement | Any) -> Le:
         """Shorthand to produce conditional SQL statement <column> <= <other>."""
+        from .condition.simple import Le  # pylint: disable=import-outside-toplevel
+
         return Le(self, other)
 
     def __eq__(self, other: Statement | Any) -> Eq:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> = <other>."""
+        from .condition.simple import Eq  # pylint: disable=import-outside-toplevel
+
         return Eq(self, other)
 
     def __ne__(self, other: Statement | Any) -> Ne:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> != <other>."""
+        from .condition.simple import Ne  # pylint: disable=import-outside-toplevel
+
         return Ne(self, other)
 
     def __add__(self, other: Statement | Any) -> Expression:
