@@ -1,5 +1,6 @@
 import pytest
-from sqlfactory import Insert, Column, INSERT, Values
+
+from sqlfactory import INSERT, Column, Insert, Values
 from sqlfactory.func.control import IfNull
 from sqlfactory.func.datetime import Now
 from sqlfactory.func.str import Concat

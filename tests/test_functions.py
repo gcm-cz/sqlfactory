@@ -1,9 +1,43 @@
 from sqlfactory import Column, Raw
 from sqlfactory.func.agg import AggregateFunction, Avg, BitAnd, BitOr, BitXor, Count, Max, Min, Std, Sum
-from sqlfactory.func.control import IfNull, NullIf, If
-from sqlfactory.func.str import Ascii, Bin, BitLength, Char, CharLength, Chr, Concat, ConcatWs, Repeat, \
-    Replace, Reverse, Right, RPad, RTrim, SFormat, Space, Substr, Substring, SubstringIndex, ToBase64, ToChar, Trim, \
-    Unhex, Upper, Ord, OctetLength, Mid, Ltrim, Lpad, Lower, Locate, Length, Left, InStr, Hex
+from sqlfactory.func.control import If, IfNull, NullIf
+from sqlfactory.func.str import (
+    Ascii,
+    Bin,
+    BitLength,
+    Char,
+    CharLength,
+    Chr,
+    Concat,
+    ConcatWs,
+    Hex,
+    InStr,
+    Left,
+    Length,
+    Locate,
+    Lower,
+    Lpad,
+    Ltrim,
+    Mid,
+    OctetLength,
+    Ord,
+    Repeat,
+    Replace,
+    Reverse,
+    Right,
+    RPad,
+    RTrim,
+    SFormat,
+    Space,
+    Substr,
+    Substring,
+    SubstringIndex,
+    ToBase64,
+    ToChar,
+    Trim,
+    Unhex,
+    Upper,
+)
 
 
 def test_aggregate_function():

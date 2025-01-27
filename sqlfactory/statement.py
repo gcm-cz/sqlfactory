@@ -15,6 +15,19 @@ class Statement(ABC):
     whether passed object is instance of this class.
 
     To retrieve SQL statement, call `str()` on the instance. To retrieve arguments, access `args` property.
+
+    ```python
+    class CustomStatement(Statement):
+        def __str__() -> str:
+            return "SELECT * FROM table WHERE column = %s"
+
+        @property
+        def args() -> list[Any]:
+            return [3]
+
+    statement = CustomStatement()
+    print(str(statement))  # SELECT * FROM table WHERE column = %s
+    print(statement.args)  # [3]
     """
 
     @abstractmethod
@@ -47,8 +60,8 @@ class Statement(ABC):
         return self.__str__()
 
 
-# pylint: disable=too-few-public-methods  # As this is just an interface.
 class ConditionalStatement(ABC):
+    # pylint: disable=too-few-public-methods  # As this is just an interface.
     """
     Mixin that provides conditional execution of the statement (query will be executed only if statement is valid).
 
@@ -69,6 +82,10 @@ class Raw(Statement):
     """
 
     def __init__(self, sql: str, *args: Any) -> None:
+        """
+        :param sql: SQL part of the statement with optional %s placeholders for arguments.
+        :param args: Arguments to be escaped and substituted in the statement
+        """
         super().__init__()
         self._statement = sql
         self._args = args

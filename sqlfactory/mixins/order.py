@@ -10,7 +10,14 @@ from ..statement import Statement
 
 
 class Direction(str, Enum):
-    """Ordering direction as enum"""
+    """
+    Ordering direction as enum
+
+    Usage:
+
+    >>> Order([('column1', Direction.ASC), ('column2', Direction.DESC)])
+    >>> "ORDER BY `column1` ASC, `column2` DESC"
+    """
 
     ASC = "ASC"
     DESC = "DESC"
@@ -20,7 +27,14 @@ OrderColumn = ColumnArg | Statement
 
 
 class Order(list[tuple[OrderColumn, Direction | Literal["ASC", "DESC"]]], Statement):  # type: ignore[misc]
-    """ORDER BY statement as list of columns to use for ordering"""
+    """
+    ORDER BY statement as list of columns to use for ordering. For usage with SELECT, UPDATE and DELETE statements.
+
+    Usage:
+
+    >>> Order([('column1', Direction.ASC), ('column2', Direction.DESC)])
+    >>> "ORDER BY `column1` ASC, `column2` DESC"
+    """
 
     def __str__(self) -> str:
         if not self:

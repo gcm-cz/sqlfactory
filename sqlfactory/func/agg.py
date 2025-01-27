@@ -2,8 +2,8 @@
 
 from typing import Literal
 
-from .. import Raw, Statement
 from ..entities import Column, ColumnArg
+from ..statement import Raw, Statement
 from .base import Function
 
 

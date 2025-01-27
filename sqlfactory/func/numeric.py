@@ -2,7 +2,7 @@
 
 from typing import Any, overload
 
-from sqlfactory.func.base import Function
+from .base import Function
 
 
 # pylint: disable=too-few-public-methods

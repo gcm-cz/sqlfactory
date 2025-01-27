@@ -1,9 +1,9 @@
 from collections.abc import Iterable
-
-import pytest
 from typing import Any
 
-from sqlfactory import Select, Eq, Insert
+import pytest
+
+from sqlfactory import Eq, Insert, Select
 
 
 class DbDriverWithExecuteTuple():

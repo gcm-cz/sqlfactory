@@ -1,5 +1,27 @@
-from sqlfactory import Raw, Column
-from sqlfactory.func.info import Benchmark, BinlogGtidPos, Charset, Coercibility, Collation, Collate, ConnectionId, CurrentRole, CurrentUser, Database, DecodeHistogram, Default, FoundRows, LastInsertId, LastValue, RowNumber, Schema, SessionUser, SystemUser, User, Version
+from sqlfactory import Column, Raw
+from sqlfactory.func.info import (
+    Benchmark,
+    BinlogGtidPos,
+    Charset,
+    Coercibility,
+    Collate,
+    Collation,
+    ConnectionId,
+    CurrentRole,
+    CurrentUser,
+    Database,
+    DecodeHistogram,
+    Default,
+    FoundRows,
+    LastInsertId,
+    LastValue,
+    RowNumber,
+    Schema,
+    SessionUser,
+    SystemUser,
+    User,
+    Version,
+)
 
 
 def test_benchmark():

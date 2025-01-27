@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Self
+from typing import Any, Optional, Self, TypeAlias
 
 from ..condition.base import ConditionBase
 from ..entities import Column, ColumnArg, Table
@@ -44,14 +44,16 @@ class UpdateColumn(Statement):
         return [self._value]
 
 
-# pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
 class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Update"]):
+    # pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
     """
-    Builds UPDATE statement SQL query.
+    Builds `UPDATE` statement SQL query.
 
     This is conditional SQL statement, so you can check whether it should be executed (would update any columns)
     by calling bool() on it. Also, if you are using execute() method of the statement, the execution won't be
     performed if bool() returns False.
+
+    Examples:
 
     >>> Update("table").set("column1", 1).where(Eq("column2", 2))
 
@@ -70,8 +72,12 @@ class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Upd
         :param limit: Limit number of updated rows
         """
         super().__init__(where=where, limit=limit)
+
         self.table = table if isinstance(table, Table) else Table(table)
+        """Table that should be updated."""
+
         self.fields: list[UpdateColumn] = list(fields)
+        """Fields that should be updated."""
 
     def __str__(self) -> str:
         """
@@ -130,15 +136,16 @@ class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Upd
         Syntactical sugar for creating simple SET UpdateFields.
         :param field: Field name (without quotes).
         :param value: Value to set the field to (will be escaped).
-        :return:
         """
         return self.append(UpdateColumn(field, value))
 
     def SET(self, field: str, value: Any) -> Self:
         # pylint: disable=invalid-name
-        """Alias for set() for better SQL compatibility"""
+        """Alias for `Update.set()` for better SQL compatibility (SQL is often written in all caps)."""
         return self.set(field, value)
 
 
-# Alias for Update to provide better SQL compatibility
-UPDATE = Update
+UPDATE: TypeAlias = Update  # pylint: disable=invalid-name
+"""
+Alias for Update statement to provide better SQL compatibility, as SQL is often written in all caps.
+"""

@@ -12,19 +12,69 @@ from .simple import Eq, Ne
 # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
 class In(Condition):
     """
-    IN condition:
+    `IN` condition for checking whether column value is in given list of values.
 
-    - `column` IN (%s, %s, %s)
-    - <statement> IN (%s, %s, %s)
+    Supports both single-column and multi-column comparisons.
 
-    OR
+    In expects first argument to be column, and second argument to be list of values to compare against. So if you are
+    passing strings, this is what happens. If you want to specify something else, you must be explicit. See examples.
 
-    - (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))
-    - (<statement>, `column`) IN ((%s, %s), (%s, %s), (%s, %s))
-    - (<statement>, <statement>) IN ((%s, %s), (%s, %s), (%s, %s))
-    - (`column`, <statement>) IN ((%s, %s), (%s, %s), (%s, %s))
+    Examples:
 
-    Also supports comparing to None for single-column conditions (In("column", [1,2,3,None]) will work as expected).
+    ### Single column
+
+    - Simple IN statement:
+        ```python
+        # `column` IN (%s, %s, %s)
+        In("column", [1, 2, 3])
+        "`column` IN (%s, %s, %s)", [1, 2, 3]
+        ```
+    - Statement IN values
+        ```python
+        # <statement> IN (%s, %s, %s)
+        In(Date("column"), ["2021-01-01", "2021-01-02", "2021-01-03"])
+        "Date(`column`) IN (%s, %s, %s)", ["2021-01-01", "2021-01-02", "2021-01-03"]
+        ```
+    - Column IN columns
+        ```python
+        # Note the explicit `Column` usage.
+        In("column", [Column("column1"), Column("column2"), Column("column3")])
+        ```
+    - Value with None works out-of-the-box
+        ```python
+        In("column", [1, None, 3])
+        "`column` IN (%s, %s) OR `column` IS NULL", [1, 3]
+        ```
+
+    ### Multi column
+
+    - Agains tuples of values:
+        ```python
+        # (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))
+        In(("column1", "column2"), [(1, 2), (3, 4), (5, 6)])
+        "(`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))", [1, 2, 3, 4, 5, 6]
+        ```
+    - Mix of statement and column
+        ```python
+        # (<statement>, `column`) IN ((%s, %s), (%s, %s), (%s, %s))
+        In((Date("column1"), "column2"), [("2021-01-01", 2), ("2021-01-02", 4), ("2021-01-03", 6)])
+        "(DATE(`column1`), `column2`) IN ((%s, %s), (%s, %s), (%s, %s))", ["2021-01-01", 2, "2021-01-02", 4, "2021-01-03", 6]
+        ```
+    - Only statements
+        ```python
+        # (<statement>, <statement>) IN ((%s, %s), (%s, %s), (%s, %s))
+        In((Min("column1"), Max("column1")), [(1, 2), (3, 4), (5, 6)])
+        "(`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))", [1, 2, 3, 4, 5, 6]
+        ```
+    - Agains other columns or statements
+        ```python
+        In(("column1", Max("column2")), [(Min("column1"), 2), (3, Sum("column3")), (5, 6)])
+        "(`column1`, MAX(`column2`)) IN ((MIN(`column1`), %s), (%s, SUM(`column3`)), (%s, %s))", [2, 3, 5, 6]
+        ```
+    - Values with `None`:
+        ```python
+        In(("column1", "column2"), [(1, 2), (3, None), (5, 6)])
+        "(`column1`, `column2`) IN ((%s, %s), (%s, %s)) OR (`column1` = %s AND `column2` IS NULL)", [1, 2, 3, 5, 6]
     """
 
     @overload
@@ -46,7 +96,7 @@ class In(Condition):
     ) -> None:
         """
         :param column: Column to compare, or tuple of columns for multi-column comparison.
-        :param values: Values to compare (list of values, or list of tuples of values).
+        :param values: Values to compare (list of values, or list of tuples of values for multi-column In).
         :param negative: Whether to perform negative comparison (NOT IN)
         """
         is_multi_column = isinstance(column, tuple)

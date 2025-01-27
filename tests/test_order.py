@@ -1,4 +1,4 @@
-from sqlfactory import Order, Direction
+from sqlfactory import Direction, Order
 from sqlfactory.func.control import IfNull
 
 

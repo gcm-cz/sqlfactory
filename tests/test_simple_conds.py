@@ -1,10 +1,9 @@
 """
 Test suite for the condition.simple module.
 """
-import pytest
 
 from sqlfactory import Column
-from sqlfactory.condition.simple import Equals, NotEquals, GreaterThanOrEquals, GreaterThan, LessThanOrEquals, LessThan
+from sqlfactory.condition.simple import Equals, GreaterThan, GreaterThanOrEquals, LessThan, LessThanOrEquals, NotEquals
 from sqlfactory.func.str import Concat
 
 

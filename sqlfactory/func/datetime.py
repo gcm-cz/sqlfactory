@@ -4,7 +4,7 @@
 
 from typing import Any, Literal
 
-from .. import Raw, Statement
+from ..statement import Raw, Statement
 from .base import Function
 
 

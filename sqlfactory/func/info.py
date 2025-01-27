@@ -2,7 +2,8 @@
 
 from typing import Any
 
-from .. import Column, Raw, Statement
+from ..entities import Column
+from ..statement import Raw, Statement
 from .base import Function
 
 

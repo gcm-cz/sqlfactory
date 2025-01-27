@@ -1,7 +1,6 @@
-import pytest
-from sqlfactory.entities import Table
 from sqlfactory.condition.simple import Eq
-from sqlfactory.select.join import Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin, InnerJoin, CrossJoin
+from sqlfactory.entities import Table
+from sqlfactory.select.join import CrossJoin, InnerJoin, Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin
 
 
 def test_join():

@@ -13,6 +13,11 @@ def test_with_limit():
         Select(table="xyz").limit(10).LIMIT(10)
 
 
+def test_limit_with_only_offset():
+    with pytest.raises(AttributeError):
+        l = Limit(offset=10)
+
+
 def test_limit_init():
     l = Limit(10)  # Positional only limit
     assert l.offset is None

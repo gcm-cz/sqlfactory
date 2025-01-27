@@ -1,25 +1,48 @@
 """DELETE statement builder"""
 
-from typing import Any
+from typing import Any, Collection, TypeAlias
 
 from ..condition.base import ConditionBase
 from ..entities import Table
 from ..execute import ExecutableStatement
+from ..mixins.join import WithJoin
 from ..mixins.limit import Limit, WithLimit
 from ..mixins.order import OrderArg, WithOrder
 from ..mixins.where import WithWhere
+from ..select.join import Join
 
 
-class Delete(ExecutableStatement, WithWhere["Delete"], WithOrder["Delete"], WithLimit["Delete"]):
+class Delete(
+    ExecutableStatement,
+    WithWhere["Delete"],
+    WithOrder["Delete"],
+    WithLimit["Delete"],
+    WithJoin["Delete"],
+):
+    # pylint: disable=too-many-ancestors
     """
-    DELETE statement
+    `DELETE` statement
+
+    Usage:
 
     >>> Delete("table", where=In("id", [1, 2, 3]))
     >>> "DELETE FROM `table` WHERE `id` IN (1,2,3)"
+
+    More advanced DELETE with JOINs is also supported:
+
+    >>> Delete("table", delete=["table"], join=[Join("table2", on=Eq("table.id", "table2.id"))], where=Eq("table2.value", 10))
+    >>> "DELETE `table` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id` WHERE `table2`.`value` = 10"
     """
 
     def __init__(
-        self, table: Table | str, where: ConditionBase | None = None, order: OrderArg | None = None, limit: Limit | None = None
+        self,
+        table: Table | str,
+        where: ConditionBase | None = None,
+        order: OrderArg | None = None,
+        limit: Limit | None = None,
+        *,
+        delete: Collection[Table | str] | None = None,
+        join: Collection[Join] | None = None,
     ) -> None:
         """
         :param table: Table to delete from
@@ -27,12 +50,28 @@ class Delete(ExecutableStatement, WithWhere["Delete"], WithOrder["Delete"], With
         :param order: Ordering of matched rows, usefull when limiting number of deleted rows.
         :param limit: Limit number of deleted rows.
         """
-        super().__init__(where=where, order=order, limit=limit)
+        super().__init__(where=where, order=order, limit=limit, join=join)
+
         self.table = table if isinstance(table, Table) else Table(table)
+        """Main table to delete from."""
+
+        if delete is not None and (not isinstance(delete, Collection) or isinstance(delete, (str, bytes))):
+            raise TypeError("delete argument must be a collection of tables to delete from")
+
+        self.delete = [d if isinstance(d, Table) else Table(d) for d in delete] if delete is not None else []
+        """When using join, specify tables to delete from to prevent deleting from joined tables."""
 
     def __str__(self) -> str:
         """Construct the DELETE statement."""
-        q: list[str] = [f"DELETE FROM {self.table!s}"]
+        q: list[str] = []
+
+        if not self.delete:
+            q.append(f"DELETE FROM {self.table!s}")
+        else:
+            q.append(f"DELETE {', '.join(str(t) for t in self.delete)} FROM {self.table!s}")
+
+        if self._join:
+            q.extend(map(str, self._join))
 
         if self._where:
             q.append("WHERE")
@@ -49,12 +88,21 @@ class Delete(ExecutableStatement, WithWhere["Delete"], WithOrder["Delete"], With
     @property
     def args(self) -> list[Any]:
         """DELETE statement arguments."""
+        out = []
+
+        if self._join:
+            for join in self._join:
+                out.extend(join.args)
+
         return (
-            (self._where.args if self._where else [])
+            out
+            + (self._where.args if self._where else [])
             + (self._order.args if self._order else [])
             + (self._limit.args if self._limit else [])
         )
 
 
-# Alias to provide better SQL compatibility
-DELETE = Delete
+DELETE: TypeAlias = Delete  # pylint: disable=invalid-name
+"""
+Alias for Delete statement to provide better SQL compatibility, as SQL is often written in all caps.
+"""

@@ -1,6 +1,7 @@
 import pytest
-from sqlfactory import Delete, In, Direction
-from sqlfactory.entities import Table
+
+from sqlfactory import Delete, Direction, Eq, In, Join
+from sqlfactory.entities import Column, Table
 from sqlfactory.mixins.limit import Limit
 
 
@@ -42,3 +43,32 @@ def test_delete_without_where_order_limit():
     delete_condition = Delete("table")
     assert str(delete_condition) == "DELETE FROM `table`"
     assert delete_condition.args == []
+
+
+def test_delete_with_join():
+    delete = Delete(
+        "table",
+        delete=["table"],
+        join=[Join("table2", on=Eq("table.id", Column("table2.id")))],
+        where=Eq("table2.value", 10)
+    )
+    assert str(delete) == "DELETE `table` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id` WHERE `table2`.`value` = %s"
+    assert delete.args == [10]
+
+
+def test_delete_with_join_all():
+    delete = Delete(
+        "table",
+        join=[Join("table2", on=Eq("table.id", Column("table2.id")))],
+        where=Eq("table2.value", 10)
+    )
+    assert str(delete) == "DELETE FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id` WHERE `table2`.`value` = %s"
+    assert delete.args == [10]
+
+
+def test_delete_invalid_arg():
+    with pytest.raises(TypeError):
+        Delete(
+            "table",
+            delete="table"
+        )

@@ -3,7 +3,8 @@ Test suite for the Column class
 """
 
 import pytest
-from sqlfactory import Column, Gt, Ge, Lt, Le, Eq, Ne
+
+from sqlfactory import Column, Eq, Ge, Gt, Le, Lt, Ne
 
 
 def test_column_init():

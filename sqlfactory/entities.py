@@ -122,15 +122,26 @@ class Column(Expression):
     """
     Column (optionally with table and database) as statement.
 
-    Provides shorthand for creating conditional SQL statements and arithmetic SQL statements. You can use Column
-    instance to directly create condition using simple operators (==, !=, <, <=, >, >=) or arithmetic operations
-    (+, -, *, /, %).
+    >>> Column("column")
+    >>> "`column`"
+
+    >>> Column("table.column")
+    >>> "`table`.`column`"
+
+    >>> Column("database.table.column")
+    >>> "`database`.`table`.`column`"
+
+    To use column with `Select` statement with alias, you can use `Aliased` or `SelectColumn` classes instead.
+
+    The class also provides shorthand for creating conditional SQL statements and arithmetic SQL statements. You can use Column
+    instance to directly create condition using simple operators (`==`, `!=`, `<`, `<=`, `>`, `>=`) or arithmetic operations
+    (`+`, `-`, `*`, `/`, `%`).
 
     >>> Column("table.column") == 5
     >>> # Produces Eq(Column("table.column"), 5)
 
     >>> Column("table.column") + 5
-    >>> # Produces Raw("`table`.`column` + %s", 5)
+    >>> # Produces Expression("`table`.`column` + %s", 5)
     """
 
     def __init__(self, column: str) -> None:
@@ -171,7 +182,7 @@ class Column(Expression):
 
     @property
     def args(self) -> list[Any]:
-        """Column does not have any arguments."""
+        """Column does not have any arguments, so this always returns empty list."""
         return []
 
 
@@ -179,16 +190,34 @@ class Table(Statement):
     """
     Table (optionally with database) as statement
 
+    >>> Table("table")
+    >>> "`table`"
+
+    >>> Table("database.table")
+    >>> "`database`.`table`"
+
+    To produce table alias, use `Aliased` class:
+
+    >>> Aliased(Table("database.table"), alias="t1")
+    >>> "`database`.`table` AS `t1`"
+
     By accessing Table's undefined attributes, instance of Column is returned. This allows to easily access columns of
     that table, and reference them in SQL statements.
 
-    >>> Table("database.table").column_name == 5
-    >>> # Produces Eq(Column("database.table.column_name"), 5)
+    >>> t = Table("table")
+    >>> Select(t.id, t.name, table=t)
+    >>> "SELECT `table`.`id`, `table`.`name` FROM `table`"
+
+    This allows creating python-like expressions that are converted to SQL automatically:
+
+    >>> t = Table("database.table")
+    >>> Select(Count(t.id), table=t, where=t.id > 5)
+    >>> "SELECT COUNT(`database`.`table`.`id`) FROM `database`.`table` WHERE `database`.`table`.`id` > %s"
     """
 
     def __init__(self, table: str) -> None:
         """
-        :param table: Table name (optionally with database in form <database>.<table>). If database is not specified,
+        :param table: Table name (optionally with database in form `<database>.<table>`). If database is not specified,
             it is assumed that table is in default database and SQL constructed will not contain any database name.
         """
         super().__init__()
@@ -220,7 +249,7 @@ class Table(Statement):
 
     @property
     def args(self) -> list[Any]:
-        """Table does not have any arguments."""
+        """Table does not have any arguments, this always returns empty list."""
         return []
 
 

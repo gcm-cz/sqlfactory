@@ -6,32 +6,37 @@ from __future__ import annotations
 
 from collections.abc import Collection
 from functools import reduce
-from typing import Any, Self, overload
+from typing import Any, Self, TypeAlias
 
 from ..condition.base import ConditionBase
 from ..entities import ColumnArg, Table
 from ..execute import ExecutableStatement
+from ..mixins.join import WithJoin
 from ..mixins.limit import Limit, WithLimit
 from ..mixins.order import OrderArg, WithOrder
 from ..mixins.where import WithWhere
 from ..statement import Statement
 from .column_list import ColumnList
-from .join import Join, LeftJoin
+from .join import Join
 
 
-class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], WithLimit["Select"]):
-    # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
+class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], WithLimit["Select"], WithJoin["Select"]):
+    # pylint: disable=too-many-arguments, too-many-ancestors  # Yes, SELECT is complex.
     """
-    SELECT statement
+    `SELECT` statement to create complex select queries.
+
+    Example:
 
     >>> from sqlfactory import Eq
     >>> cursor: Cursor = ...
     >>>
-    >>> (Select("column1", "column2", "column3", table="table_name")
+    >>> (
+    >>>     Select("column1", "column2", "column3", table="table_name")
     >>>     .where(Eq("column1", 1))
     >>>     .order_by("column2")
     >>>     .limit(2, 10)
-    >>>     .execute(cursor))
+    >>>     .execute(cursor)
+    >>> )
 
     Known limitations:
     - JOINs are not checked for uniqueness, so it is possible to add same JOIN multiple times. For now, it is up to
@@ -54,7 +59,7 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
     ) -> None:
         """
         :param columns: Columns to select.
-        :param select: Columns to select as instance of ColumnList.
+        :param select: Columns to select as instance of ColumnList instead of specifying positional arguments.
         :param table: Table to select from.
         :param join: Join statements
         :param where: Where condition
@@ -64,7 +69,7 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
         :param limit: Limit results
         :param for_update: Lock rows for update
         """
-        super().__init__(where=where, order=order, limit=limit)
+        super().__init__(where=where, order=order, limit=limit, join=join)
 
         if columns and select:
             raise AttributeError("Cannot specify individual columns when attribute select is present.")
@@ -73,6 +78,7 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
             raise TypeError("Select argument must be instance of ColumnList.")
 
         self.columns = select or ColumnList(columns)
+        """Columns to select."""
 
         if not table:
             raise AttributeError("Missing required keyword argument table.")
@@ -81,7 +87,8 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
             table = [table]
 
         self.table: list[Statement] = [Table(t) if isinstance(t, str) else t for t in table]
-        self._join = list(join) if join is not None else None
+        """Table (or tables) to select from."""
+
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
         self._having = having
         self._for_update = for_update
@@ -91,63 +98,12 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
         self.columns.add(column)
         return self
 
-    def _append_join(self, join: Join) -> Self:
-        """Append join to list of joins."""
-        if not self._join:
-            self._join = []
-
-        if join not in self._join:
-            self._join.append(join)
-
-        return self
-
-    @overload
-    def join(self, join: Join, /) -> Self:
-        """Append JOIN clause to the query (any Join instance)."""
-
-    @overload
-    def join(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append JOIN clause to the query.
-        JOIN `table` AS <alias> ON (<condition>)"""
-
-    def join(self, table: str | Table | Join, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append JOIN clause to the query.
-        JOIN `table` AS <alias> ON (<condition>)
-        """
-        if isinstance(table, Join):
-            if on is not None or alias is not None:
-                raise AttributeError("When passing Join instance directly, on or alias attributes cannot be specified.")
-
-            return self._append_join(table)
-
-        return self._append_join(Join(table, on, alias))
-
-    @overload
-    def JOIN(self, join: Join, /) -> Self:  # pylint: disable=invalid-name
-        """Alias for join() to be more SQL-like with all capitals."""
-
-    @overload
-    def JOIN(self, table: str | Table, on: ConditionBase | None = None, alias: str | None = None) -> Self:  # pylint: disable=invalid-name
-        """Alias for join() to be more SQL-like with all capitals."""
-
-    def JOIN(self, table: str | Table | Join, on: ConditionBase | None = None, alias: str | None = None) -> Self:  # pylint: disable=invalid-name
-        """Alias for join() to be more SQL-like with all capitals."""
-        return self.join(table, on, alias)  # type: ignore[arg-type]  # mypy searches in overloads
-
-    def left_join(self, table: str, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append LEFT JOIN clause to the query."""
-        return self.join(LeftJoin(table, on, alias))
-
-    # pylint: disable=invalid-name
-    def LEFT_JOIN(self, table: str, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Alias for left_join() to be more SQL-like with all capitals."""
-        return self.left_join(table, on, alias)
-
     def group_by(self, column: Statement | ColumnArg, *columns: Statement | ColumnArg) -> Self:
         """
-        GROUP BY clause.
+        `GROUP BY` clause.
 
         >>> Select().group_by("column1", "column2", "column3")
+        >>> "SELECT ... GROUP BY `column1`, `column2`, `column3`"
         """
         if self._group_by is not None:
             raise AttributeError("GROUP BY has already been specified.")
@@ -157,17 +113,22 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
 
     # pylint: disable=invalid-name
     def GROUP_BY(self, column: Statement | ColumnArg, *columns: Statement | ColumnArg) -> Self:
-        """Alias for group_by() to be more SQL-like with all capitals."""
+        """Alias for `Select.group_by()` to be more SQL-like with all capitals."""
         return self.group_by(column, *columns)
 
     def having(self, condition: ConditionBase) -> Self:
-        """HAVING clause"""
+        """
+        `HAVING` clause
+
+        >>> Select().having(Eq("column1", 3))
+        >>> "SELECT ... HAVING `column1` = %s", [3]
+        """
         self._having = condition
         return self
 
     # pylint: disable=invalid-name
     def HAVING(self, condition: ConditionBase) -> Self:
-        """Alias for having() to be more SQL-like with all capitals."""
+        """Alias for `Select.having()` to be more SQL-like with all capitals."""
         return self.having(condition)
 
     def __str__(self) -> str:
@@ -219,4 +180,7 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
         )
 
 
-SELECT = Select
+SELECT: TypeAlias = Select  # pylint: disable=invalid-name
+"""
+Alias for Select statement to provide better SQL compatibility, as SQL is often written in all caps.
+"""

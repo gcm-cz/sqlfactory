@@ -4,13 +4,16 @@ from ..entities import Column, ColumnArg
 from ..func.base import Function
 
 
-# pylint: disable=too-few-public-methods  # Too few public methods, as everything is handled by super class.
 class Values(Function):
+    # pylint: disable=too-few-public-methods  # Too few public methods, as everything is handled by super class.
     """
-    VALUES(<column>) for usage in INSERT INTO ... ON DUPLICATE KEY UPDATE column = VALUES(column) statements.
+    `VALUES(<column>)` for usage in `INSERT INTO ... ON DUPLICATE KEY UPDATE column = VALUES(column)` statements.
     """
 
     def __init__(self, column: ColumnArg) -> None:
+        """
+        :param column: Column to be used in `VALUES(<column>)` function.
+        """
         if not isinstance(column, Column):
             column = Column(column)
 

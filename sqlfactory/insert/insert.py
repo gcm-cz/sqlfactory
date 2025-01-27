@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import Any, Self
+from typing import Any, Self, TypeAlias
 
 from ..entities import Column, ColumnArg, Table
 from ..execute import ConditionalExecutableStatement
@@ -47,13 +47,16 @@ class Insert(ConditionalExecutableStatement):
 
     @classmethod
     def into(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Self:
-        """Specify table to insert into."""
+        """
+        Specify table to insert into. Supplies passing arguments to the constructor, to provide better compatibility with
+        plain SQL syntax.
+        """
         return cls(table, ignore=ignore, replace=replace)
 
     # pylint: disable=invalid-name
     @classmethod
     def INTO(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Self:
-        """Alias for into() to provide better SQL compatibility"""
+        """Alias for `Insert.into()` to provide better SQL compatibility by using all caps."""
         return cls.into(table, ignore=ignore, replace=replace)
 
     def __call__(self, *columns: ColumnArg) -> Self:
@@ -78,13 +81,15 @@ class Insert(ConditionalExecutableStatement):
         >>>    ("row 1, column a", "row 1, column b"),
         >>>    ("row 2, column a", "row 2, column b")
         >>> )
+
+        Beware of common error of omitting the inner collection for single row inserts.
         """
         self._values.extend(rows)
         return self
 
     # pylint: disable=invalid-name
     def VALUES(self, *rows: Collection[Any]) -> Self:
-        """Alias for values() to provide better SQL compatibility."""
+        """Alias for `Insert.values()` to provide better SQL compatibility by using all caps."""
         return self.values(*rows)
 
     def on_duplicate_key_update(self, **kwargs: Values | Statement | Any) -> Self:
@@ -94,6 +99,7 @@ class Insert(ConditionalExecutableStatement):
         Specify individual columns to be updated as keyword arguments.
 
         You can use Values() function to access value from currently inserted row's values, e.g.:
+
         >>> Insert.into("table")("a", "b").values(
         >>>     (1, 2),
         >>>     (3, 4)
@@ -115,11 +121,11 @@ class Insert(ConditionalExecutableStatement):
 
     # pylint: disable=invalid-name
     def ON_DUPLICATE_KEY_UPDATE(self, **kwargs: Values | Statement | Any) -> Self:
-        """Alias for on_duplicate_key_update() to provide better SQL compatibility."""
+        """Alias for `Insert.on_duplicate_key_update()` to provide better SQL compatibility by using all caps."""
         return self.on_duplicate_key_update(**kwargs)
 
     def __bool__(self) -> bool:
-        """Do not execute empty INSERT statement."""
+        """Checks whether there are any rows to insert. Usage for conditional execution of the statement."""
         return bool(self._values)
 
     def __str__(self) -> str:
@@ -177,4 +183,7 @@ class Insert(ConditionalExecutableStatement):
 
 
 # Alias for Insert, for better SQL compatibility
-INSERT = Insert
+INSERT: TypeAlias = Insert  # pylint: disable=invalid-name
+"""
+Alias for Insert statement to provide better SQL compatibility, as SQL is often written in all caps.
+"""

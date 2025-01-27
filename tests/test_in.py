@@ -1,4 +1,4 @@
-from sqlfactory import In, Column
+from sqlfactory import Column, In
 from sqlfactory.func.str import Concat
 
 

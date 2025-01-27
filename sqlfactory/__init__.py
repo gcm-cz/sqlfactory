@@ -1,5 +1,61 @@
-"""Main SQLBuilder module. All public classes are exported from here."""
+"""
+SQLFactory is a Python library for building SQL queries in a programmatic way.
 
+Quick start:
+
+## SELECT ...
+
+Main class of interest: `Select`
+
+Quick example:
+
+```python
+from sqlfactory import Select, Eq
+
+query = Select("id", "name", table="products", where=Eq("enabled", True))
+```
+## INSERT ...
+
+Main class of interest: `Insert`
+
+Quick example:
+
+```python
+from sqlfactory import Insert
+
+query = Insert.into("products")("id", "name").values(
+    (1, "Product 1"),
+    (2, "Product 2"),
+)
+```
+
+## UPDATE ...
+
+Main class of interest: `Update`
+
+Quick example:
+
+```python
+from sqlfactory import Update, Eq
+
+query = Update("products", set={"enabled": False}, where=Eq("id", 1))
+```
+
+## DELETE ...
+
+Main class of interest: `Delete`
+
+Quick example:
+
+```python
+from sqlfactory import Delete, Eq
+
+query = Delete("products", where=Eq("enabled", False))
+```
+
+"""
+
+from . import func
 from .condition import (
     And,
     Between,
@@ -88,4 +144,5 @@ __all__ = [
     "Table",
     "Update",
     "Values",
+    "func",
 ]

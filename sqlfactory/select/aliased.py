@@ -7,12 +7,28 @@ from sqlfactory.statement import Statement
 
 
 class Aliased(Statement):
-    """Aliased generic statement. Only to be used in SELECT statement, where AS statement is only valid."""
+    """
+    Aliased generic statement. Only to be used in SELECT statement, where AS statement is only valid.
+
+    Usage:
+
+    >>> Aliased(Count('*'), alias='count')
+    >>> "COUNT(*) AS `count`"
+
+    >>> Select(Aliased(Count('*'), alias='count'), table='orders')
+    >>> 'SELECT COUNT(*) AS `count` FROM `orders`'
+    """
 
     def __init__(self, statement: Statement | ColumnArg, alias: str | None = None) -> None:
+        """
+        :param statement: Statement to be aliased
+        :param alias: Alias of the statement.
+        """
         super().__init__()
         self._statement = statement if isinstance(statement, Statement) else Column(statement)
+
         self.alias = alias
+        """Alias of the statement"""
 
     def __str__(self) -> str:
         if self.alias is None:
@@ -31,7 +47,20 @@ class Aliased(Statement):
 
 
 class SelectColumn(Aliased):
-    """Aliased column"""
+    """
+    Aliased column. Shortcut for `Aliased(Column(column), alias)`
+
+    Usage:
+
+    >>> Select(SelectColumn("table.column", alias="otherColumn"), table="table")
+    >>> "SELECT `table`.`column` AS `otherColumn` FROM `table`"
+
+    >>> Select(SelectColumn("table.column", distinct=True), table="table")
+    >>> "SELECT DISTINCT `table`.`column` FROM `table`"
+
+    >>> Select(SelectColumn("table.column", alias="otherColumn", distinct=True), table="table")
+    >>> "SELECT DISTINCT `table`.`column` AS `otherColumn` FROM `table`"
+    """
 
     def __init__(self, column: ColumnArg, alias: str | None = None, distinct: bool = False):
         """
@@ -41,6 +70,7 @@ class SelectColumn(Aliased):
         """
         super().__init__(column, alias)
         self.distinct = distinct
+        """Whether to select only distinct values (adds DISTINCT to the column selector)."""
 
     def __str__(self) -> str:
         if self.distinct:

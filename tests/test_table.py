@@ -3,7 +3,8 @@ Test suite for the Table class
 """
 
 import pytest
-from sqlfactory import Table, Column
+
+from sqlfactory import Column, Table
 
 
 def test_table_init():

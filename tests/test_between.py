@@ -1,4 +1,3 @@
-import pytest
 
 from sqlfactory import Column
 from sqlfactory.condition.between import Between

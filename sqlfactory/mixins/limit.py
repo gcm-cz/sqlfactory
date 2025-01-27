@@ -10,7 +10,19 @@ T = TypeVar("T")
 
 
 class Limit(ConditionalStatement, Statement):
-    """LIMIT statement"""
+    """
+    `LIMIT` statement
+
+    Examples:
+
+    ```python
+    Limit()                   # => No LIMIT statement
+    Limit(10)                 # => LIMIT 10
+    Limit(5, 10)              # => LIMIT 5, 10
+    Limit(offset=3)           # AttributeError, offset cannot be used without limit.
+    Limit(offset=3, limit=5)  # => LIMIT 3, 5
+    ```
+    """
 
     @overload
     def __init__(self) -> None:
@@ -36,12 +48,16 @@ class Limit(ConditionalStatement, Statement):
     ) -> None:
         """
         LIMIT statement
-        :param offset_or_limit: Pagination offset, or limit if second argument is None
+        :param offset_or_limit: Pagination offset, or limit if second argument is None. Only as positional argument.
         :param limit: Number of returned rows.
+        :param offset: Optional keyword argument for specifying offset.
         """
 
         if offset_or_limit is not None and offset is not None and limit is not None:
             raise AttributeError("Unable to specify both positional argument offset and keyword argument offset.")
+
+        if offset is not None and offset_or_limit is None and limit is None:
+            raise AttributeError("Cannot use only offset without limit.")
 
         if limit is None:
             limit = offset_or_limit
@@ -51,7 +67,10 @@ class Limit(ConditionalStatement, Statement):
             offset_or_limit = offset
 
         self.offset = offset_or_limit
+        """Specified pagination offset"""
+
         self.limit = limit
+        """Specified number of returned rows"""
 
     def __str__(self) -> str:
         if self.offset is not None:

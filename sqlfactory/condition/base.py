@@ -13,11 +13,41 @@ StatementOrColumn = str | Statement
 
 class ConditionBase(Statement, ConditionalStatement, ABC):
     """
-    Generic condition interface, that can be chained with other conditions using & or | operators. All condition
+    Generic condition interface, that can be chained with other conditions using `&` or `|` operators. All condition
     classes should inherit from this one, as there are checks through the library for instances of this class.
+
+    For example:
+
+    >>> Gt("id", 1) & Lt("id", 10)
+    >>> "(`id` > 1 AND `id` < 10)"
+
+    >>> Lt("id", 1) | Gt("id", 10)
+    >>> "(`id` < 1 OR `id` > 10)"
+
+    Conditions can of course be chained:
+
+    >>> Eq("id", 1) & Eq("user_id", 10) & Eq("parent_id", None)
+    >>> "(`id` = 1 AND `user_id` = 10 AND `parent_id` IS NULL)"
+
+    >>> Eq("id", 1) | Eq("user_id", 10) | Eq("parent_id", None)
+    >>> "(`id` = 1 OR `user_id` = 10 OR `parent_id` IS NULL)"
+
+    or combined together:
+
+    >>> Eq("id", 1) & (Eq("user_id", 10) | Eq("parent_id", None))
+    >>> "(`id` = 1 AND (`user_id` = 10 OR `parent_id` IS NULL))"
     """
 
     def __and__(self, other: ConditionBase) -> And:
+        """
+        Constructs AND compound condition containing this and the other conditions. It can be chained to produce multiple
+        conditions joined by AND operator.
+
+        >>> Eq("id", 1) & Eq("user_id", 10) & Eq("parent_id", None)
+        >>> "(`id` = 1 AND `user_id` = 10 AND `parent_id` IS NULL)"
+
+        :param other: Other condition to be concatenated with this one.
+        """
         if isinstance(self, And):
             out = self
         else:
@@ -31,6 +61,16 @@ class ConditionBase(Statement, ConditionalStatement, ABC):
         return out
 
     def __or__(self, other: ConditionBase) -> Or:
+        """
+        Constructs OR compound condition containing this and the other conditions. It can be chained to produce multiple
+        conditions joined by AND operator.
+
+        >>> Eq("id", 1) | Eq("user_id", 10) | Eq("parent_id", None)
+        >>> "(`id` = 1 OR `user_id` = 10 OR `parent_id` IS NULL)"
+
+        :param other: Other condition to be concatenated with this one.
+        """
+
         if isinstance(self, Or):
             out = self
         else:
@@ -46,15 +86,28 @@ class ConditionBase(Statement, ConditionalStatement, ABC):
 
 class Condition(ConditionBase):
     """
-    Generic RAW condition with optional arguments.
+    Generic RAW condition with optional arguments. You probably don't want to use this class directly, instead, try to
+    construct conditions using more specific classes, such as Eq, Gt, In, Between, etc.
+
+    Usage:
+
+    >>> Select("id", table="table", where=Eq("id", 1))
+    >>> Update("table").set("name", "hello").where(Eq("id", 1))
+
+    >>> Gt("id", 1) & Lt("id", 10)
+    >>> "(`id` > 1 AND `id` < 10)"
+
     """
 
     def __init__(self, condition: str, *args: Any):
         """
-        :param condition: Condition (such as "`column` = %s")
+        :param condition: Condition with placeholders (such as "`column` = %s")
         :param args: Optional arguments used in condition.
         """
+
         self.condition = condition
+        """Condition with placeholders."""
+
         self._args = list(args)
 
     def __str__(self) -> str:
@@ -156,15 +209,20 @@ class And(CompoundCondition):
     Compound condition joined by AND.
 
     Usage:
-        >>> And(Equals("id", 1), Equals("name", "hello"))
-        >>> "(`id` = 1 AND `name` = 'hello')"
+
+    >>> And(Equals("id", 1), Equals("name", "hello"))
+    >>> "(`id` = 1 AND `name` = 'hello')"
 
     Of course, condition can be another compound condition:
-        >>> And(Equals("id", 1), Or(Equals("name", "hello"), Equals("name", "world")))
-        >>> "(`id` = 1 AND (`name` = 'hello' OR `name` = 'world'))"
+
+    >>> And(Equals("id", 1), Or(Equals("name", "hello"), Equals("name", "world")))
+    >>> "(`id` = 1 AND (`name` = 'hello' OR `name` = 'world'))"
     """
 
     def __init__(self, *conditions: ConditionBase | str) -> None:
+        """
+        :param conditions: Conditions that should be joined using AND operator.
+        """
         super().__init__("AND", *conditions)
 
 
@@ -173,9 +231,18 @@ class Or(CompoundCondition):
     Compound condition joined by OR.
 
     Usage:
-        >>> Or(Equals("id", 1), Equals("name", "hello"))
-        >>> "(`id` = 1 OR `name` = 'hello')"
+
+    >>> Or(Equals("id", 1), Equals("name", "hello"))
+    >>> "(`id` = 1 OR `name` = 'hello')"
+
+    Of course, condition can be another compound condition:
+
+    >>> Or(Equals("id", 1), And(Equals("name", "hello"), Equals("name", "world")))
+    >>> "(`id` = 1 OR (`name` = 'hello' AND `name` = 'world'))"
     """
 
     def __init__(self, *conditions: ConditionBase | str) -> None:
+        """
+        :param conditions: Conditions that should be joined using OR operator.
+        """
         super().__init__("OR", *conditions)

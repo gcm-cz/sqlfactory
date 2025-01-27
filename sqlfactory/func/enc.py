@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from .. import Statement
+from ..statement import Statement
 from .base import Function
 
 

@@ -1,7 +1,7 @@
 """Miscellaneous functions (https://mariadb.com/kb/en/miscellaneous-functions/)."""
 
-from sqlfactory import Statement
-from sqlfactory.func.base import Function
+from ..statement import Statement
+from .base import Function
 
 
 # pylint: disable=too-few-public-methods
