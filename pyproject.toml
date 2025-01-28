@@ -21,6 +21,7 @@ classifiers = [
 Homepage = "https://gitlab.com/gcm-cz/sqlfactory"
 Repository = "https://gitlab.com/gcm-cz/sqlfactory"
 Issues = "https://gitlab.com/gcm-cz/sqlfactory/-/issues"
+Documentation = "https://gcm-cz.gitlab.io/sqlfactory/"
 
 [tool.poetry.dependencies]
 python = "^3.11"
