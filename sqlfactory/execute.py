@@ -65,30 +65,18 @@ class HasAsyncExecuteWithArgs(Protocol[R_co]):
 
     async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
 
-HasAsyncQuery: TypeAlias = (
-    HasAsyncQueryWithTupleArgs[R_co] | HasAsyncQueryWithArgs[R_co]
-)
 
-HasAsyncExecute: TypeAlias = (
-    HasAsyncExecuteWithTupleArgs[R_co] | HasAsyncExecuteWithArgs[R_co]
-)
+HasAsyncQuery: TypeAlias = HasAsyncQueryWithTupleArgs[R_co] | HasAsyncQueryWithArgs[R_co]
 
-HasQuery: TypeAlias = (
-    HasQueryWithTupleArgs[R_co] | HasQueryWithArgs[R_co]
-)
+HasAsyncExecute: TypeAlias = HasAsyncExecuteWithTupleArgs[R_co] | HasAsyncExecuteWithArgs[R_co]
 
-HasExecute: TypeAlias = (
-    HasExecuteWithTupleArgs[R_co] | HasExecuteWithArgs[R_co]
-)
+HasQuery: TypeAlias = HasQueryWithTupleArgs[R_co] | HasQueryWithArgs[R_co]
 
-HasQueryOrExecute: TypeAlias = (
-    HasQuery[R_co] | HasExecute[R_co]
-)
+HasExecute: TypeAlias = HasExecuteWithTupleArgs[R_co] | HasExecuteWithArgs[R_co]
 
-HasAsyncQueryOrExecute: TypeAlias = (
-    HasAsyncQuery[R_co]
-    | HasAsyncExecute[R_co]
-)
+HasQueryOrExecute: TypeAlias = HasQuery[R_co] | HasExecute[R_co]
+
+HasAsyncQueryOrExecute: TypeAlias = HasAsyncQuery[R_co] | HasAsyncExecute[R_co]
 MaybeAsyncHasQueryOrExecute: TypeAlias = HasQueryOrExecute[R_co] | HasAsyncQueryOrExecute[R_co]
 
 
@@ -245,7 +233,7 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
         :param: Return value from the driver's execute() or query() method.
         """
 
-    @overload  # type: ignore[override]
+    @overload
     async def execute(self, trx: HasAsyncExecute[R_co], *args: Any) -> R_co | bool:
         """
         Execute SQL statement using provided db-driver, but only if statement evaluates as True.
