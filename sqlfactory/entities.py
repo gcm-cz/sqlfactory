@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from .statement import Raw, Statement
 
 if TYPE_CHECKING:
-    from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne
+    from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne  # pragma: nocover
 
 
 class Expression(Statement):

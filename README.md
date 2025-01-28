@@ -10,6 +10,12 @@ Convenient classes for building SQL queries in Python. Main purpose of this libr
 queries in Python code. It is not an ORM (and don't intend to be), just a plain SQL query builder with syntax as
 similar to actual SQL as possible.
 
+## Documentation
+
+API documentation with more examples is available at [GitLab Pages](https://gcm-cz.gitlab.io/sqlfactory/).
+
+## Usage
+
 Let's have look at few examples, because examples tell much more than a thousand words:
 
 TL;DR:
