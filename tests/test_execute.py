@@ -7,7 +7,7 @@ from sqlfactory import Eq, Insert, Select
 
 
 class DbDriverWithExecuteTuple():
-    def execute(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
+    def execute(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
@@ -17,7 +17,7 @@ class DbDriverWithExecuteArgs():
 
 
 class DbDriverWithQueryTuple():
-    def query(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
+    def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
@@ -27,7 +27,7 @@ class DbDriverWithQueryArgs():
 
 
 class AsyncDbDriverWithExecuteTuple():
-    async def execute(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
+    async def execute(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
@@ -37,7 +37,7 @@ class AsyncDbDriverWithExecuteArgs():
 
 
 class AsyncDbDriverWithQueryTuple():
-    async def query(self, query: str, args: tuple[Any]) -> tuple[str, Iterable[Any]]:
+    async def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
@@ -48,6 +48,22 @@ class AsyncDbDriverWithQueryArgs():
 
 class InvalidDbDriver():
     pass
+
+
+class DbDriverWithQueryAndExecute():
+    def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
+        return query, args
+
+    def execute(self, query: str, args: tuple[Any, ...]) -> None:
+        raise AssertionError("Execute got preferred over query(), this is not intended.")
+
+
+class AsyncDbDriverWithQueryAndExecute():
+    async def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
+        return query, args
+
+    async def execute(self, query: str, args: tuple[Any, ...]) -> None:
+        raise AssertionError("Execute got preferred over query(), this is not intended.")
 
 
 def test_execute_tuple():
@@ -70,6 +86,12 @@ def test_query_tuple():
 
 def test_query_args():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithQueryArgs())
+    assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
+    assert args == (1, )
+
+
+def test_query_over_execute():
+    sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithQueryAndExecute())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
     assert args == (1, )
 
@@ -98,6 +120,13 @@ async def test_async_query_tuple():
 @pytest.mark.asyncio
 async def test_async_query_args():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithQueryArgs())
+    assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
+    assert args == (1, )
+
+
+@pytest.mark.asyncio
+async def test_async_query_over_execute():
+    sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithQueryAndExecute())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
     assert args == (1, )
 

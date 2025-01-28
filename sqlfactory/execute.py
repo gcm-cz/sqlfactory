@@ -65,16 +65,29 @@ class HasAsyncExecuteWithArgs(Protocol[R_co]):
 
     async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
 
+HasAsyncQuery: TypeAlias = (
+    HasAsyncQueryWithTupleArgs[R_co] | HasAsyncQueryWithArgs[R_co]
+)
+
+HasAsyncExecute: TypeAlias = (
+    HasAsyncExecuteWithTupleArgs[R_co] | HasAsyncExecuteWithArgs[R_co]
+)
+
+HasQuery: TypeAlias = (
+    HasQueryWithTupleArgs[R_co] | HasQueryWithArgs[R_co]
+)
+
+HasExecute: TypeAlias = (
+    HasExecuteWithTupleArgs[R_co] | HasExecuteWithArgs[R_co]
+)
 
 HasQueryOrExecute: TypeAlias = (
-    HasQueryWithTupleArgs[R_co] | HasExecuteWithTupleArgs[R_co] | HasQueryWithArgs[R_co] | HasExecuteWithArgs[R_co]
+    HasQuery[R_co] | HasExecute[R_co]
 )
 
 HasAsyncQueryOrExecute: TypeAlias = (
-    HasAsyncQueryWithTupleArgs[R_co]
-    | HasAsyncExecuteWithTupleArgs[R_co]
-    | HasAsyncQueryWithArgs[R_co]
-    | HasAsyncExecuteWithArgs[R_co]
+    HasAsyncQuery[R_co]
+    | HasAsyncExecute[R_co]
 )
 MaybeAsyncHasQueryOrExecute: TypeAlias = HasQueryOrExecute[R_co] | HasAsyncQueryOrExecute[R_co]
 
@@ -97,17 +110,90 @@ class ExecutableStatement(Statement, ABC):
     """
 
     @overload
-    async def execute(self, trx: HasAsyncQueryOrExecute[R_co], *args: Any) -> R_co:
-        """Execute statement on async db driver"""
+    async def execute(self, trx: HasAsyncQuery[R_co], *args: Any) -> R_co:
+        """
+        Execute statement on async db driver
+
+        Example:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> await select.execute(async_cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
 
     @overload
-    def execute(self, trx: HasQueryOrExecute[R_co], *args: Any) -> R_co:
-        """Execute statement on sync db driver."""
+    async def execute(self, trx: HasAsyncExecute[R_co], *args: Any) -> R_co:
+        """
+        Execute statement on async db driver
+
+        Example:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> await select.execute(async_cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
+
+    @overload
+    def execute(self, trx: HasQuery[R_co], *args: Any) -> R_co:
+        """
+        Execute statement on sync db driver.
+
+        Example:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> select.execute(cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
+
+    @overload
+    def execute(self, trx: HasExecute[R_co], *args: Any) -> R_co:
+        """
+        Execute statement on sync db driver.
+
+        Example:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> select.execute(cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
 
     def execute(self, trx: MaybeAsyncHasQueryOrExecute[R_co], *args: Any) -> R_co | Awaitable[R_co]:
         """
         Execute statement on db driver (db-agnostic, just expects method `query` or `execute` on given driver).
         This is just a shortland for calling driver.execute(str(self), *args).
+
+        Example:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> select.execute(cursor)
+
+        or for async:
+
+        >>> from sqlfactory import Select, Eq
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> select = Select("table").where("column", Eq(42))
+        >>> await select.execute(async_cursor)
+
         :param trx: DB driver with query() or execute() method, which accepts either tuple as arguments,
          or multiple arguments following the query.
         :param args: Arguments to pass to the driver's query/execute method.
@@ -136,18 +222,140 @@ class ConditionalExecutableStatement(ExecutableStatement, ConditionalStatement, 
     """
 
     @overload  # type: ignore[override]
-    async def execute(self, trx: HasAsyncQueryOrExecute[R_co], *args: Any) -> R_co | bool:
-        """Execute statement on async db driver"""
+    async def execute(self, trx: HasAsyncQuery[R_co], *args: Any) -> R_co | bool:
+        """
+        Execute SQL statement using provided db-driver, but only if statement evaluates as True.
+
+        Example:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> await insert.execute(async_cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> await insert.execute(async_cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
+
+    @overload  # type: ignore[override]
+    async def execute(self, trx: HasAsyncExecute[R_co], *args: Any) -> R_co | bool:
+        """
+        Execute SQL statement using provided db-driver, but only if statement evaluates as True.
+
+        Example:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> await insert.execute(async_cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> await insert.execute(async_cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
 
     @overload
-    def execute(self, trx: HasQueryOrExecute[R_co], *args: Any) -> R_co | bool:
+    def execute(self, trx: HasQuery[R_co], *args: Any) -> R_co | bool:
         # pylint: disable=invalid-overridden-method
-        """Execute statement on sync db driver."""
+        """
+        Execute SQL statement using provided db-driver, but only if statement evaluates as True.
+
+        Example:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> insert.execute(cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> insert.execute(cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
+
+    @overload
+    def execute(self, trx: HasExecute[R_co], *args: Any) -> R_co | bool:
+        # pylint: disable=invalid-overridden-method
+        """
+        Execute SQL statement using provided db-driver, but only if statement evaluates as True.
+
+        Example:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> insert.execute(cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> insert.execute(cursor)
+
+        :param: Return value from the driver's execute() or query() method.
+        """
 
     def execute(self, trx: MaybeAsyncHasQueryOrExecute[R_co], *args: Any) -> R_co | bool | Awaitable[R_co | bool]:
         # pylint: disable=invalid-overridden-method
         """
         Execute SQL statement using provided db-driver, but only if statement evaluates as True.
+
+        Example:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> insert.execute(async_cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> insert.execute(async_cursor)
+
+        or for async cursors:
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...  # Your db driver's cursor
+        >>> insert = Insert("products")("id", "name").values((1, "test"))
+        >>> # Gets executed only if there are any rows to be inserted.
+        >>> insert.execute(async_cursor)
+
+        >>> from sqlfactory import Insert
+        >>>
+        >>> async_cursor: Any = ...
+        >>> insert = Insert("products")("id", "name").values()
+        >>> # Does not get executed, because there are no rows to be inserted.
+        >>> insert.execute(async_cursor)
+
         :param trx: DB driver with query() or execute() method, which accepts either tuple as arguments,
         :param args: Arguments to pass to the db driver.
         :return:
