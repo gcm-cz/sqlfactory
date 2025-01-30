@@ -67,7 +67,7 @@ build-docs:
 release-wheel:
   image: harbor.srv.gcm.cz/ci/baseimage/python:3.11-ci
   stage: release
-  dependencies:
+  needs:
       - build-wheel
   only:
       - tags
@@ -81,7 +81,7 @@ release-wheel-official:
   variables:
     PYPI_REPO: https://upload.pypi.org/legacy/
     PYPI_TOKEN: $PYPI_TOKEN_OFFICIAL
-  dependencies:
+  needs:
       - build-wheel
   only:
       - tags
@@ -89,7 +89,7 @@ release-wheel-official:
       - /ci/release-wheel.sh
 
 release:
-    image: harbor.srv.gcm.cz/ci/baseimage/python:3.11-ci
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
     stage: release
     needs:
       - release-wheel-official
