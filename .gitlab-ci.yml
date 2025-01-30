@@ -87,3 +87,17 @@ release-wheel-official:
       - tags
   script:
       - /ci/release-wheel.sh
+
+release:
+    image: harbor.srv.gcm.cz/ci/baseimage/python:3.11-ci
+    stage: release
+    needs:
+      - release-wheel-official
+    only:
+      - tags
+    script:
+      -  echo "Creating release."
+    release:
+      name: "$CI_COMMIT_TAG"
+      description: "Release $CI_COMMIT_TAG"
+      tag_name: "$CI_COMMIT_TAG"
