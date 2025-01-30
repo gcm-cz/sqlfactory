@@ -55,7 +55,7 @@ query = Delete("products", where=Eq("enabled", False))
 
 """
 
-from . import func
+from . import execute, func, mixins
 from .condition import (
     And,
     Between,
@@ -144,5 +144,7 @@ __all__ = [
     "Table",
     "Update",
     "Values",
+    "execute",
     "func",
+    "mixins",
 ]

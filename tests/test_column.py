@@ -44,7 +44,7 @@ def test_column_is_not_none():
 
     # TODO: This fails, but should it?
     l = [Column("column")]
-    #assert (None in l) is False
+    # assert (None in l) is False
 
 
 def test_column_gt():

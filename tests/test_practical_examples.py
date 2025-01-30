@@ -19,15 +19,15 @@ def test_select_books():
     assert case1.args == args
 
     # A little more like a SQL:
-    case2 = SELECT("column1", "column2", "column3", table="books") \
-        .WHERE(Eq("column1", "value") & In("column2", [1, 2, 3]))
+    case2 = SELECT("column1", "column2", "column3", table="books").WHERE(Eq("column1", "value") & In("column2", [1, 2, 3]))
     assert str(case2) == sql
     assert case2.args == args
 
     # A little more like a python, but still SQL:
     books = Table("books")
-    case3 = SELECT(books.column1, books.column2, books.column3, table=books) \
-        .WHERE((books.column1 == "value") & In(books.column2, [1, 2, 3]))
+    case3 = SELECT(books.column1, books.column2, books.column3, table=books).WHERE(
+        (books.column1 == "value") & In(books.column2, [1, 2, 3])
+    )
 
     assert str(case3) == sql_with_table
     assert case3.args == args
@@ -35,12 +35,13 @@ def test_select_books():
 
 def test_insert_books():
     sql = "INSERT INTO `books` (`column1`, `column2`, `column3`) VALUES (%s, %s, %s), (%s, %s, %s)"
-    sql_with_table = "INSERT INTO `books` (`books`.`column1`, `books`.`column2`, `books`.`column3`) VALUES (%s, %s, %s), (%s, %s, %s)"
+    sql_with_table = (
+        "INSERT INTO `books` (`books`.`column1`, `books`.`column2`, `books`.`column3`) VALUES (%s, %s, %s), (%s, %s, %s)"
+    )
     args = ["value1", "value2", "value3", "value4", "value5", "value6"]
 
     case1 = Insert.into("books")("column1", "column2", "column3").VALUES(
-        ("value1", "value2", "value3"),
-        ("value4", "value5", "value6")
+        ("value1", "value2", "value3"), ("value4", "value5", "value6")
     )
     assert str(case1) == sql
     assert case1.args == args
@@ -48,16 +49,14 @@ def test_insert_books():
     # Of course, you can use Table object as well
     books = Table("books")
     case2 = INSERT.INTO(books)(books.column1, books.column2, books.column3).VALUES(
-        ("value1", "value2", "value3"),
-        ("value4", "value5", "value6")
+        ("value1", "value2", "value3"), ("value4", "value5", "value6")
     )
     assert str(case2) == sql_with_table
     assert case2.args == args
 
     # The INTO is not necessary, you can call INSERT constructor directly:
     case3 = INSERT("books")("column1", "column2", "column3").VALUES(
-        ("value1", "value2", "value3"),
-        ("value4", "value5", "value6")
+        ("value1", "value2", "value3"), ("value4", "value5", "value6")
     )
 
     assert str(case3) == sql
@@ -69,19 +68,13 @@ def test_update_books():
     sql_with_table = "UPDATE `books` SET `books`.`column1` = %s, `books`.`column2` = %s WHERE `books`.`column3` = %s"
     args = ["value1", "value2", "value3"]
 
-    case1 = Update("books") \
-        .set("column1", "value1") \
-        .set("column2", "value2") \
-        .where(Eq("column3", "value3"))
+    case1 = Update("books").set("column1", "value1").set("column2", "value2").where(Eq("column3", "value3"))
     assert str(case1) == sql
     assert case1.args == args
 
     # Of course, you can use Table object as well
     books = Table("books")
-    case2 = Update(books) \
-        .set(books.column1, "value1") \
-        .set(books.column2, "value2") \
-        .where(books.column3 == "value3")
+    case2 = Update(books).set(books.column1, "value1").set(books.column2, "value2").where(books.column3 == "value3")
     assert str(case2) == sql_with_table
     assert case2.args == args
 
@@ -99,8 +92,7 @@ class Book:
     year: str
 
 
-def select_books_by_authors(c: Cursor, authors: list[str], book_properties: list[str] = None, offset: int = 0,
-                            limit: int = 10):
+def select_books_by_authors(c: Cursor, authors: list[str], book_properties: list[str] = None, offset: int = 0, limit: int = 10):
     """
     Returns books written by specific authors. Returns list of books paginated by specified offset and limit, ordered
     by book title and author name.
@@ -112,25 +104,21 @@ def select_books_by_authors(c: Cursor, authors: list[str], book_properties: list
     property_column = {
         "title": SelectColumn("books.title", alias="title"),
         "author": SelectColumn("authors.name", alias="author"),
-        "year": SelectColumn("books.year", alias="year")
+        "year": SelectColumn("books.year", alias="year"),
     }
 
     select = (
         # Map dataclass attributes to SQL columns by using mapping table.
         Select(*[property_column[book_property] for book_property in book_properties], table="books")
-
         # As Eq expects firt argument to be column and second argument to be value, we need to provide hint, that
         # authors.id is a column, not a value.
         .join("authors", on=Eq("books.author", Column("authors.id")))
-
         # In is intelligent, it will work even when authors list is empty (will produce False, which in turn will
         # return empty result, as no author has been matched).
         .where(In("authors.name", authors))
-
         # Multiple ORDER BY columns is supported
         .order_by("title", Direction.ASC)
         .order_by("authors.name", Direction.ASC)
-
         # Limit and offset are supported as well
         .limit(offset, limit)
     )
@@ -172,7 +160,10 @@ def update_books(c: Cursor, books: list[BookUpdate]) -> list[tuple[str, tuple[An
 def test_select_books_by_authors():
     c = Cursor()
     sql, args = select_books_by_authors(c, ["John Doe"], ["title", "author"])
-    assert sql == "SELECT `books`.`title` AS `title`, `authors`.`name` AS `author` FROM `books` JOIN `authors` ON `books`.`author` = `authors`.`id` WHERE `authors`.`name` IN (%s) ORDER BY `title` ASC, `authors`.`name` ASC LIMIT %s, %s"
+    assert (
+        sql
+        == "SELECT `books`.`title` AS `title`, `authors`.`name` AS `author` FROM `books` JOIN `authors` ON `books`.`author` = `authors`.`id` WHERE `authors`.`name` IN (%s) ORDER BY `title` ASC, `authors`.`name` ASC LIMIT %s, %s"
+    )
     assert args == ("John Doe", 0, 10)
 
 

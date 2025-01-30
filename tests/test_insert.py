@@ -26,17 +26,23 @@ def test_insert_replace():
 
 def test_insert_on_duplicate_key_update():
     insert_condition = Insert.into("table")("column1", "column2").values((1, 2)).on_duplicate_key_update(column1=3, column2=4)
-    assert str(insert_condition) == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) ON DUPLICATE KEY UPDATE `column1` = %s, `column2` = %s"
+    assert (
+        str(insert_condition)
+        == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) ON DUPLICATE KEY UPDATE `column1` = %s, `column2` = %s"
+    )
     assert insert_condition.args == [1, 2, 3, 4]
 
 
 def test_insert_on_duplicate_key_update_with_args():
     insert_condition = (
-        INSERT
-        .INTO("table")("column1", "column2")
+        INSERT.INTO("table")("column1", "column2")
         .VALUES((1, 2))
-        .ON_DUPLICATE_KEY_UPDATE(column1=Concat(Values("column1"), "foo"), column2=4))
-    assert str(insert_condition) == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) ON DUPLICATE KEY UPDATE `column1` = CONCAT(VALUES(`column1`), %s), `column2` = %s"
+        .ON_DUPLICATE_KEY_UPDATE(column1=Concat(Values("column1"), "foo"), column2=4)
+    )
+    assert (
+        str(insert_condition)
+        == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) ON DUPLICATE KEY UPDATE `column1` = CONCAT(VALUES(`column1`), %s), `column2` = %s"
+    )
     assert insert_condition.args == [1, 2, "foo", 4]
 
 

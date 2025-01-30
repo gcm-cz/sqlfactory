@@ -25,7 +25,7 @@ from sqlfactory.func.info import (
 
 
 def test_benchmark():
-    benchmark_func = Benchmark(1000, Raw('SELECT 1'))
+    benchmark_func = Benchmark(1000, Raw("SELECT 1"))
     assert str(benchmark_func) == "BENCHMARK(%s, SELECT 1)"
     assert benchmark_func.args == [1000]
 
@@ -43,21 +43,21 @@ def test_charset():
 
 
 def test_coercibility():
-    coercibility_func = Coercibility('expression')
+    coercibility_func = Coercibility("expression")
     assert str(coercibility_func) == "COERCIBILITY(%s)"
-    assert coercibility_func.args == ['expression']
+    assert coercibility_func.args == ["expression"]
 
 
 def test_collation():
-    collation_func = Collation('expression')
+    collation_func = Collation("expression")
     assert str(collation_func) == "COLLATION(%s)"
-    assert collation_func.args == ['expression']
+    assert collation_func.args == ["expression"]
 
 
 def test_collate():
-    collate_func = Collate('expression', 'collation')
+    collate_func = Collate("expression", "collation")
     assert str(collate_func) == "%s COLLATE collation"
-    assert collate_func.args == ['expression']
+    assert collate_func.args == ["expression"]
 
 
 def test_connection_id():
@@ -85,9 +85,9 @@ def test_database():
 
 
 def test_decode_histogram():
-    decode_histogram_func = DecodeHistogram('hist_type', 'histogram')
+    decode_histogram_func = DecodeHistogram("hist_type", "histogram")
     assert str(decode_histogram_func) == "DECODE_HISTOGRAM(%s, %s)"
-    assert decode_histogram_func.args == ['hist_type', 'histogram']
+    assert decode_histogram_func.args == ["hist_type", "histogram"]
 
 
 def test_default():

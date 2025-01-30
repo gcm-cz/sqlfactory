@@ -27,4 +27,3 @@ def test_uniqueness_of_funcs():
 
 def test_not_equal_with_string():
     assert Raw("abc") != "abc"
-

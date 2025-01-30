@@ -6,51 +6,51 @@ import pytest
 from sqlfactory import Eq, Insert, Select
 
 
-class DbDriverWithExecuteTuple():
+class DbDriverWithExecuteTuple:
     def execute(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class DbDriverWithExecuteArgs():
+class DbDriverWithExecuteArgs:
     def execute(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class DbDriverWithQueryTuple():
+class DbDriverWithQueryTuple:
     def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class DbDriverWithQueryArgs():
+class DbDriverWithQueryArgs:
     def query(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class AsyncDbDriverWithExecuteTuple():
+class AsyncDbDriverWithExecuteTuple:
     async def execute(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class AsyncDbDriverWithExecuteArgs():
+class AsyncDbDriverWithExecuteArgs:
     async def execute(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class AsyncDbDriverWithQueryTuple():
+class AsyncDbDriverWithQueryTuple:
     async def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class AsyncDbDriverWithQueryArgs():
+class AsyncDbDriverWithQueryArgs:
     async def query(self, query: str, *args: Any) -> tuple[str, Iterable[Any]]:
         return query, args
 
 
-class InvalidDbDriver():
+class InvalidDbDriver:
     pass
 
 
-class DbDriverWithQueryAndExecute():
+class DbDriverWithQueryAndExecute:
     def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
@@ -58,7 +58,7 @@ class DbDriverWithQueryAndExecute():
         raise AssertionError("Execute got preferred over query(), this is not intended.")
 
 
-class AsyncDbDriverWithQueryAndExecute():
+class AsyncDbDriverWithQueryAndExecute:
     async def query(self, query: str, args: tuple[Any, ...]) -> tuple[str, Iterable[Any]]:
         return query, args
 
@@ -69,66 +69,66 @@ class AsyncDbDriverWithQueryAndExecute():
 def test_execute_tuple():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithExecuteTuple())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 def test_execute_args():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithExecuteArgs())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 def test_query_tuple():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithQueryTuple())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 def test_query_args():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithQueryArgs())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 def test_query_over_execute():
     sql, args = Select("abc", table="table", where=Eq("id", 1)).execute(DbDriverWithQueryAndExecute())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 @pytest.mark.asyncio
 async def test_async_execute_tuple():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithExecuteTuple())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 @pytest.mark.asyncio
 async def test_async_execute_args():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithExecuteArgs())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 @pytest.mark.asyncio
 async def test_async_query_tuple():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithQueryTuple())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 @pytest.mark.asyncio
 async def test_async_query_args():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithQueryArgs())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 @pytest.mark.asyncio
 async def test_async_query_over_execute():
     sql, args = await Select("abc", table="table", where=Eq("id", 1)).execute(AsyncDbDriverWithQueryAndExecute())
     assert sql == "SELECT `abc` FROM `table` WHERE `id` = %s"
-    assert args == (1, )
+    assert args == (1,)
 
 
 def test_invalid_db_driver():
@@ -145,7 +145,7 @@ def test_conditional_execute_executes():
     # Non-empty insert executes
     assert Insert("table")("a", "b").values((1, 2)).execute(DbDriverWithExecuteTuple()) == (
         "INSERT INTO `table` (`a`, `b`) VALUES (%s, %s)",
-        (1, 2)
+        (1, 2),
     )
 
 
@@ -160,5 +160,5 @@ async def test_async_conditional_execute_executes():
     # Non-empty insert executes
     assert await Insert("table")("a", "b").values((1, 2)).execute(AsyncDbDriverWithExecuteTuple()) == (
         "INSERT INTO `table` (`a`, `b`) VALUES (%s, %s)",
-        (1, 2)
+        (1, 2),
     )

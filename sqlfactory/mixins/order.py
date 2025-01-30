@@ -69,6 +69,13 @@ class WithOrder(Generic[T]):
 
     def __init__(self, *args: Any, order: OrderArg | None = None, **kwargs: Any) -> None:
         """
+
+        Example:
+
+        >>> query = Select(order=[('column1', Direction.ASC), ('column2', Direction.DESC)])
+
+        >>> query = Select(order=[Order([('column1', Direction.ASC), ('column2', Direction.DESC)])]
+
         :param order: Ordering specification - either instance of Order, or collection of columns and directions.
         """
         super().__init__(*args, **kwargs)
@@ -80,9 +87,13 @@ class WithOrder(Generic[T]):
     def order_by(self, column: OrderColumn, direction: Direction) -> Self:
         """
         Add column to be used for ordering. Can be called multiple times, columns will be ordered by order of calls.
+
+        Example:
+
+        >>> query = Select().order_by('column1', Direction.ASC).order_by('column2', Direction.DESC)
+
         :param column: Column to use for ordering
         :param direction: Ordering direction
-        :return:
         """
         if self._order is None:
             self._order = Order()
@@ -92,7 +103,7 @@ class WithOrder(Generic[T]):
 
     # pylint: disable=invalid-name
     def ORDER_BY(self, column: OrderColumn, direction: Direction) -> Self:
-        """Alias for order_by() to be more SQL-like with all capitals."""
+        """Alias for `WithOrder.order_by()` to be more SQL-like with all capitals."""
         return self.order_by(column, direction)
 
 

@@ -7,16 +7,7 @@ from sqlfactory.func.control import IfNull
 
 def test_select():
     select_condition = (
-        Select(
-            "column1",
-            "column2",
-            table="table"
-        )
-        .where(
-            Eq("id", 1)
-        )
-        .order_by("column2", Direction.ASC)
-        .limit(2, 10)
+        Select("column1", "column2", table="table").where(Eq("id", 1)).order_by("column2", Direction.ASC).limit(2, 10)
     )
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` WHERE `id` = %s ORDER BY `column2` ASC LIMIT %s, %s"
@@ -24,30 +15,21 @@ def test_select():
 
 
 def test_select_with_join():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .join("table2", on=Eq("table.id", Column("table2.id")))
-    )
+    select_condition = Select("column1", "column2", table="table").join("table2", on=Eq("table.id", Column("table2.id")))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id`"
     assert select_condition.args == []
 
 
 def test_select_with_left_join():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .left_join("table2", on=Eq("table.id", Column("table2.id")))
-    )
+    select_condition = Select("column1", "column2", table="table").left_join("table2", on=Eq("table.id", Column("table2.id")))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LEFT JOIN `table2` ON `table`.`id` = `table2`.`id`"
     assert select_condition.args == []
 
 
 def test_select_with_group_by():
-    select_condition = (
-           Select("column1", "column2", table="table")
-           .group_by("column1")
-    )
+    select_condition = Select("column1", "column2", table="table").group_by("column1")
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` GROUP BY `column1`"
     assert select_condition.args == []
@@ -60,69 +42,48 @@ def test_select_without_where_order_limit():
 
 
 def test_select_add():
-    select_condition = (
-        Select("column1", table="table")
-        .add("column2")
-    )
+    select_condition = Select("column1", table="table").add("column2")
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table`"
     assert select_condition.args == []
 
 
 def test_select_JOIN():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .JOIN("table2", on=Eq("table.id", Column("table2.id")))
-    )
+    select_condition = Select("column1", "column2", table="table").JOIN("table2", on=Eq("table.id", Column("table2.id")))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id`"
     assert select_condition.args == []
 
 
 def test_select_LEFT_JOIN():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .LEFT_JOIN("table2", on=Eq("table.id", Column("table2.id")))
-    )
+    select_condition = Select("column1", "column2", table="table").LEFT_JOIN("table2", on=Eq("table.id", Column("table2.id")))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LEFT JOIN `table2` ON `table`.`id` = `table2`.`id`"
     assert select_condition.args == []
 
 
 def test_select_GROUP_BY():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .GROUP_BY("column1")
-    )
+    select_condition = Select("column1", "column2", table="table").GROUP_BY("column1")
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` GROUP BY `column1`"
     assert select_condition.args == []
 
 
 def test_select_order_by():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .order_by("column1", Direction.ASC)
-    )
+    select_condition = Select("column1", "column2", table="table").order_by("column1", Direction.ASC)
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` ORDER BY `column1` ASC"
     assert select_condition.args == []
 
 
 def test_select_limit():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .limit(5)
-    )
+    select_condition = Select("column1", "column2", table="table").limit(5)
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LIMIT %s"
     assert select_condition.args == [5]
 
 
 def test_select_limit_instance():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .limit(Limit(10))
-    )
+    select_condition = Select("column1", "column2", table="table").limit(Limit(10))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LIMIT %s"
     assert select_condition.args == [10]
@@ -134,51 +95,34 @@ def test_select_limit_instance_invalid():
 
 
 def test_select_where():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .where(Eq("column1", "value"))
-    )
+    select_condition = Select("column1", "column2", table="table").where(Eq("column1", "value"))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` WHERE `column1` = %s"
     assert select_condition.args == ["value"]
 
 
 def test_select_having():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .group_by("column1")
-        .having(Eq("column1", "value"))
-    )
+    select_condition = Select("column1", "column2", table="table").group_by("column1").having(Eq("column1", "value"))
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` GROUP BY `column1` HAVING `column1` = %s"
     assert select_condition.args == ["value"]
 
 
 def test_select_limit_with_offset():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .limit(5, 10)
-    )
+    select_condition = Select("column1", "column2", table="table").limit(5, 10)
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LIMIT %s, %s"
     assert select_condition.args == [5, 10]
 
 
 def test_select_HAVING():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .group_by("column1")
-        .HAVING(Eq("column1", "value"))
-    )
+    select_condition = Select("column1", "column2", table="table").group_by("column1").HAVING(Eq("column1", "value"))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` GROUP BY `column1` HAVING `column1` = %s"
     assert select_condition.args == ["value"]
 
 
 def test_select_order_by_desc():
-    select_condition = (
-        Select("column1", "column2", table="table")
-        .order_by("column1", Direction.DESC)
-    )
+    select_condition = Select("column1", "column2", table="table").order_by("column1", Direction.DESC)
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` ORDER BY `column1` DESC"
     assert select_condition.args == []
@@ -186,9 +130,7 @@ def test_select_order_by_desc():
 
 def test_select_order_by_multiple_columns():
     select_condition = (
-        Select("column1", "column2", table="table")
-        .order_by("column1",  Direction.ASC)
-        .ORDER_BY("column2", Direction.DESC)
+        Select("column1", "column2", table="table").order_by("column1", Direction.ASC).ORDER_BY("column2", Direction.DESC)
     )
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` ORDER BY `column1` ASC, `column2` DESC"
@@ -214,17 +156,10 @@ def test_errors():
 
     # join() with instance of Join class cannot have additional arguments.
     with pytest.raises(AttributeError):
-        (
-            Select("column1", table="table")
-            .join(Join("table2"), Eq("table.id", Column("table2.id")))
-        )
+        (Select("column1", table="table").join(Join("table2"), Eq("table.id", Column("table2.id"))))
 
     with pytest.raises(AttributeError, match="Where has already been specified."):
-        (
-            Select(table="xyz")
-            .where(Eq("column1", "value"))
-            .WHERE(Eq("column2", "value"))
-        )
+        (Select(table="xyz").where(Eq("column1", "value")).WHERE(Eq("column2", "value")))
 
 
 def test_column_list():

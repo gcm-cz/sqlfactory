@@ -29,7 +29,10 @@ def test_in_tuple_columns():
 
 def test_in_tuple_columns_with_null():
     in_condition = In(("column1", "column2"), [(1, 2), (None, None), (1, None), (None, 2)])
-    assert str(in_condition) == "((`column1`, `column2`) IN ((%s, %s)) OR (`column1` IS %s AND `column2` IS %s) OR (`column1` = %s AND `column2` IS %s) OR (`column1` IS %s AND `column2` = %s))"
+    assert (
+        str(in_condition)
+        == "((`column1`, `column2`) IN ((%s, %s)) OR (`column1` IS %s AND `column2` IS %s) OR (`column1` = %s AND `column2` IS %s) OR (`column1` IS %s AND `column2` = %s))"
+    )
     assert in_condition.args == [1, 2, None, None, 1, None, None, 2]
 
 
@@ -47,7 +50,10 @@ def test_in_tuple_only_none_in_values():
 
 def test_not_in_tuple_columns_with_null():
     in_condition = In(("column1", "column2"), [(1, 2), (None, None), (1, None), (None, 2)], negative=True)
-    assert str(in_condition) == "((`column1`, `column2`) NOT IN ((%s, %s)) AND (`column1` IS NOT %s AND `column2` IS NOT %s) AND (`column1` != %s AND `column2` IS NOT %s) AND (`column1` IS NOT %s AND `column2` != %s))"
+    assert (
+        str(in_condition)
+        == "((`column1`, `column2`) NOT IN ((%s, %s)) AND (`column1` IS NOT %s AND `column2` IS NOT %s) AND (`column1` != %s AND `column2` IS NOT %s) AND (`column1` IS NOT %s AND `column2` != %s))"
+    )
     assert in_condition.args == [1, 2, None, None, 1, None, None, 2]
 
 
@@ -77,7 +83,10 @@ def test_in_tuple_columns_with_args():
     statement1 = Concat(Column("column3"), "foo")
     statement2 = Concat(Column("column4"), "bar")
     in_condition = In(("column1", "column2"), [(statement1, statement2), (statement1, statement2)])
-    assert str(in_condition) == "(`column1`, `column2`) IN ((CONCAT(`column3`, %s), CONCAT(`column4`, %s)), (CONCAT(`column3`, %s), CONCAT(`column4`, %s)))"
+    assert (
+        str(in_condition)
+        == "(`column1`, `column2`) IN ((CONCAT(`column3`, %s), CONCAT(`column4`, %s)), (CONCAT(`column3`, %s), CONCAT(`column4`, %s)))"
+    )
     assert in_condition.args == ["foo", "bar", "foo", "bar"]
 
 
@@ -88,7 +97,7 @@ def test_in_with_none_in_args():
 
 
 def test_in_with_statement_and_none_in_args():
-    in_condition = In(Concat(Column("column1"), "foo"), [1,2,3, None])
+    in_condition = In(Concat(Column("column1"), "foo"), [1, 2, 3, None])
     assert str(in_condition) == "(CONCAT(`column1`, %s) IN (%s, %s, %s) OR CONCAT(`column1`, %s) IS NULL)"
     assert in_condition.args == ["foo", 1, 2, 3, "foo"]
 

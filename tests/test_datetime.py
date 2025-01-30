@@ -86,34 +86,33 @@ def test_interval():
     assert str(interval) == "INTERVAL `minute` MINUTE"
     assert interval.args == []
 
-
     interval = Interval(minute=IfNull(Column("minute"), 5))
     assert str(interval) == "INTERVAL IFNULL(`minute`, %s) MINUTE"
     assert interval.args == [5]
 
 
 def test_add_months():
-    add_months_func = AddMonths('2022-01-01', 1)
+    add_months_func = AddMonths("2022-01-01", 1)
     assert str(add_months_func) == "ADDMONTHS(%s, %s)"
-    assert add_months_func.args == ['2022-01-01', 1]
+    assert add_months_func.args == ["2022-01-01", 1]
 
 
 def test_add_date():
-    add_date_func = AddDate('2022-01-01', 1)
+    add_date_func = AddDate("2022-01-01", 1)
     assert str(add_date_func) == "ADDDATE(%s, %s)"
-    assert add_date_func.args == ['2022-01-01', 1]
+    assert add_date_func.args == ["2022-01-01", 1]
 
 
 def test_add_time():
-    add_time_func = AddTime('01:00:00', '02:00:00')
+    add_time_func = AddTime("01:00:00", "02:00:00")
     assert str(add_time_func) == "ADDTIME(%s, %s)"
-    assert add_time_func.args == ['01:00:00', '02:00:00']
+    assert add_time_func.args == ["01:00:00", "02:00:00"]
 
 
 def test_convert_tz():
-    convert_tz_func = ConvertTz('2022-01-01', 'UTC', 'Asia/Kolkata')
+    convert_tz_func = ConvertTz("2022-01-01", "UTC", "Asia/Kolkata")
     assert str(convert_tz_func) == "CONVERT_TZ(%s, %s, %s)"
-    assert convert_tz_func.args == ['2022-01-01', 'UTC', 'Asia/Kolkata']
+    assert convert_tz_func.args == ["2022-01-01", "UTC", "Asia/Kolkata"]
 
 
 def test_cur_date():
@@ -147,75 +146,75 @@ def test_cur_time():
 
 
 def test_date():
-    date_func = Date('2022-01-01')
+    date_func = Date("2022-01-01")
     assert str(date_func) == "DATE(%s)"
-    assert date_func.args == ['2022-01-01']
+    assert date_func.args == ["2022-01-01"]
 
 
 def test_date_diff():
-    date_diff_func = DateDiff('2022-01-01', '2022-01-02')
+    date_diff_func = DateDiff("2022-01-01", "2022-01-02")
     assert str(date_diff_func) == "DATEDIFF(%s, %s)"
-    assert date_diff_func.args == ['2022-01-01', '2022-01-02']
+    assert date_diff_func.args == ["2022-01-01", "2022-01-02"]
 
 
 def test_date_add():
-    date_add_func = DateAdd('2022-01-01', Interval(day=1))
+    date_add_func = DateAdd("2022-01-01", Interval(day=1))
     assert str(date_add_func) == "DATE_ADD(%s, INTERVAL %s DAY)"
-    assert date_add_func.args == ['2022-01-01', 1]
+    assert date_add_func.args == ["2022-01-01", 1]
 
 
 def test_date_format():
-    date_format_func = DateFormat('2022-01-01', '%Y-%m-%d')
+    date_format_func = DateFormat("2022-01-01", "%Y-%m-%d")
     assert str(date_format_func) == "DATE_FORMAT(%s, %s)"
-    assert date_format_func.args == ['2022-01-01', '%Y-%m-%d']
+    assert date_format_func.args == ["2022-01-01", "%Y-%m-%d"]
 
 
 def test_date_sub():
-    date_sub_func = DateSub('2022-01-01', Interval(day=1))
+    date_sub_func = DateSub("2022-01-01", Interval(day=1))
     assert str(date_sub_func) == "DATE_SUB(%s, INTERVAL %s DAY)"
-    assert date_sub_func.args == ['2022-01-01', 1]
+    assert date_sub_func.args == ["2022-01-01", 1]
 
 
 def test_day():
-    day_func = Day('2022-01-01')
+    day_func = Day("2022-01-01")
     assert str(day_func) == "DAY(%s)"
-    assert day_func.args == ['2022-01-01']
+    assert day_func.args == ["2022-01-01"]
 
 
 def test_day_name():
-    day_name_func = DayName('2022-01-01')
+    day_name_func = DayName("2022-01-01")
     assert str(day_name_func) == "DAYNAME(%s)"
-    assert day_name_func.args == ['2022-01-01']
+    assert day_name_func.args == ["2022-01-01"]
 
 
 def test_day_of_month():
-    day_of_month_func = DayOfMonth('2022-01-01')
+    day_of_month_func = DayOfMonth("2022-01-01")
     assert str(day_of_month_func) == "DAYOFMONTH(%s)"
-    assert day_of_month_func.args == ['2022-01-01']
+    assert day_of_month_func.args == ["2022-01-01"]
 
 
 def test_day_of_week():
-    day_of_week_func = DayOfWeek('2022-01-01')
+    day_of_week_func = DayOfWeek("2022-01-01")
     assert str(day_of_week_func) == "DAYOFWEEK(%s)"
-    assert day_of_week_func.args == ['2022-01-01']
+    assert day_of_week_func.args == ["2022-01-01"]
 
 
 def test_day_of_year():
-    day_of_year_func = DayOfYear('2022-01-01')
+    day_of_year_func = DayOfYear("2022-01-01")
     assert str(day_of_year_func) == "DAYOFYEAR(%s)"
-    assert day_of_year_func.args == ['2022-01-01']
+    assert day_of_year_func.args == ["2022-01-01"]
 
 
 def test_extract():
-    extract_func = Extract('YEAR', '2022-01-01')
+    extract_func = Extract("YEAR", "2022-01-01")
     assert str(extract_func) == "EXTRACT(YEAR FROM %s)"
-    assert extract_func.args == ['2022-01-01']
+    assert extract_func.args == ["2022-01-01"]
 
 
 def test_format_pico_time():
-    format_pico_time_func = FormatPicoTime('01:00:00.123456789')
+    format_pico_time_func = FormatPicoTime("01:00:00.123456789")
     assert str(format_pico_time_func) == "FORMAT_PICO_TIME(%s)"
-    assert format_pico_time_func.args == ['01:00:00.123456789']
+    assert format_pico_time_func.args == ["01:00:00.123456789"]
 
 
 def test_from_days():
@@ -231,21 +230,21 @@ def test_from_unix_time():
 
 
 def test_get_format():
-    get_format_func = GetFormat('DATE', 'EUR')
+    get_format_func = GetFormat("DATE", "EUR")
     assert str(get_format_func) == "GET_FORMAT(DATE, %s)"
-    assert get_format_func.args == ['EUR']
+    assert get_format_func.args == ["EUR"]
 
 
 def test_hour():
-    hour_func = Hour('01:00:00')
+    hour_func = Hour("01:00:00")
     assert str(hour_func) == "HOUR(%s)"
-    assert hour_func.args == ['01:00:00']
+    assert hour_func.args == ["01:00:00"]
 
 
 def test_last_day():
-    last_day_func = LastDay('2022-01-01')
+    last_day_func = LastDay("2022-01-01")
     assert str(last_day_func) == "LAST_DAY(%s)"
-    assert last_day_func.args == ['2022-01-01']
+    assert last_day_func.args == ["2022-01-01"]
 
 
 def test_local_time():
@@ -273,21 +272,21 @@ def test_make_time():
 
 
 def test_microsecond():
-    microsecond_func = Microsecond('01:00:00.123456')
+    microsecond_func = Microsecond("01:00:00.123456")
     assert str(microsecond_func) == "MICROSECOND(%s)"
-    assert microsecond_func.args == ['01:00:00.123456']
+    assert microsecond_func.args == ["01:00:00.123456"]
 
 
 def test_minute():
-    minute_func = Minute('01:00:00')
+    minute_func = Minute("01:00:00")
     assert str(minute_func) == "MINUTE(%s)"
-    assert minute_func.args == ['01:00:00']
+    assert minute_func.args == ["01:00:00"]
 
 
 def test_month_name():
-    month_name_func = MonthName('2022-01-01')
+    month_name_func = MonthName("2022-01-01")
     assert str(month_name_func) == "MONTHNAME(%s)"
-    assert month_name_func.args == ['2022-01-01']
+    assert month_name_func.args == ["2022-01-01"]
 
 
 def test_now():
@@ -309,15 +308,15 @@ def test_period_diff():
 
 
 def test_quarter():
-    quarter_func = Quarter('2022-01-01')
+    quarter_func = Quarter("2022-01-01")
     assert str(quarter_func) == "QUARTER(%s)"
-    assert quarter_func.args == ['2022-01-01']
+    assert quarter_func.args == ["2022-01-01"]
 
 
 def test_second():
-    second_func = Second('01:00:00')
+    second_func = Second("01:00:00")
     assert str(second_func) == "SECOND(%s)"
-    assert second_func.args == ['01:00:00']
+    assert second_func.args == ["01:00:00"]
 
 
 def test_sec_to_time():
@@ -327,21 +326,21 @@ def test_sec_to_time():
 
 
 def test_str_to_date():
-    str_to_date_func = StrToDate('01,01,2022', '%d,%m,%Y')
+    str_to_date_func = StrToDate("01,01,2022", "%d,%m,%Y")
     assert str(str_to_date_func) == "STR_TO_DATE(%s, %s)"
-    assert str_to_date_func.args == ['01,01,2022', '%d,%m,%Y']
+    assert str_to_date_func.args == ["01,01,2022", "%d,%m,%Y"]
 
 
 def test_sub_date():
-    sub_date_func = SubDate('2022-01-01', Interval(day=1))
+    sub_date_func = SubDate("2022-01-01", Interval(day=1))
     assert str(sub_date_func) == "SUBDATE(%s, INTERVAL %s DAY)"
-    assert sub_date_func.args == ['2022-01-01', 1]
+    assert sub_date_func.args == ["2022-01-01", 1]
 
 
 def test_sub_time():
-    sub_time_func = SubTime('01:00:00', '00:30:00')
+    sub_time_func = SubTime("01:00:00", "00:30:00")
     assert str(sub_time_func) == "SUBTIME(%s, %s)"
-    assert sub_time_func.args == ['01:00:00', '00:30:00']
+    assert sub_time_func.args == ["01:00:00", "00:30:00"]
 
 
 def test_sys_date():
@@ -351,45 +350,45 @@ def test_sys_date():
 
 
 def test_time():
-    time_func = Time('01:00:00')
+    time_func = Time("01:00:00")
     assert str(time_func) == "TIME(%s)"
-    assert time_func.args == ['01:00:00']
+    assert time_func.args == ["01:00:00"]
 
 
 def test_time_diff():
-    time_diff_func = TimeDiff('02:00:00', '01:00:00')
+    time_diff_func = TimeDiff("02:00:00", "01:00:00")
     assert str(time_diff_func) == "TIMEDIFF(%s, %s)"
-    assert time_diff_func.args == ['02:00:00', '01:00:00']
+    assert time_diff_func.args == ["02:00:00", "01:00:00"]
 
 
 def test_timestamp():
-    timestamp_func = Timestamp('2022-01-01 01:00:00')
+    timestamp_func = Timestamp("2022-01-01 01:00:00")
     assert str(timestamp_func) == "TIMESTAMP(%s)"
-    assert timestamp_func.args == ['2022-01-01 01:00:00']
+    assert timestamp_func.args == ["2022-01-01 01:00:00"]
 
 
 def test_time_format():
-    time_format_func = TimeFormat('01:00:00', '%H:%i:%s')
+    time_format_func = TimeFormat("01:00:00", "%H:%i:%s")
     assert str(time_format_func) == "TIME_FORMAT(%s, %s)"
-    assert time_format_func.args == ['01:00:00', '%H:%i:%s']
+    assert time_format_func.args == ["01:00:00", "%H:%i:%s"]
 
 
 def test_time_to_sec():
-    time_to_sec_func = TimeToSec('01:00:00')
+    time_to_sec_func = TimeToSec("01:00:00")
     assert str(time_to_sec_func) == "TIME_TO_SEC(%s)"
-    assert time_to_sec_func.args == ['01:00:00']
+    assert time_to_sec_func.args == ["01:00:00"]
 
 
 def test_to_days():
-    to_days_func = ToDays('2022-01-01')
+    to_days_func = ToDays("2022-01-01")
     assert str(to_days_func) == "TO_DAYS(%s)"
-    assert to_days_func.args == ['2022-01-01']
+    assert to_days_func.args == ["2022-01-01"]
 
 
 def test_to_seconds():
-    to_seconds_func = ToSeconds('2022-01-01 01:00:00')
+    to_seconds_func = ToSeconds("2022-01-01 01:00:00")
     assert str(to_seconds_func) == "TO_SECONDS(%s)"
-    assert to_seconds_func.args == ['2022-01-01 01:00:00']
+    assert to_seconds_func.args == ["2022-01-01 01:00:00"]
 
 
 def test_unix_timestamp():
@@ -417,9 +416,9 @@ def test_utc_timestamp():
 
 
 def test_week():
-    week_func = Week('2022-01-01', 1)
+    week_func = Week("2022-01-01", 1)
     assert str(week_func) == "WEEK(%s, %s)"
-    assert week_func.args == ['2022-01-01', 1]
+    assert week_func.args == ["2022-01-01", 1]
 
     week_func = Week("2022-01-01")
     assert str(week_func) == "WEEK(%s)"
@@ -427,27 +426,27 @@ def test_week():
 
 
 def test_week_day():
-    week_day_func = WeekDay('2022-01-01')
+    week_day_func = WeekDay("2022-01-01")
     assert str(week_day_func) == "WEEKDAY(%s)"
-    assert week_day_func.args == ['2022-01-01']
+    assert week_day_func.args == ["2022-01-01"]
 
 
 def test_week_of_year():
-    week_of_year_func = WeekOfYear('2022-01-01')
+    week_of_year_func = WeekOfYear("2022-01-01")
     assert str(week_of_year_func) == "WEEKOFYEAR(%s)"
-    assert week_of_year_func.args == ['2022-01-01']
+    assert week_of_year_func.args == ["2022-01-01"]
 
 
 def test_year():
-    year_func = Year('2022-01-01')
+    year_func = Year("2022-01-01")
     assert str(year_func) == "YEAR(%s)"
-    assert year_func.args == ['2022-01-01']
+    assert year_func.args == ["2022-01-01"]
 
 
 def test_year_week():
-    year_week_func = YearWeek('2022-01-01', 1)
+    year_week_func = YearWeek("2022-01-01", 1)
     assert str(year_week_func) == "YEARWEEK(%s, %s)"
-    assert year_week_func.args == ['2022-01-01', 1]
+    assert year_week_func.args == ["2022-01-01", 1]
 
     year_week_func = YearWeek("2022-01-01")
     assert str(year_week_func) == "YEARWEEK(%s)"

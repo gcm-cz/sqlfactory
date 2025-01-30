@@ -1,4 +1,3 @@
-
 from sqlfactory import Column
 from sqlfactory.condition.between import Between
 from sqlfactory.func.str import Concat

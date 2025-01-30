@@ -98,7 +98,18 @@ class Limit(ConditionalStatement, Statement):
 
 
 class WithLimit(Generic[T]):
-    """Mixin to provide LIMIT support for query generator."""
+    """
+    Mixin to provide LIMIT support for query generator.
+
+    Usage:
+
+    >>> Select().limit(10)  # SELECT ... LIMIT 10
+    >>> Select().limit(5, 10)  # SELECT ... LIMIT 5, 10
+    >>> Select().limit(limit=10, offset=5)  # SELECT ... LIMIT 5,10
+    >>> Select().limit(Limit(...))
+    >>> Select(..., limit=Limit(...))
+
+    """
 
     def __init__(self, *args: Any, limit: Limit | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -129,7 +140,25 @@ class WithLimit(Generic[T]):
     def limit(  # type: ignore[misc]
         self, offset_or_limit: int | Limit | None = None, /, limit: int | None = None, *, offset: int | None = None
     ) -> Self:
-        """Limit statement"""
+        """
+        Limit statement
+
+        Usage:
+
+        >>> Select(...).limit(10)  # SELECT ... LIMIT 10
+        >>> Select(...).limit(5, 10)
+        >>> Select(...).limit(limit=10, offset=5)
+        >>> Select(...).limit(Limit(...))
+
+        :param offset_or_limit: Positional-only argument as first argument to the LIMIT SQL statement. Can also be instance
+            of `Limit`.
+
+            If there is no `limit` argument, the first argument will be used as limit. If there is `limit` argument,
+            the first argument will be used as offset. This weird behavior is to mimic SQL's LIMIT syntax.
+
+        :param limit: Limit argument, can be passed as kwarg or as second positional argument.
+        :param offset: Keyword-only argument to explicitly specify offset.
+        """
         if self._limit is not None:
             raise AttributeError("Limit has already been specified.")
 
@@ -154,19 +183,21 @@ class WithLimit(Generic[T]):
     @overload
     def LIMIT(self, limit: Limit | None, /) -> Self:
         # pylint: disable=invalid-name
-        """Alias for limit() to be more SQL-like with all capitals."""
+        """Alias for `WithLimit.limit()` to be more SQL-like with all capitals."""
 
     @overload
-    def LIMIT(self, limit: int, /) -> Self:
+    def LIMIT(self, limit: int | None, /) -> Self:
         # pylint: disable=invalid-name
-        """Alias for limit() to be more SQL-like with all capitals."""
+        """Alias for `WithLimit.limit()` to be more SQL-like with all capitals."""
 
     @overload
-    def LIMIT(self, offset: int, limit: int, /) -> Self:
+    def LIMIT(self, offset: int | None, limit: int | None) -> Self:
         # pylint: disable=invalid-name
-        """Alias for limit() to be more SQL-like with all capitals."""
+        """Alias for `WithLimit.limit()` to be more SQL-like with all capitals."""
 
-    def LIMIT(self, offset_or_limit: int | Limit | None, limit: int | None = None, /) -> Self:
+    def LIMIT(  # type: ignore[misc]
+        self, offset_or_limit: int | Limit | None, /, limit: int | None = None, *, offset: int | None = None
+    ) -> Self:
         # pylint: disable=invalid-name
-        """Alias for limit() to be more SQL-like with all capitals."""
-        return self.limit(offset_or_limit, limit)  # type: ignore[arg-type]
+        """Alias for `WithLimit.limit()` to be more SQL-like with all capitals."""
+        return self.limit(offset_or_limit, limit, offset=offset)  # type: ignore[call-overload]

@@ -6,14 +6,7 @@ from sqlfactory.update.update import UPDATE, UpdateColumn
 
 
 def test_update():
-    update_condition = (
-        Update(
-            "table",
-            where=Eq("id", 1)
-        )
-        .set("column1", "foo")
-        .set("column2", "bar")
-    )
+    update_condition = Update("table", where=Eq("id", 1)).set("column1", "foo").set("column2", "bar")
 
     assert str(update_condition) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s"
     assert update_condition.args == ["foo", "bar", 1]
@@ -21,15 +14,7 @@ def test_update():
 
 
 def test_update_with_limit():
-    update_condition = (
-        Update(
-            "table",
-            where=Eq("id", 123),
-            limit=Limit(1)
-        )
-        .set("column1", "foo")
-        .set("column2", "bar")
-    )
+    update_condition = Update("table", where=Eq("id", 123), limit=Limit(1)).set("column1", "foo").set("column2", "bar")
     assert str(update_condition) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s LIMIT %s"
     assert update_condition.args == ["foo", "bar", 123, 1]
 
@@ -43,11 +28,7 @@ def test_update_append():
 
 
 def test_update_without_where():
-    update_condition = (
-        Update("table")
-        .set("column1", "foo")
-        .set("column2", "bar")
-    )
+    update_condition = Update("table").set("column1", "foo").set("column2", "bar")
 
     assert str(update_condition) == "UPDATE `table` SET `column1` = %s, `column2` = %s"
     assert update_condition.args == ["foo", "bar"]
