@@ -15,10 +15,13 @@ class WithWhere(Generic[T]):
 
     Example:
 
+    >>> from sqlfactory import Select, And, Equals
     >>> Select(where=And(Equals("id", 1), Equals("status", "active")))
 
+    >>> from sqlfactory import Update, And, Equals
     >>> Update(where=And(Equals("id", 1), Equals("status", "active")))
 
+    >>> from sqlfactory import Delete, And, Equals
     >>> Delete(where=And(Equals("id", 1), Equals("status", "active")))
 
     """
@@ -34,6 +37,7 @@ class WithWhere(Generic[T]):
 
         Example:
 
+        >>> from sqlfactory import Select, And, Equals
         >>> sel = Select().where(And(Equals("id", 1), Equals("status", "active")))
 
         :param condition: Condition to be used in WHERE clause.

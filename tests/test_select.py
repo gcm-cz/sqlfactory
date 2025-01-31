@@ -28,6 +28,13 @@ def test_select_with_left_join():
     assert select_condition.args == []
 
 
+def test_select_with_right_join():
+    select_condition = Select("column1", "column2", table="table").right_join("table2", on=Eq("table.id", Column("table2.id")))
+
+    assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` RIGHT JOIN `table2` ON `table`.`id` = `table2`.`id`"
+    assert select_condition.args == []
+
+
 def test_select_with_group_by():
     select_condition = Select("column1", "column2", table="table").group_by("column1")
 
@@ -59,6 +66,13 @@ def test_select_LEFT_JOIN():
     select_condition = Select("column1", "column2", table="table").LEFT_JOIN("table2", on=Eq("table.id", Column("table2.id")))
 
     assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` LEFT JOIN `table2` ON `table`.`id` = `table2`.`id`"
+    assert select_condition.args == []
+
+
+def test_select_RIGHT_JOIN():
+    select_condition = Select("column1", "column2", table="table").RIGHT_JOIN("table2", on=Eq("table.id", Column("table2.id")))
+
+    assert str(select_condition) == "SELECT `column1`, `column2` FROM `table` RIGHT JOIN `table2` ON `table`.`id` = `table2`.`id`"
     assert select_condition.args == []
 
 

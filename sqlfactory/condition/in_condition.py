@@ -1,16 +1,22 @@
 """IN condition, used for checking whether column value is in given list of values."""
 
+from __future__ import annotations
+
 from collections.abc import Collection
-from typing import Any, cast, overload
+from typing import TYPE_CHECKING, Any, cast, overload
 
 from ..entities import Column
 from ..statement import Raw, Statement
 from .base import And, Condition, Or, StatementOrColumn
 from .simple import Eq, Ne
 
+if TYPE_CHECKING:
+    from ..select import Select  # pragma: no cover
 
-# pylint: disable=too-few-public-methods   # Everything is handled by super classes.
+
 class In(Condition):
+    # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
+
     """
     `IN` condition for checking whether column value is in given list of values.
 
@@ -75,6 +81,17 @@ class In(Condition):
         ```python
         In(("column1", "column2"), [(1, 2), (3, None), (5, 6)])
         "(`column1`, `column2`) IN ((%s, %s), (%s, %s)) OR (`column1` = %s AND `column2` IS NULL)", [1, 2, 3, 5, 6]
+
+
+    ### Subquery IN
+
+    ```python
+    In("column", Select("column", table="table", where=Eq("column", 1)))
+    ```
+
+    ```python
+    In(("column1", "column2"), Select("column1", "column2", table="table", where=Eq("column", 1)))
+    ```
     """
 
     @overload
@@ -84,13 +101,21 @@ class In(Condition):
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select, /, negative: bool = False) -> None:
+        """Provides type definition for statement (`column1`, `column2`) IN (SELECT ...)"""
+
+    @overload
     def __init__(self, column: StatementOrColumn, values: Collection[Any], /, negative: bool = False) -> None:
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
+
+    @overload
+    def __init__(self, column: StatementOrColumn, values: Select, /, negative: bool = False) -> None:
+        """Provides type definition for statement `column` IN (SELECT ...)"""
 
     def __init__(
         self,
         column: StatementOrColumn | tuple[StatementOrColumn, ...],
-        values: Collection[Any | tuple[Any, ...]],
+        values: Collection[Any | tuple[Any, ...]] | Select,
         /,
         negative: bool = False,
     ) -> None:
@@ -101,18 +126,57 @@ class In(Condition):
         """
         is_multi_column = isinstance(column, tuple)
 
-        if is_multi_column:
+        from ..select import Select  # pylint: disable=import-outside-toplevel
+
+        if isinstance(values, Select):
+            stmt, args = self._build_subquery_in(column, values, negative=negative)
+
+        elif is_multi_column:
             stmt, args = self._build_multi_in(cast(tuple[StatementOrColumn], column), values, negative=negative)
         else:
             stmt, args = self._build_simple_in(cast(StatementOrColumn, column), values, negative=negative)
 
         super().__init__(stmt, *args)
 
-    # pylint: disable=consider-using-f-string
+    @staticmethod
+    def _build_subquery_in(
+        columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Select, *, negative: bool = False
+    ) -> tuple[str, Collection[Any]]:
+        # pylint: disable=consider-using-f-string
+        args = []
+
+        if isinstance(columns, tuple):
+            in_columns = [Column(col) if not isinstance(col, Statement) else col for col in columns]
+
+            for column in in_columns:
+                args.extend(column.args)
+
+            args.extend(select.args)
+
+            in_stmt = "({}) {} ({})".format(
+                ", ".join(map(str, in_columns)),
+                "IN" if not negative else "NOT IN",
+                str(select),
+            )
+
+        else:
+            if not isinstance(columns, Statement):
+                columns = Column(columns)
+
+            args = [*columns.args, *select.args]
+            in_stmt = "{} {} ({})".format(
+                str(columns),
+                "IN" if not negative else "NOT IN",
+                str(select),
+            )
+
+        return in_stmt, args
+
     @staticmethod
     def _build_simple_in(
         column: StatementOrColumn, values: Collection[Any], *, negative: bool = False
     ) -> tuple[str, Collection[Any]]:
+        # pylint: disable=consider-using-f-string
         if not isinstance(column, Statement):
             column = Column(column)
 
@@ -155,11 +219,11 @@ class In(Condition):
 
         return "FALSE" if not negative else "TRUE", []
 
-    # pylint: disable=consider-using-f-string
     @staticmethod
     def _build_multi_in(
         column: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *, negative: bool = False
     ) -> tuple[str, Collection[Any]]:
+        # pylint: disable=consider-using-f-string
         column = tuple(Column(col) if not isinstance(col, Statement) else col for col in column)
 
         none_multi_values = [value_tuple for value_tuple in values if any(value is None for value in value_tuple)]

@@ -31,12 +31,25 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
     >>> cursor: Cursor = ...
     >>>
     >>> (
-    >>>     Select("column1", "column2", "column3", table="table_name")
-    >>>     .where(Eq("column1", 1))
-    >>>     .order_by("column2")
-    >>>     .limit(2, 10)
-    >>>     .execute(cursor)
-    >>> )
+    ...     Select("column1", "column2", "column3", table="table_name")
+    ...     .where(Eq("column1", 1))
+    ...     .order_by("column2")
+    ...     .limit(2, 10)
+    ...     .execute(cursor)
+    ... )
+
+    Subqueries are also supported:
+
+    >>> from sqlfactory import Select, Aliased
+    >>> from sqlfactory.func.agg import Sum
+    >>>
+    >>> Select(
+    ...     "t1.id", "t2.price",
+    ...     table=[
+    ...         "t1",
+    ...         Aliased(Select(Aliased(Sum("price"), alias="price"), table="product_prices"), alias="t2")
+    ...     ]
+    ... )
 
     Known limitations:
     - JOINs are not checked for uniqueness, so it is possible to add same JOIN multiple times. For now, it is up to
