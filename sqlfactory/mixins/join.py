@@ -60,7 +60,7 @@ class Join(Statement):
         self.alias = alias
         """Optional alias for the joined table."""
 
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
 
         if isinstance(self.table, Select) and not self.alias:
             raise AttributeError("When joining a subselect, alias must be specified.")
@@ -74,7 +74,7 @@ class Join(Statement):
         return "JOIN"
 
     def __str__(self) -> str:
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
 
         if self.alias:
             if isinstance(self.table, Select):

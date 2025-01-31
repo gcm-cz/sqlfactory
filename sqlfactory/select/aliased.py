@@ -38,7 +38,7 @@ class Aliased(Statement):
         if self.alias is None:
             return str(self._statement)
 
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
 
         if isinstance(self._statement, Select):
             return f"({self._statement!s}) AS `{self.alias}`"
