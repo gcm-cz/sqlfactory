@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Collection, Generic, Self, TypeVar, overload
 
-from ..condition import ConditionBase
-from ..entities import Table
-from ..statement import Statement
+from sqlfactory.condition import ConditionBase
+from sqlfactory.entities import Table
+from sqlfactory.statement import Statement
 
 if TYPE_CHECKING:
-    from ..select import Select  # pragma: no cover
+    from sqlfactory.select import Select  # pragma: no cover
 
 T = TypeVar("T")
 
@@ -60,7 +60,7 @@ class Join(Statement):
         self.alias = alias
         """Optional alias for the joined table."""
 
-        from ..select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel
 
         if isinstance(self.table, Select) and not self.alias:
             raise AttributeError("When joining a subselect, alias must be specified.")
@@ -74,7 +74,7 @@ class Join(Statement):
         return "JOIN"
 
     def __str__(self) -> str:
-        from ..select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel
 
         if self.alias:
             if isinstance(self.table, Select):

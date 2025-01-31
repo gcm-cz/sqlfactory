@@ -2,9 +2,9 @@
 
 from typing import Any
 
-from ..entities import Column
-from ..statement import Statement
-from .base import Condition, StatementOrColumn
+from sqlfactory.condition.base import Condition, StatementOrColumn
+from sqlfactory.entities import Column
+from sqlfactory.statement import Statement
 
 
 class Like(Condition):

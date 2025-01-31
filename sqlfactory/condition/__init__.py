@@ -1,10 +1,23 @@
 """Conditions for WHERE, ON, HAVING clauses in SQL statements."""
 
-from .base import And, Condition, ConditionBase, Or
-from .between import Between
-from .in_condition import In
-from .like import Like
-from .simple import Eq, Equals, Ge, GreaterThan, GreaterThanOrEquals, Gt, Le, LessThan, LessThanOrEquals, Lt, Ne, NotEquals
+from sqlfactory.condition.base import And, Condition, ConditionBase, Or
+from sqlfactory.condition.between import Between
+from sqlfactory.condition.in_condition import In
+from sqlfactory.condition.like import Like
+from sqlfactory.condition.simple import (
+    Eq,
+    Equals,
+    Ge,
+    GreaterThan,
+    GreaterThanOrEquals,
+    Gt,
+    Le,
+    LessThan,
+    LessThanOrEquals,
+    Lt,
+    Ne,
+    NotEquals,
+)
 
 __all__ = [
     "And",

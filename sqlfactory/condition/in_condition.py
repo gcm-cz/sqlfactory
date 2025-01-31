@@ -5,13 +5,13 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, cast, overload
 
-from ..entities import Column
-from ..statement import Raw, Statement
-from .base import And, Condition, Or, StatementOrColumn
-from .simple import Eq, Ne
+from sqlfactory.condition.base import And, Condition, Or, StatementOrColumn
+from sqlfactory.condition.simple import Eq, Ne
+from sqlfactory.entities import Column
+from sqlfactory.statement import Raw, Statement
 
 if TYPE_CHECKING:
-    from ..select import Select  # pragma: no cover
+    from sqlfactory.select.select import Select  # pragma: no cover
 
 
 class In(Condition):
@@ -126,7 +126,7 @@ class In(Condition):
         """
         is_multi_column = isinstance(column, tuple)
 
-        from ..select import Select  # pylint: disable=import-outside-toplevel
+        from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
 
         if isinstance(values, Select):
             stmt, args = self._build_subquery_in(column, values, negative=negative)

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from .statement import Raw, Statement
+from sqlfactory.statement import Raw, Statement
 
 if TYPE_CHECKING:
-    from .condition.simple import Eq, Ge, Gt, Le, Lt, Ne  # pragma: nocover
+    from sqlfactory.condition.simple import Eq, Ge, Gt, Le, Lt, Ne  # pragma: nocover
 
 
 class Expression(Statement):
@@ -20,37 +20,37 @@ class Expression(Statement):
 
     def __gt__(self, other: Statement | Any) -> Gt:
         """Shorthand to produce conditional SQL statement <column> > <other>."""
-        from .condition.simple import Gt  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Gt  # pylint: disable=import-outside-toplevel
 
         return Gt(self, other)
 
     def __ge__(self, other: Statement | Any) -> Ge:
         """Shorthand to produce conditional SQL statement <column> >= <other>."""
-        from .condition.simple import Ge  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Ge  # pylint: disable=import-outside-toplevel
 
         return Ge(self, other)
 
     def __lt__(self, other: Statement | Any) -> Lt:
         """Shorthand to produce conditional SQL statement <column> < <other>."""
-        from .condition.simple import Lt  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Lt  # pylint: disable=import-outside-toplevel
 
         return Lt(self, other)
 
     def __le__(self, other: Statement | Any) -> Le:
         """Shorthand to produce conditional SQL statement <column> <= <other>."""
-        from .condition.simple import Le  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Le  # pylint: disable=import-outside-toplevel
 
         return Le(self, other)
 
     def __eq__(self, other: Statement | Any) -> Eq:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> = <other>."""
-        from .condition.simple import Eq  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Eq  # pylint: disable=import-outside-toplevel
 
         return Eq(self, other)
 
     def __ne__(self, other: Statement | Any) -> Ne:  # type: ignore[override]
         """Shorthand to produce conditional SQL statement <column> != <other>."""
-        from .condition.simple import Ne  # pylint: disable=import-outside-toplevel
+        from sqlfactory.condition.simple import Ne  # pylint: disable=import-outside-toplevel
 
         return Ne(self, other)
 
@@ -136,12 +136,15 @@ class Column(Expression):
     """
     Column (optionally with table and database) as statement.
 
+    >>> from sqlfactory import Column
     >>> Column("column")
     >>> "`column`"
 
+    >>> from sqlfactory import Column
     >>> Column("table.column")
     >>> "`table`.`column`"
 
+    >>> from sqlfactory import Column
     >>> Column("database.table.column")
     >>> "`database`.`table`.`column`"
 
@@ -151,9 +154,11 @@ class Column(Expression):
     instance to directly create condition using simple operators (`==`, `!=`, `<`, `<=`, `>`, `>=`) or arithmetic operations
     (`+`, `-`, `*`, `/`, `%`).
 
+    >>> from sqlfactory import Column
     >>> Column("table.column") == 5
     >>> # Produces Eq(Column("table.column"), 5)
 
+    >>> from sqlfactory import Column
     >>> Column("table.column") + 5
     >>> # Produces Expression("`table`.`column` + %s", 5)
     """
@@ -204,26 +209,32 @@ class Table(Statement):
     """
     Table (optionally with database) as statement
 
+    >>> from sqlfactory import Table
     >>> Table("table")
     >>> "`table`"
 
+    >>> from sqlfactory import Table
     >>> Table("database.table")
     >>> "`database`.`table`"
 
     To produce table alias, use `Aliased` class:
 
+    >>> from sqlfactory import Table, Aliased
     >>> Aliased(Table("database.table"), alias="t1")
     >>> "`database`.`table` AS `t1`"
 
     By accessing Table's undefined attributes, instance of Column is returned. This allows to easily access columns of
     that table, and reference them in SQL statements.
 
+    >>> from sqlfactory import Table, Select
     >>> t = Table("table")
     >>> Select(t.id, t.name, table=t)
     >>> "SELECT `table`.`id`, `table`.`name` FROM `table`"
 
     This allows creating python-like expressions that are converted to SQL automatically:
 
+    >>> from sqlfactory import Table, Select
+    >>> from sqlfactory.func.agg import Count
     >>> t = Table("database.table")
     >>> Select(Count(t.id), table=t, where=t.id > 5)
     >>> "SELECT COUNT(`database`.`table`.`id`) FROM `database`.`table` WHERE `database`.`table`.`id` > %s"

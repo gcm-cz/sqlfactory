@@ -4,7 +4,7 @@ on demand or in your code.
 """
 
 # pylint: disable=redefined-builtin
-from . import agg, base, control, datetime, enc, info, misc, numeric, str  # noqa: A004
+from sqlfactory.func import agg, base, control, datetime, enc, info, misc, numeric, str  # noqa: A004
 
 __all__ = [
     "agg",

@@ -2,8 +2,8 @@
 
 from typing import Any, TypeAlias
 
-from ..statement import Statement
-from .base import Condition, StatementOrColumn
+from sqlfactory.condition.base import Condition, StatementOrColumn
+from sqlfactory.statement import Statement
 
 
 class SimpleCondition(Condition):
@@ -21,7 +21,7 @@ class SimpleCondition(Condition):
         """
         if not isinstance(column, Statement):
             # pylint: disable=import-outside-toplevel,cyclic-import
-            from ..entities import Column
+            from sqlfactory.entities import Column
 
             column = Column(column)
 

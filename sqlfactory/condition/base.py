@@ -6,7 +6,7 @@ from abc import ABC
 from collections.abc import Iterable
 from typing import Any, Self, overload
 
-from ..statement import ConditionalStatement, Raw, Statement
+from sqlfactory.statement import ConditionalStatement, Raw, Statement
 
 StatementOrColumn = str | Statement
 

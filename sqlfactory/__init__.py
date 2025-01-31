@@ -55,8 +55,8 @@ query = Delete("products", where=Eq("enabled", False))
 
 """
 
-from . import execute, func, mixins
-from .condition import (
+from sqlfactory import execute, func, mixins  # exported submodules
+from sqlfactory.condition import (
     And,
     Between,
     Condition,
@@ -77,11 +77,11 @@ from .condition import (
     NotEquals,
     Or,
 )
-from .delete import DELETE, Delete
-from .entities import Column, Table
-from .insert import INSERT, Insert, Values
-from .mixins import Direction, Limit, Order
-from .select import (
+from sqlfactory.delete import DELETE, Delete
+from sqlfactory.entities import Column, Table
+from sqlfactory.insert import INSERT, Insert, Values
+from sqlfactory.mixins import Direction, Limit, Order
+from sqlfactory.select import (
     SELECT,
     Aliased,
     ColumnList,
@@ -95,8 +95,8 @@ from .select import (
     Select,
     SelectColumn,
 )
-from .statement import Raw, Statement
-from .update import UPDATE, Update
+from sqlfactory.statement import Raw, Statement
+from sqlfactory.update import UPDATE, Update
 
 __all__ = [
     "DELETE",

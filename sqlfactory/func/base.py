@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from ..entities import Expression
-from ..statement import Statement
+from sqlfactory.entities import Expression
+from sqlfactory.statement import Statement
 
 
 class Function(Expression):

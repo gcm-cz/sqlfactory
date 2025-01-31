@@ -4,8 +4,8 @@
 
 from typing import Any, Literal
 
-from ..statement import Raw, Statement
-from .base import Function
+from sqlfactory.func.base import Function
+from sqlfactory.statement import Raw, Statement
 
 
 class Interval(Statement):

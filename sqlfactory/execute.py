@@ -4,8 +4,8 @@ import inspect
 from abc import ABC
 from typing import Any, Awaitable, Protocol, TypeAlias, TypeVar, cast, overload
 
-from .logger import logger
-from .statement import ConditionalStatement, Statement
+from sqlfactory.logger import logger
+from sqlfactory.statement import ConditionalStatement, Statement
 
 R_co = TypeVar("R_co", covariant=True)
 

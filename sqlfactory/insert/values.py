@@ -1,7 +1,7 @@
 """VALUES() function for usage in ON DUPLICATE KEY UPDATE statements. MySQL / MariaDB specific."""
 
-from ..entities import Column, ColumnArg
-from ..func.base import Function
+from sqlfactory.entities import Column, ColumnArg
+from sqlfactory.func.base import Function
 
 
 class Values(Function):

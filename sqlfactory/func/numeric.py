@@ -2,11 +2,11 @@
 
 from typing import Any, overload
 
-from .base import Function
+from sqlfactory.func.base import Function
 
 
-# pylint: disable=too-few-public-methods
 class Div(Function):
+    # pylint: disable=too-few-public-methods
     """
     Integer division.
     """
@@ -15,8 +15,8 @@ class Div(Function):
         super().__init__("DIV", dividend, divisor)
 
 
-# pylint: disable=too-few-public-methods
 class Abs(Function):
+    # pylint: disable=too-few-public-methods
     """
     Absolute value.
     """
@@ -25,8 +25,8 @@ class Abs(Function):
         super().__init__("ABS", value)
 
 
-# pylint: disable=too-few-public-methods
 class ACos(Function):
+    # pylint: disable=too-few-public-methods
     """
     Arc cosine.
     """
@@ -35,8 +35,8 @@ class ACos(Function):
         super().__init__("ACOS", value)
 
 
-# pylint: disable=too-few-public-methods
 class ASin(Function):
+    # pylint: disable=too-few-public-methods
     """
     Arc sine.
     """
@@ -45,8 +45,8 @@ class ASin(Function):
         super().__init__("ASIN", value)
 
 
-# pylint: disable=too-few-public-methods
 class ATan(Function):
+    # pylint: disable=too-few-public-methods
     """
     Arc tangent.
     """
@@ -55,8 +55,8 @@ class ATan(Function):
         super().__init__("ATAN", value)
 
 
-# pylint: disable=too-few-public-methods
 class ATan2(Function):
+    # pylint: disable=too-few-public-methods
     """
     Arc tangent of two variables.
     """
@@ -65,8 +65,8 @@ class ATan2(Function):
         super().__init__("ATAN2", y, x)
 
 
-# pylint: disable=too-few-public-methods
 class Ceil(Function):
+    # pylint: disable=too-few-public-methods
     """
     Ceiling value.
     """
@@ -75,8 +75,8 @@ class Ceil(Function):
         super().__init__("CEIL", value)
 
 
-# pylint: disable=too-few-public-methods
 class Ceiling(Function):
+    # pylint: disable=too-few-public-methods
     """
     Ceiling value.
     """
@@ -85,8 +85,8 @@ class Ceiling(Function):
         super().__init__("CEILING", value)
 
 
-# pylint: disable=too-few-public-methods
 class Conv(Function):
+    # pylint: disable=too-few-public-methods
     """
     Convert number from one base to another.
     """
@@ -95,8 +95,8 @@ class Conv(Function):
         super().__init__("CONV", number, from_base, to_base)
 
 
-# pylint: disable=too-few-public-methods
 class Cos(Function):
+    # pylint: disable=too-few-public-methods
     """
     Cosine.
     """
@@ -105,8 +105,8 @@ class Cos(Function):
         super().__init__("COS", value)
 
 
-# pylint: disable=too-few-public-methods
 class Cot(Function):
+    # pylint: disable=too-few-public-methods
     """
     Cotangent.
     """
@@ -115,8 +115,8 @@ class Cot(Function):
         super().__init__("COT", value)
 
 
-# pylint: disable=too-few-public-methods
 class Crc32(Function):
+    # pylint: disable=too-few-public-methods
     """
     Computes a cyclic redundancy check (CRC) value.
     """
@@ -125,8 +125,8 @@ class Crc32(Function):
         super().__init__("CRC32", value)
 
 
-# pylint: disable=too-few-public-methods
 class Crc32C(Function):
+    # pylint: disable=too-few-public-methods
     """
     Computes a cyclic redundancy check (CRC) value using the Castagnoli polynomial
     """
@@ -135,8 +135,8 @@ class Crc32C(Function):
         super().__init__("CRC32C", value)
 
 
-# pylint: disable=too-few-public-methods
 class Degrees(Function):
+    # pylint: disable=too-few-public-methods
     """
     Converts radians to degrees.
     """
@@ -145,8 +145,8 @@ class Degrees(Function):
         super().__init__("DEGREES", value)
 
 
-# pylint: disable=too-few-public-methods
 class Exp(Function):
+    # pylint: disable=too-few-public-methods
     """
     e raised to power of the argument
     """
@@ -155,8 +155,8 @@ class Exp(Function):
         super().__init__("EXP", value)
 
 
-# pylint: disable=too-few-public-methods
 class Floor(Function):
+    # pylint: disable=too-few-public-methods
     """
     Floor value.
     """
@@ -165,8 +165,8 @@ class Floor(Function):
         super().__init__("FLOOR", value)
 
 
-# pylint: disable=too-few-public-methods
 class Greatest(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return the largest argument
     """
@@ -175,8 +175,8 @@ class Greatest(Function):
         super().__init__("GREATEST", *args)
 
 
-# pylint: disable=too-few-public-methods
 class Least(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return the smallest argument
     """
@@ -185,8 +185,8 @@ class Least(Function):
         super().__init__("LEAST", *args)
 
 
-# pylint: disable=too-few-public-methods
 class Ln(Function):
+    # pylint: disable=too-few-public-methods
     """
     Natural logarithm
     """
@@ -195,8 +195,8 @@ class Ln(Function):
         super().__init__("LN", value)
 
 
-# pylint: disable=too-few-public-methods
 class Log(Function):
+    # pylint: disable=too-few-public-methods
     """
     Logarithm
     """
@@ -215,8 +215,8 @@ class Log(Function):
             super().__init__("LOG", arg1)
 
 
-# pylint: disable=too-few-public-methods
 class Log10(Function):
+    # pylint: disable=too-few-public-methods
     """
     Base-10 logarithm
     """
@@ -225,8 +225,8 @@ class Log10(Function):
         super().__init__("LOG10", value)
 
 
-# pylint: disable=too-few-public-methods
 class Log2(Function):
+    # pylint: disable=too-few-public-methods
     """
     Base-2 logarithm
     """
@@ -235,8 +235,8 @@ class Log2(Function):
         super().__init__("LOG2", value)
 
 
-# pylint: disable=too-few-public-methods
 class Mod(Function):
+    # pylint: disable=too-few-public-methods
     """
     Modulo operation
     """
@@ -245,8 +245,8 @@ class Mod(Function):
         super().__init__("MOD", dividend, divisor)
 
 
-# pylint: disable=too-few-public-methods
 class Oct(Function):
+    # pylint: disable=too-few-public-methods
     """
     Convert number to octal
     """
@@ -255,8 +255,8 @@ class Oct(Function):
         super().__init__("OCT", value)
 
 
-# pylint: disable=too-few-public-methods
 class Pi(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return the value of pi
     """
@@ -265,8 +265,8 @@ class Pi(Function):
         super().__init__("PI")
 
 
-# pylint: disable=too-few-public-methods
 class Pow(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return X raised to power of Y.
     """
@@ -275,8 +275,8 @@ class Pow(Function):
         super().__init__("POW", x, y)
 
 
-# pylint: disable=too-few-public-methods
 class Power(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return X raised to power of Y.
     """
@@ -285,8 +285,8 @@ class Power(Function):
         super().__init__("POWER", x, y)
 
 
-# pylint: disable=too-few-public-methods
 class Radians(Function):
+    # pylint: disable=too-few-public-methods
     """
     Converts degrees to radians.
     """
@@ -295,8 +295,8 @@ class Radians(Function):
         super().__init__("RADIANS", value)
 
 
-# pylint: disable=too-few-public-methods
 class Rand(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return a random floating-point value.
     """
@@ -305,8 +305,8 @@ class Rand(Function):
         super().__init__("RAND")
 
 
-# pylint: disable=too-few-public-methods
 class Round(Function):
+    # pylint: disable=too-few-public-methods
     """
     Round the argument to the nearest integer.
     """
@@ -315,8 +315,8 @@ class Round(Function):
         super().__init__("ROUND", value)
 
 
-# pylint: disable=too-few-public-methods
 class Sign(Function):
+    # pylint: disable=too-few-public-methods
     """
     Sign of the argument
     """
@@ -325,8 +325,8 @@ class Sign(Function):
         super().__init__("SIGN", value)
 
 
-# pylint: disable=too-few-public-methods
 class Sin(Function):
+    # pylint: disable=too-few-public-methods
     """
     Sine
     """
@@ -335,8 +335,8 @@ class Sin(Function):
         super().__init__("SIN", value)
 
 
-# pylint: disable=too-few-public-methods
 class Sqrt(Function):
+    # pylint: disable=too-few-public-methods
     """
     Square root
     """
@@ -345,8 +345,8 @@ class Sqrt(Function):
         super().__init__("SQRT", value)
 
 
-# pylint: disable=too-few-public-methods
 class Tan(Function):
+    # pylint: disable=too-few-public-methods
     """
     Tangent
     """
@@ -355,8 +355,8 @@ class Tan(Function):
         super().__init__("TAN", value)
 
 
-# pylint: disable=too-few-public-methods
 class Truncate(Function):
+    # pylint: disable=too-few-public-methods
     """
     Truncate the argument to D decimal places.
     """
@@ -366,6 +366,7 @@ class Truncate(Function):
 
 
 class BitCount(Function):
+    # pylint: disable=too-few-public-methods
     """
     Return the number of bits that are set in the argument.
     """

@@ -12,9 +12,13 @@ class Aliased(Statement):
 
     Usage:
 
+    >>> from sqlfactory import Aliased
+    >>> from sqlfactory.func.agg import Count
     >>> Aliased(Count('*'), alias='count')
     >>> "COUNT(*) AS `count`"
 
+    >>> from sqlfactory import Select, Aliased
+    >>> from sqlfactory.func.agg import Count
     >>> Select(Aliased(Count('*'), alias='count'), table='orders')
     >>> 'SELECT COUNT(*) AS `count` FROM `orders`'
     """
@@ -57,12 +61,15 @@ class SelectColumn(Aliased):
 
     Usage:
 
+    >>> from sqlfactory import Select, SelectColumn
     >>> Select(SelectColumn("table.column", alias="otherColumn"), table="table")
     >>> "SELECT `table`.`column` AS `otherColumn` FROM `table`"
 
+    >>> from sqlfactory import Select, SelectColumn
     >>> Select(SelectColumn("table.column", distinct=True), table="table")
     >>> "SELECT DISTINCT `table`.`column` FROM `table`"
 
+    >>> from sqlfactory import Select, SelectColumn
     >>> Select(SelectColumn("table.column", alias="otherColumn", distinct=True), table="table")
     >>> "SELECT DISTINCT `table`.`column` AS `otherColumn` FROM `table`"
     """

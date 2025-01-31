@@ -8,16 +8,16 @@ from collections.abc import Collection
 from functools import reduce
 from typing import Any, Self, TypeAlias
 
-from ..condition.base import ConditionBase
-from ..entities import ColumnArg, Table
-from ..execute import ExecutableStatement
-from ..mixins.join import WithJoin
-from ..mixins.limit import Limit, WithLimit
-from ..mixins.order import OrderArg, WithOrder
-from ..mixins.where import WithWhere
-from ..statement import Statement
-from .column_list import ColumnList
-from .join import Join
+from sqlfactory.condition.base import ConditionBase
+from sqlfactory.entities import ColumnArg, Table
+from sqlfactory.execute import ExecutableStatement
+from sqlfactory.mixins.join import WithJoin
+from sqlfactory.mixins.limit import Limit, WithLimit
+from sqlfactory.mixins.order import OrderArg, WithOrder
+from sqlfactory.mixins.where import WithWhere
+from sqlfactory.select.column_list import ColumnList
+from sqlfactory.select.join import Join
+from sqlfactory.statement import Statement
 
 
 class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], WithLimit["Select"], WithJoin["Select"]):

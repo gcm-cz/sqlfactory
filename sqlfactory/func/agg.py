@@ -2,53 +2,53 @@
 
 from typing import Literal
 
-from ..entities import Column, ColumnArg
-from ..statement import Raw, Statement
-from .base import Function
+from sqlfactory.entities import Column, ColumnArg
+from sqlfactory.func.base import Function
+from sqlfactory.statement import Raw, Statement
 
 
-# pylint: disable=too-few-public-methods
 class AggregateFunction(Function):
+    # pylint: disable=too-few-public-methods
     """Base class for aggregate functions"""
 
     def __init__(self, agg: str, column: ColumnArg | Statement):
         super().__init__(agg, Column(column) if isinstance(column, str) else column)
 
 
-# pylint: disable=too-few-public-methods
 class Avg(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """AVG(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("AVG", column)
 
 
-# pylint: disable=too-few-public-methods
 class BitAnd(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """BIT_AND(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("BIT_AND", column)
 
 
-# pylint: disable=too-few-public-methods
 class BitOr(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """BIT_OR(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("BIT_OR", column)
 
 
-# pylint: disable=too-few-public-methods
 class BitXor(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """BIT_XOR(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("BIT_XOR", column)
 
 
-# pylint: disable=too-few-public-methods
 class Count(Function):
+    # pylint: disable=too-few-public-methods
     """
     - COUNT(<column>)
     - COUNT(DISTINCT <column>)
@@ -70,32 +70,32 @@ class Count(Function):
             super().__init__("COUNT", column_stmt)
 
 
-# pylint: disable=too-few-public-methods
 class Max(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """MAX(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("MAX", column)
 
 
-# pylint: disable=too-few-public-methods
 class Min(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """MIN(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("MIN", column)
 
 
-# pylint: disable=too-few-public-methods
 class Std(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """STD(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
         super().__init__("STD", column)
 
 
-# pylint: disable=too-few-public-methods
 class Sum(AggregateFunction):
+    # pylint: disable=too-few-public-methods
     """SUM(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):

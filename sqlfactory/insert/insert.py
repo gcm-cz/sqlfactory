@@ -5,10 +5,10 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import Any, Self, TypeAlias
 
-from ..entities import Column, ColumnArg, Table
-from ..execute import ConditionalExecutableStatement
-from ..statement import Statement
-from .values import Values
+from sqlfactory.entities import Column, ColumnArg, Table
+from sqlfactory.execute import ConditionalExecutableStatement
+from sqlfactory.insert.values import Values
+from sqlfactory.statement import Statement
 
 
 class Insert(ConditionalExecutableStatement):

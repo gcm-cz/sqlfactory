@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from ..statement import Statement
-from .base import Function
+from sqlfactory.func.base import Function
+from sqlfactory.statement import Statement
 
 
 class Ascii(Function):

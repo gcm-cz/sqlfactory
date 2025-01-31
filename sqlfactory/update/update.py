@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Optional, Self, TypeAlias
 
-from ..condition.base import ConditionBase
-from ..entities import Column, ColumnArg, Table
-from ..execute import ConditionalExecutableStatement
-from ..mixins.limit import Limit, WithLimit
-from ..mixins.where import WithWhere
-from ..statement import Statement
+from sqlfactory.condition.base import ConditionBase
+from sqlfactory.entities import Column, ColumnArg, Table
+from sqlfactory.execute import ConditionalExecutableStatement
+from sqlfactory.mixins.limit import Limit, WithLimit
+from sqlfactory.mixins.where import WithWhere
+from sqlfactory.statement import Statement
 
 
 class UpdateColumn(Statement):
@@ -55,8 +55,10 @@ class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Upd
 
     Examples:
 
+    >>> from sqlfactory import Update, Eq
     >>> Update("table").set("column1", 1).where(Eq("column2", 2))
 
+    >>> from sqlfactory import Update, Table
     >>> t = Table("table")
     >>> Update(t).set(t.column1, 1).where(t.column2 == 2)
     """

@@ -5,8 +5,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Collection, Generic, Literal, Self, TypeVar
 
-from ..entities import Column, ColumnArg
-from ..statement import Statement
+from sqlfactory.entities import Column, ColumnArg
+from sqlfactory.statement import Statement
 
 
 class Direction(str, Enum):
@@ -15,6 +15,7 @@ class Direction(str, Enum):
 
     Usage:
 
+    >>> from sqlfactory import Order, Direction
     >>> Order([('column1', Direction.ASC), ('column2', Direction.DESC)])
     >>> "ORDER BY `column1` ASC, `column2` DESC"
     """
@@ -32,6 +33,7 @@ class Order(list[tuple[OrderColumn, Direction | Literal["ASC", "DESC"]]], Statem
 
     Usage:
 
+    >>> from sqlfactory import Order, Direction
     >>> Order([('column1', Direction.ASC), ('column2', Direction.DESC)])
     >>> "ORDER BY `column1` ASC, `column2` DESC"
     """
@@ -72,9 +74,11 @@ class WithOrder(Generic[T]):
 
         Example:
 
+        >>> from sqlfactory import Select, Direction
         >>> query = Select(order=[('column1', Direction.ASC), ('column2', Direction.DESC)])
 
-        >>> query = Select(order=[Order([('column1', Direction.ASC), ('column2', Direction.DESC)])]
+        >>> from sqlfactory import Select, Order, Direction
+        >>> query = Select(order=Order([('column1', Direction.ASC), ('column2', Direction.DESC)]))
 
         :param order: Ordering specification - either instance of Order, or collection of columns and directions.
         """
@@ -90,6 +94,7 @@ class WithOrder(Generic[T]):
 
         Example:
 
+        >>> from sqlfactory import Select, Direction
         >>> query = Select().order_by('column1', Direction.ASC).order_by('column2', Direction.DESC)
 
         :param column: Column to use for ordering

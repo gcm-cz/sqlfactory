@@ -1,9 +1,9 @@
 """SELECT statement builder."""
 
-from .aliased import Aliased, SelectColumn
-from .column_list import ColumnList
-from .join import CrossJoin, InnerJoin, Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin
-from .select import SELECT, Select
+from sqlfactory.mixins.join import CrossJoin, InnerJoin, Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin
+from sqlfactory.select.aliased import Aliased, SelectColumn
+from sqlfactory.select.column_list import ColumnList
+from sqlfactory.select.select import SELECT, Select
 
 __all__ = [
     "SELECT",
