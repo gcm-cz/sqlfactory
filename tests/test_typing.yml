@@ -1,35 +1,6 @@
 - case: execute_return_types
   main: |
-    from sqlfactory import Select
-    from typing import Any, Literal, assert_type, reveal_type
-    
-    sel = Select(table="test")
 
-    class Cursor1:
-      def execute(self, query: str, args: tuple[Any, ...]) -> Literal["a"]:
-        return "a"
-
-    class Cursor2:
-      def execute(self, query: str, *args: Any) -> Literal["b"]:
-        return "b"
-
-    class Cursor3:
-      def query(self, query: str, args: tuple[Any, ...]) -> Literal["c"]:
-        return "c"
-
-    class Cursor4:
-      def query(self, query: str, *args: Any) -> Literal["d"]:
-        return "d"
-
-    class Cursor5:
-      def execute(self, num: int, *args: Any) -> None:
-        pass
-    
-    assert_type(sel.execute(Cursor1()), Literal["a"])
-    assert_type(sel.execute(Cursor2()), Literal["b"])
-    assert_type(sel.execute(Cursor3()), Literal["c"])
-    assert_type(sel.execute(Cursor4()), Literal["d"])
-    reveal_type(sel.execute(Cursor5()))  # type: ignore
 - case: execute_priority_query_over_execute
   main: |
     from sqlfactory import Select

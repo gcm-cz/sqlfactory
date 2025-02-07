@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Collection, Generic, Literal, Self, TypeVar, Optional
+from typing import Any, Collection, Generic, Literal, Optional, Self, TypeVar
 
 from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.statement import Statement
