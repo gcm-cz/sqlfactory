@@ -35,9 +35,11 @@ class Join(Statement):
     ...     alias="t2",
     ...     on=Eq("t2.product_id", Column("table.id"))
     ... )
-    >>> "JOIN (SELECT `table2`.`product_id`, SUM(`price`) "
+    >>> "JOIN ("
+    ... "SELECT `table2`.`product_id`, SUM(`price`) "
     ... "FROM `table2` "
-    ... "WHERE `table2`.`enabled` = %s) AS `t2` ON `t2`.`product_id` = `table`.`id`"
+    ... "WHERE `table2`.`enabled` = %s"
+    ... ") AS `t2` ON `t2`.`product_id` = `table`.`id`"
 
     Note that for subquery join, alias must be always specified.
     """

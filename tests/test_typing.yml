@@ -1,0 +1,124 @@
+- case: execute_return_types
+  main: |
+    from sqlfactory import Select
+    from typing import Any, Literal, assert_type, reveal_type
+    
+    sel = Select(table="test")
+
+    class Cursor1:
+      def execute(self, query: str, args: tuple[Any, ...]) -> Literal["a"]:
+        return "a"
+
+    class Cursor2:
+      def execute(self, query: str, *args: Any) -> Literal["b"]:
+        return "b"
+
+    class Cursor3:
+      def query(self, query: str, args: tuple[Any, ...]) -> Literal["c"]:
+        return "c"
+
+    class Cursor4:
+      def query(self, query: str, *args: Any) -> Literal["d"]:
+        return "d"
+
+    class Cursor5:
+      def execute(self, num: int, *args: Any) -> None:
+        pass
+    
+    assert_type(sel.execute(Cursor1()), Literal["a"])
+    assert_type(sel.execute(Cursor2()), Literal["b"])
+    assert_type(sel.execute(Cursor3()), Literal["c"])
+    assert_type(sel.execute(Cursor4()), Literal["d"])
+    reveal_type(sel.execute(Cursor5()))  # type: ignore
+- case: execute_priority_query_over_execute
+  main: |
+    from sqlfactory import Select
+    from typing import Any, Literal, assert_type, reveal_type
+    
+    sel = Select(table="test")
+    
+    class Cursor1:
+      def execute(self, query: str, args: tuple[Any, ...]) -> Literal["execute"]:
+        return "execute"
+    
+      def query(self, query: str, args: tuple[Any, ...]) -> Literal["query"]:
+        return "query"
+    
+    class Cursor2:
+      def execute(self, query: str, *args: Any) -> Literal["execute"]:
+        return "execute"
+    
+      def query(self, query: str, args: tuple[Any, ...]) -> Literal["query"]:
+        return "query"
+    
+    class Cursor3:
+      def execute(self, query: str, *args: Any) -> Literal["execute"]:
+        return "execute"
+    
+      def query(self, query: str, *args: Any) -> Literal["query"]:
+        return "query"
+    
+    class Cursor4:
+      def execute(self, query: str, args: tuple[Any]) -> Literal["execute"]:
+        return "execute"
+    
+      def query(self, query: str, *args: Any) -> Literal["query"]:
+        return "query"
+    
+    assert_type(sel.execute(Cursor1()), Literal["query"])
+    assert_type(sel.execute(Cursor2()), Literal["query"])
+    assert_type(sel.execute(Cursor3()), Literal["query"])
+    assert_type(sel.execute(Cursor4()), Literal["query"])
+- case: execute_priority_query_over_execute_async
+  main: |
+    from sqlfactory import Select
+    from typing import Any, Coroutine, Literal, assert_type, reveal_type
+    
+    sel = Select(table="test")
+    
+    class Cursor1:
+      async def execute(self, query: str, args: tuple[Any, ...]) -> Literal["execute"]:
+        return "execute"
+    
+      async def query(self, query: str, args: tuple[Any, ...]) -> Literal["query"]:
+        return "query"
+    
+    class Cursor2:
+      async def execute(self, query: str, *args: Any) -> Literal["execute"]:
+        return "execute"
+    
+      async def query(self, query: str, args: tuple[Any, ...]) -> Literal["query"]:
+        return "query"
+    
+    class Cursor3:
+      async def execute(self, query: str, *args: Any) -> Literal["execute"]:
+        return "execute"
+    
+      async def query(self, query: str, *args: Any) -> Literal["query"]:
+        return "query"
+    
+    class Cursor4:
+      async def execute(self, query: str, args: tuple[Any]) -> Literal["execute"]:
+        return "execute"
+    
+      async def query(self, query: str, *args: Any) -> Literal["query"]:
+        return "query"
+    
+    assert_type(sel.execute(Cursor1()), Coroutine[Any, Any, Literal["query"]])  # type: ignore[unused-coroutine]
+    assert_type(sel.execute(Cursor2()), Coroutine[Any, Any, Literal["query"]])  # type: ignore[unused-coroutine]
+    assert_type(sel.execute(Cursor3()), Coroutine[Any, Any, Literal["query"]])  # type: ignore[unused-coroutine]
+    assert_type(sel.execute(Cursor4()), Coroutine[Any, Any, Literal["query"]])  # type: ignore[unused-coroutine]
+- case: select_with_where
+  main: |
+    from sqlfactory import Select, Eq
+    from typing import assert_type
+    
+    assert_type(Select(table="test").where(Eq("id", 1)), Select)
+    assert_type(Select(table="test").WHERE(Eq("id", 1)), Select)
+- case: select_with_order
+  main: |
+    from sqlfactory import Select, Direction
+    from typing import assert_type
+    
+    assert_type(Select(table="test").order_by("id", Direction.ASC), Select)
+    assert_type(Select(table="test").ORDER_BY("id", Direction.ASC), Select)

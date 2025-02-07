@@ -14,14 +14,14 @@ class HasQueryWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with query method that takes arguments as tuple."""
 
-    def query(self, query: str, args: tuple[Any]) -> R_co: ...
+    def query(self, query: str, args: tuple[Any, ...]) -> R_co: ...
 
 
 class HasExecuteWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with execute method that takes arguments as tuple."""
 
-    def execute(self, query: str, args: tuple[Any]) -> R_co: ...
+    def execute(self, query: str, args: tuple[Any, ...]) -> R_co: ...
 
 
 class HasQueryWithArgs(Protocol[R_co]):
@@ -42,14 +42,14 @@ class HasAsyncQueryWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async query method that takes arguments as tuple."""
 
-    async def query(self, query: str, args: tuple[Any]) -> R_co: ...
+    async def query(self, query: str, args: tuple[Any, ...]) -> R_co: ...
 
 
 class HasAsyncExecuteWithTupleArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
 
-    async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
+    async def execute(self, query: str, args: tuple[Any, ...]) -> R_co: ...
 
 
 class HasAsyncQueryWithArgs(Protocol[R_co]):
@@ -63,7 +63,7 @@ class HasAsyncExecuteWithArgs(Protocol[R_co]):
     # pylint: disable=too-few-public-methods, missing-function-docstring  # As this is just a protocol.
     """Protocol defining DB driver with async execute method that takes arguments as tuple."""
 
-    async def execute(self, query: str, args: tuple[Any]) -> R_co: ...
+    async def execute(self, query: str, *args: Any) -> R_co: ...
 
 
 HasAsyncQuery: TypeAlias = HasAsyncQueryWithTupleArgs[R_co] | HasAsyncQueryWithArgs[R_co]

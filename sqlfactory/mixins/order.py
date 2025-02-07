@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Collection, Generic, Literal, Self, TypeVar
+from typing import Any, Collection, Generic, Literal, Self, TypeVar, Optional
 
 from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.statement import Statement
@@ -84,7 +84,7 @@ class WithOrder(Generic[T]):
         """
         super().__init__(*args, **kwargs)
         if order:
-            self._order = order if isinstance(order, Order) else Order(order)
+            self._order: Optional[Order] = order if isinstance(order, Order) else Order(order)
         else:
             self._order = None
 
