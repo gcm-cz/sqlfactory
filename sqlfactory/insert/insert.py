@@ -60,6 +60,10 @@ class Insert(ConditionalExecutableStatement):
         return cls.into(table, ignore=ignore, replace=replace)
 
     def __call__(self, *columns: ColumnArg) -> Self:
+        """
+        Specify columns to be inserted. Columns can be specified as strings or Column objects.
+        :param columns: Columns to insert.
+        """
         if not columns:
             raise AttributeError("At least one column must be specified.")
 
@@ -71,6 +75,13 @@ class Insert(ConditionalExecutableStatement):
                 raise AttributeError("Statements cannot be used as INSERT columns.")
 
         self._columns = [column if isinstance(column, Column) else Column(column) for column in columns]
+        return self
+
+    def columns(self, *columns: ColumnArg) -> Self:
+        """
+        Alias for `Insert.__call__()`.
+        """
+        self(*columns)
         return self
 
     def values(self, *rows: Collection[Any]) -> Self:

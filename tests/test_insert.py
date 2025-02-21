@@ -11,6 +11,10 @@ def test_insert():
     assert str(insert_condition) == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s)"
     assert insert_condition.args == [1, 2]
 
+    insert_condition_aliased = Insert.into("table").columns("column1", "column2").values((1, 2))
+    assert str(insert_condition_aliased) == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s)"
+    assert insert_condition_aliased.args == [1, 2]
+
 
 def test_insert_ignore():
     insert_condition = INSERT.INTO("table", ignore=True)("column1", "column2").VALUES((1, 2))
