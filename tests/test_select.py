@@ -178,6 +178,10 @@ def test_multiple_where():
     assert str(sel) == "SELECT * FROM `xyz` WHERE (`column1` = %s AND `column2` = %s)"
     assert sel.args == ["value1", "value2"]
 
+    sel.where(Eq("column3", "value3"))
+    assert str(sel) == "SELECT * FROM `xyz` WHERE (`column1` = %s AND `column2` = %s AND `column3` = %s)"
+    assert sel.args == ["value1", "value2", "value3"]
+
 
 def test_column_list():
     # Empty initialized
