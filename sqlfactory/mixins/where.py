@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Generic, Self, TypeVar
 
-from sqlfactory.condition.base import ConditionBase, And
+from sqlfactory.condition.base import And, ConditionBase
 
 T = TypeVar("T")
 

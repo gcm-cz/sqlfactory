@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import Select, Aliased, Eq, Column, Join, In
+from sqlfactory import Aliased, Column, Eq, In, Join, Select
 from sqlfactory.func.agg import Sum
 
 
