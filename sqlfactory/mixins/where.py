@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Generic, Self, TypeVar
 
-from sqlfactory.condition.base import ConditionBase
+from sqlfactory.condition.base import ConditionBase, And
 
 T = TypeVar("T")
 
@@ -32,8 +32,9 @@ class WithWhere(Generic[T]):
 
     def where(self, condition: ConditionBase) -> Self:
         """
-        Set `WHERE` condition for query. This cannot be chained, as the library does not take assumption of how to chain
-        individual where conditions. Use one of `sqlfactory.And` or `sqlfactory.Or` compound classes to chain multiple conditions.
+        Set `WHERE` condition for query. If you chain multiple where calls together, they are joined by `And` condition.
+        You can manually specify joining condition by use one of `sqlfactory.And` or `sqlfactory.Or` compound classes to chain
+        multiple conditions.
 
         Example:
 
@@ -43,9 +44,13 @@ class WithWhere(Generic[T]):
         :param condition: Condition to be used in WHERE clause.
         """
         if self._where is not None:
-            raise AttributeError("Where has already been specified.")
+            if isinstance(self._where, And):
+                self._where.append(condition)
+            else:
+                self._where = And(self._where, condition)
+        else:
+            self._where = condition
 
-        self._where = condition
         return self
 
     # pylint: disable=invalid-name

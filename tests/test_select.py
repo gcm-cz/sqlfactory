@@ -172,8 +172,11 @@ def test_errors():
     with pytest.raises(AttributeError):
         (Select("column1", table="table").join(Join("table2"), Eq("table.id", Column("table2.id"))))
 
-    with pytest.raises(AttributeError, match="Where has already been specified."):
-        (Select(table="xyz").where(Eq("column1", "value")).WHERE(Eq("column2", "value")))
+
+def test_multiple_where():
+    sel = Select(table="xyz").where(Eq("column1", "value1")).WHERE(Eq("column2", "value2"))
+    assert str(sel) == "SELECT * FROM `xyz` WHERE (`column1` = %s AND `column2` = %s)"
+    assert sel.args == ["value1", "value2"]
 
 
 def test_column_list():
