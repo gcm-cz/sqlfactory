@@ -103,6 +103,7 @@ class Union(ConditionalExecutableStatement, WithOrder, WithLimit):
 
 
 class UnionAll(Union):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Union`, but uses `UNION ALL` instead of `UNION` to join SELECTs.
 
@@ -124,6 +125,7 @@ class UnionAll(Union):
 
 
 class UnionDistinct(Union):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Union`, but uses `UNION DISTINCT` instead of `UNION` to join SELECTs. UNION DISTINCT is in fact alias for
     plain UNION, but it is provided for clarity if you want to be explicit about the DISTINCT keyword.
@@ -162,6 +164,7 @@ Alias for `UnionDistinct` statement to provide better SQL compatibility, as SQL 
 
 
 class Except(Union):
+    # pylint: disable=too-many-ancestors
     """
     Construct EXCEPT statement by combining multiple SELECTs.
 
@@ -197,6 +200,7 @@ class Except(Union):
 
 
 class ExceptAll(Except):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Except`, but uses `EXCEPT ALL` instead of `EXCEPT` to join SELECTs.
 
@@ -218,6 +222,7 @@ class ExceptAll(Except):
 
 
 class ExceptDistinct(Except):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Except`, but uses `EXCEPT DISTINCT` instead of `EXCEPT` to join SELECTs. EXCEPT DISTINCT is in fact alias for
     plain EXCEPT, but it is provided for clarity if you want to be explicit about the DISTINCT keyword.
@@ -256,6 +261,7 @@ Alias for `ExceptDistinct` statement to provide better SQL compatibility, as SQL
 
 
 class Intersect(Union):
+    # pylint: disable=too-many-ancestors
     """
     Construct INTERSECT statement by combining multiple SELECTs.
 
@@ -291,6 +297,7 @@ class Intersect(Union):
 
 
 class IntersectAll(Intersect):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Intersect`, but uses `INTERSECT ALL` instead of `INTERSECT` to join SELECTs.
 
@@ -312,6 +319,7 @@ class IntersectAll(Intersect):
 
 
 class IntersectDistinct(Intersect):
+    # pylint: disable=too-many-ancestors
     """
     The same as `Intersect`, but uses `INTERSECT DISTINCT` instead of `INTERSECT` to join SELECTs. INTERSECT DISTINCT is in fact
     alias for plain INTERSECT, but it is provided for clarity if you want to be explicit about the DISTINCT keyword.

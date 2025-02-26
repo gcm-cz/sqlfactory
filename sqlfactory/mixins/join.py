@@ -46,8 +46,13 @@ class Join(Statement):
         """
         :param table: Table to be joined
         :param on: ON condition
+            **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to
+            be value. If you want to have column on the right side or value on the left, you must explicitly use `Column()`
+            function. And if you want literal value on the left side, you must explicitly use `Value()` function.
         :param alias: Optional alias of the joined table.
         """
+        super().__init__()
+
         if isinstance(table, str):
             table = Table(table)
 
@@ -217,12 +222,29 @@ class WithJoin:
 
     @overload
     def join(self, table: str | Table | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append JOIN clause to the query.
-        JOIN `table` AS <alias> ON (<condition>)"""
+        """
+        Append JOIN clause to the query.
+        JOIN `table` AS <alias> ON (<condition>)
+
+        :param table: Table to be joined
+        :param on: ON condition
+            **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to
+            be value. If you want to have column on the right side or value on the left, you must explicitly use `Column()`
+            function. And if you want literal value on the left side, you must explicitly use `Value()` function.
+        :param alias: Optional alias of the joined table.
+        """
 
     def join(self, table: str | Table | Join | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append JOIN clause to the query.
+        """
+        Append JOIN clause to the query.
         JOIN `table` AS <alias> ON (<condition>)
+
+        :param table: Table to be joined (or instance of the Join class)
+        :param on: ON condition (when first argument is not instance of Join class)
+            **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to
+            be value. If you want to have column on the right side or value on the left, you must explicitly use `Column()`
+            function. And if you want literal value on the left side, you must explicitly use `Value()` function.
+        :param alias: Optional alias of the joined table, if table is not instance of the Join class.
         """
         if isinstance(table, Join):
             if on is not None or alias is not None:
@@ -247,7 +269,16 @@ class WithJoin:
         return self.join(table, on, alias)  # type: ignore[arg-type]  # mypy searches in overloads
 
     def left_join(self, table: str | Table | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append LEFT JOIN clause to the query."""
+        """
+        Append LEFT JOIN clause to the query.
+
+        :param table: Table to be joined
+        :param on: ON condition
+            **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to
+            be value. If you want to have column on the right side or value on the left, you must explicitly use `Column()`
+            function. And if you want literal value on the left side, you must explicitly use `Value()` function.
+        :param alias: Optional alias of the joined table.
+        """
         return self.join(LeftJoin(table, on, alias))
 
     def LEFT_JOIN(self, table: str | Table | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:
@@ -256,7 +287,16 @@ class WithJoin:
         return self.left_join(table, on, alias)
 
     def right_join(self, table: str | Table | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:
-        """Append RIGHT JOIN clause to the query."""
+        """
+        Append RIGHT JOIN clause to the query.
+
+        :param table: Table to be joined
+        :param on: ON condition
+            **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to
+            be value. If you want to have column on the right side or value on the left, you must explicitly use `Column()`
+            function. And if you want literal value on the left side, you must explicitly use `Value()` function.
+        :param alias: Optional alias of the joined table.
+        """
         return self.join(RightJoin(table, on, alias))
 
     def RIGHT_JOIN(self, table: str | Table | Select, on: ConditionBase | None = None, alias: str | None = None) -> Self:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar
 
-from sqlfactory.dialect import SQLDialect, MySQLDialect
+from sqlfactory.dialect import MySQLDialect, SQLDialect
 
 
 class Statement(ABC):
@@ -130,3 +130,21 @@ class Raw(Statement):
     @property
     def args(self) -> list[Any]:
         return list(self._args)
+
+
+class Value(Statement):
+    """
+    To provide literal value for places expecting statement, you can use `Value` class.
+    """
+
+    def __init__(self, value: Any) -> None:
+        super().__init__()
+
+        self._value = value
+
+    def __str__(self) -> str:
+        return self.dialect.placeholder
+
+    @property
+    def args(self) -> list[Any]:
+        return [self._value]

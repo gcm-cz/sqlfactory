@@ -7,9 +7,12 @@ from sqlfactory.statement import Statement
 
 
 class SimpleCondition(ConditionBase):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Simple condition comparing one column with given value, using specified operator.
+
+    **Note:** `SimpleCondition` and all other condition functions are expecting first argument to be column and second argument
+    to be value. If you want to have column on the right side or value on the left, you must explicitely use `Column()` function.
+    And if you want literal value on the left side, you must explicitely use `Value()` function.
     """
 
     def __init__(self, column: StatementOrColumn, operator: str, value: Statement | Any) -> None:
@@ -46,21 +49,21 @@ class SimpleCondition(ConditionBase):
     def __str__(self) -> str:
         if isinstance(self._value, Statement):
             return f"{self._column!s} {self._operator} {self._value!s}"
-        else:
-            return f"{self._column!s} {self._operator} {self.dialect.placeholder}"
+
+        return f"{self._column!s} {self._operator} {self.dialect.placeholder}"
 
     def __bool__(self) -> bool:
         return True
 
 
 class Equals(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Equality condition (`==`). You can also use shorthand alias `Eq`.
 
-    Note that first argument to `Equals` (or `Eq`) is expected to be column, while second argument is value. So to compare
+    **Note:** First argument to `Equals` (or `Eq`) is expected to be column, while second argument is value. So to compare
     two columns, you must use `Column` instances as second argument (`Eq("column1", Column("column2"))` to produce
-    ``` `column1` = `column2` ```).
+    ``` `column1` = `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Eq(Value(10), "column")` to produce ``` %s = `column` ``` (with args `[10]`)).
 
     ```Eq("column1", "column2")``` produces ``` `column1` = %s ``` with arguments ```["column2"]```.
 
@@ -119,13 +122,13 @@ class Equals(SimpleCondition):
 
 
 class NotEquals(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Not equality condition (`!=`). You can also use shorthand alis `Ne`.
 
-    Note that first argument to `NotEquals` (or `Ne`) is expected to be column, while second argument is value. So to compare
+    **Note:** First argument to `NotEquals` (or `Ne`) is expected to be column, while second argument is value. So to compare
     two columns, you must use `Column` instances as second argument (`Ne("column1", Column("column2"))` to produce
-    ``` `column1` != `column2` ```).
+    ``` `column1` != `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Ne(Value(10), "column")` to produce ``` %s != `column` ``` (with args `[10]`)).
 
     ```Ne("column1", "column2")``` produces ``` `column1` != %s ``` with arguments ```["column2"]```.
 
@@ -184,13 +187,13 @@ class NotEquals(SimpleCondition):
 
 
 class GreaterThanOrEquals(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Greater than or equal condition (`>=`). You can also use shorthand alis `Ge`.
 
-    Note that first argument to `GreaterThanOrEquals` (or `Ge`) is expected to be column, while second argument is value.
+    **Note:** First argument to `GreaterThanOrEquals` (or `Ge`) is expected to be column, while second argument is value.
     So to compare two columns, you must use `Column` instances as second argument (`Ge("column1", Column("column2"))` to produce
-    ``` `column1` >= `column2` ```).
+    ``` `column1` >= `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Ge(Value(10), "column")` to produce ``` %s >= `column` ``` (with args `[10]`)).
 
     ```Ge("column1", "column2")``` produces ``` `column1` >= %s ``` with arguments ```["column2"]```.
 
@@ -240,13 +243,13 @@ class GreaterThanOrEquals(SimpleCondition):
 
 
 class GreaterThan(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Greater than condition (`>`). You can also use shorthand alis `Gt`.
 
-    Note that first argument to `GreaterThan` (or `Ge`) is expected to be column, while second argument is value.
+    **Note:** First argument to `GreaterThan` (or `Ge`) is expected to be column, while second argument is value.
     So to compare two columns, you must use `Column` instances as second argument (`Gt("column1", Column("column2"))` to produce
-    ``` `column1` > `column2` ```).
+    ``` `column1` > `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Gt(Value(10), "column")` to produce ``` %s > `column` ``` (with args `[10]`)).
 
     ```Gt("column1", "column2")``` produces ``` `column1` > %s ``` with arguments ```["column2"]```.
 
@@ -296,13 +299,13 @@ class GreaterThan(SimpleCondition):
 
 
 class LessThanOrEquals(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Less than or equal condition (`<=`). You can also use shorthand alis `Le`.
 
-    Note that first argument to `LessThanOrEquals` (or `Le`) is expected to be column, while second argument is value.
+    **Note:** First argument to `LessThanOrEquals` (or `Le`) is expected to be column, while second argument is value.
     So to compare two columns, you must use `Column` instances as second argument (`Le("column1", Column("column2"))` to produce
-    ``` `column1` <= `column2` ```).
+    ``` `column1` <= `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Le(Value(10), "column")` to produce ``` %s <= `column` ``` (with args `[10]`)).
 
     ```Le("column1", "column2")``` produces ``` `column1` <= %s ``` with arguments ```["column2"]```.
 
@@ -352,13 +355,13 @@ class LessThanOrEquals(SimpleCondition):
 
 
 class LessThan(SimpleCondition):
-    # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Less than condition (`<`). You can also use shorthand alis `Lt`.
 
-    Note that first argument to `LessThan` (or `Lt`) is expected to be column, while second argument is value.
+    **Note:** First argument to `LessThan` (or `Lt`) is expected to be column, while second argument is value.
     So to compare two columns, you must use `Column` instances as second argument (`Lt("column1", Column("column2"))` to produce
-    ``` `column1` < `column2` ```).
+    ``` `column1` < `column2` ```). Likewise, to provide literal value as the first argument, you must use `Value` instance
+    (`Lt(Value(10), "column")` to produce ``` %s < `column` ``` (with args `[10]`)).
 
     ```Lt("column1", "column2")``` produces ``` `column1` < %s ``` with arguments ```["column2"]```.
 

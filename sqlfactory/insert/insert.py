@@ -25,7 +25,14 @@ class Insert(ConditionalExecutableStatement):
     >>> "INSERT IGNORE INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
     """
 
-    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False, *, dialect: SQLDialect | None = None,) -> None:
+    def __init__(
+        self,
+        table: Table | str,
+        ignore: bool = False,
+        replace: bool = False,
+        *,
+        dialect: SQLDialect | None = None,
+    ) -> None:
         """
         :param table: Table to insert into
         :param ignore: use INSERT IGNORE?

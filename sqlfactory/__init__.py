@@ -90,13 +90,14 @@ query = Delete("products", where=Eq("enabled", False))
 - Each part of statement bundles string representation of given portion of SQL including placeholders with placeholder values.
   These parts are then combined to construct more complex SQL statements up to the executable ones (SELECT, INSERT, UPDATE,
   DELETE, ...).
-- When there is no expected return value, `self` is always returned to allow chaining of methods. Chaining of method does not have
-  given order, methods can be chained as needed. For example, WHERE does not have to be before LIMIT for SELECT. It is up to the
-  library to figure out correct order of parts when building final query.
+- When there is no expected return value, `self` is always returned to allow chaining of methods. Chaining of method does not
+  have given order, methods can be chained as needed. For example, WHERE does not have to be before LIMIT for SELECT. It is up
+  to the library to figure out correct order of parts when building final query.
 - `statement.__str__()` method (`str(statement)`) is used to get the final SQL statement.
 - `statement.args` property is used to get the values of placeholders.
 - `statement.execute()` function is used to execute the statement that could be executed on top of DB-API 2.0 compatible cursor
-  (or any object that has execute() method taking string as SQL and variable arguments or tuple of arguments as placeholder values).
+  (or any object that has `execute()` method taking string as SQL and variable arguments or tuple of arguments as placeholder
+  values).
 - It does not matter whether you are in async or sync code, or what database you are using. SQLFactory is database-agnostic and
     does not care about the underlying database. It only cares about building the SQL statement.
 - SQLFactory is not an ORM. It does not map objects to tables or rows. By design.
@@ -163,6 +164,7 @@ from sqlfactory.condition import (
     Or,
 )
 from sqlfactory.delete import DELETE, Delete
+from sqlfactory.dialect import MySQLDialect, OracleSQLDialect, PostgreSQLDialect, SQLDialect, SQLiteDialect
 from sqlfactory.entities import Column, Table
 from sqlfactory.insert import INSERT, Insert, Values
 from sqlfactory.mixins import Direction, Limit, Order
@@ -198,9 +200,8 @@ from sqlfactory.select import (
     UnionAll,
     UnionDistinct,
 )
-from sqlfactory.statement import Raw, Statement
+from sqlfactory.statement import Raw, Statement, Value
 from sqlfactory.update import UPDATE, Update, UpdateColumn
-from sqlfactory.dialect import SQLDialect, MySQLDialect, SQLiteDialect, PostgreSQLDialect, OracleSQLDialect
 
 __all__ = [  # noqa: RUF022
     "DELETE",
@@ -266,9 +267,11 @@ __all__ = [  # noqa: RUF022
     "UNION_DISTINCT",
     "Update",
     "UpdateColumn",
+    "Value",
     "Values",
     "SQLDialect",
     "MySQLDialect",
+    "SQLiteDialect",
     "PostgreSQLDialect",
     "OracleSQLDialect",
     "execute",

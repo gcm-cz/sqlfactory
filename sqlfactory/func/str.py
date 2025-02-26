@@ -7,7 +7,6 @@ from sqlfactory.statement import Statement
 
 
 class Ascii(Function):
-    # pylint: disable=too-few-public-methods
     """Numeric ASCII value of leftmost character."""
 
     def __init__(self, arg: Statement | Any) -> None:
@@ -15,7 +14,6 @@ class Ascii(Function):
 
 
 class Bin(Function):
-    # pylint: disable=too-few-public-methods
     """Returns binary value"""
 
     def __init__(self, num: Statement | Any) -> None:
@@ -23,7 +21,6 @@ class Bin(Function):
 
 
 class BitLength(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the length of a string in bits"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -31,7 +28,6 @@ class BitLength(Function):
 
 
 class Char(Function):
-    # pylint: disable=too-few-public-methods
     """Returns string based on the integer values for the individual characters."""
 
     def __init__(self, *n: Statement | int) -> None:
@@ -39,7 +35,6 @@ class Char(Function):
 
 
 class CharLength(Function):
-    # pylint: disable=too-few-public-methods
     """Length of the string in characters."""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -47,7 +42,6 @@ class CharLength(Function):
 
 
 class Chr(Function):
-    # pylint: disable=too-few-public-methods
     """Returns string based on integer values of the individual characters."""
 
     def __init__(self, n: Statement | int) -> None:
@@ -55,7 +49,6 @@ class Chr(Function):
 
 
 class Concat(Function):
-    # pylint: disable=too-few-public-methods
     """Returns concatenated string"""
 
     def __init__(self, *s: Statement | Any) -> None:
@@ -63,7 +56,6 @@ class Concat(Function):
 
 
 class ConcatWs(Function):
-    # pylint: disable=too-few-public-methods
     """Concatenate with separator"""
 
     def __init__(self, separator: Statement | Any, *s: Statement | Any) -> None:
@@ -71,7 +63,6 @@ class ConcatWs(Function):
 
 
 class Hex(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a hexadecimal string representation of a decimal or string value."""
 
     def __init__(self, n: Statement | Any) -> None:
@@ -79,7 +70,6 @@ class Hex(Function):
 
 
 class InStr(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the position of the first occurrence of substring in string"""
 
     def __init__(self, s: Statement | Any, substring: Statement | Any) -> None:
@@ -87,7 +77,6 @@ class InStr(Function):
 
 
 class Left(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the leftmost number of characters"""
 
     def __init__(self, s: Statement | Any, n: Statement | int) -> None:
@@ -95,7 +84,6 @@ class Left(Function):
 
 
 class Length(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the length of a string"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -103,7 +91,6 @@ class Length(Function):
 
 
 class Locate(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the position of the first occurrence of substring in string"""
 
     def __init__(self, substring: Statement | Any, s: Statement | Any) -> None:
@@ -111,7 +98,6 @@ class Locate(Function):
 
 
 class Lower(Function):
-    # pylint: disable=too-few-public-methods
     """Converts a string to lower-case"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -119,7 +105,6 @@ class Lower(Function):
 
 
 class Lpad(Function):
-    # pylint: disable=too-few-public-methods
     """Left-pad a string with another string"""
 
     def __init__(self, s: Statement | Any, n: Statement | int, pad: Statement | Any) -> None:
@@ -127,7 +112,6 @@ class Lpad(Function):
 
 
 class Ltrim(Function):
-    # pylint: disable=too-few-public-methods
     """Removes leading spaces"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -135,7 +119,6 @@ class Ltrim(Function):
 
 
 class Mid(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a substring"""
 
     def __init__(self, s: Statement | Any, start: Statement | int, length: Statement | int) -> None:
@@ -143,7 +126,6 @@ class Mid(Function):
 
 
 class OctetLength(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the length of a string in bytes"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -151,7 +133,6 @@ class OctetLength(Function):
 
 
 class Ord(Function):
-    # pylint: disable=too-few-public-methods
     """Numeric value of leftmost character"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -159,7 +140,6 @@ class Ord(Function):
 
 
 class Repeat(Function):
-    # pylint: disable=too-few-public-methods
     """Repeat a string the specified number of times"""
 
     def __init__(self, s: Statement | Any, n: Statement | int) -> None:
@@ -167,7 +147,6 @@ class Repeat(Function):
 
 
 class Replace(Function):
-    # pylint: disable=too-few-public-methods
     """Replace occurrences of a specified string"""
 
     def __init__(self, s: Statement | Any, from_: Statement | Any, to: Statement | Any) -> None:
@@ -175,7 +154,6 @@ class Replace(Function):
 
 
 class Reverse(Function):
-    # pylint: disable=too-few-public-methods
     """Reverse a string"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -183,7 +161,6 @@ class Reverse(Function):
 
 
 class Right(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the rightmost number of characters"""
 
     def __init__(self, s: Statement | Any, n: Statement | int) -> None:
@@ -191,7 +168,6 @@ class Right(Function):
 
 
 class RPad(Function):
-    # pylint: disable=too-few-public-methods
     """Right-pad a string with another string"""
 
     def __init__(self, s: Statement | Any, n: Statement | int, pad: Statement | Any) -> None:
@@ -199,7 +175,6 @@ class RPad(Function):
 
 
 class RTrim(Function):
-    # pylint: disable=too-few-public-methods
     """Removes trailing spaces"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -207,7 +182,6 @@ class RTrim(Function):
 
 
 class SFormat(Function):
-    # pylint: disable=too-few-public-methods
     """Format a string"""
 
     def __init__(self, format_: Statement | Any, *args: Statement | Any) -> None:
@@ -215,7 +189,6 @@ class SFormat(Function):
 
 
 class Space(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a string of spaces"""
 
     def __init__(self, n: Statement | int) -> None:
@@ -223,7 +196,6 @@ class Space(Function):
 
 
 class Substr(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a substring"""
 
     def __init__(self, s: Statement | Any, start: Statement | int, length: Statement | int) -> None:
@@ -231,7 +203,6 @@ class Substr(Function):
 
 
 class Substring(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a substring"""
 
     def __init__(self, s: Statement | Any, start: Statement | int, length: Statement | int) -> None:
@@ -239,7 +210,6 @@ class Substring(Function):
 
 
 class SubstringIndex(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a substring"""
 
     def __init__(self, s: Statement | Any, delimiter: Statement | Any, count: Statement | int) -> None:
@@ -247,7 +217,6 @@ class SubstringIndex(Function):
 
 
 class ToBase64(Function):
-    # pylint: disable=too-few-public-methods
     """Converts a string to base64"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -255,7 +224,6 @@ class ToBase64(Function):
 
 
 class ToChar(Function):
-    # pylint: disable=too-few-public-methods
     """Converts a date/time/timestamp type expression to a string"""
 
     def __init__(self, n: Statement | Any) -> None:
@@ -263,7 +231,6 @@ class ToChar(Function):
 
 
 class Trim(Function):
-    # pylint: disable=too-few-public-methods
     """Removes leading and trailing spaces"""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -271,7 +238,6 @@ class Trim(Function):
 
 
 class Unhex(Function):
-    # pylint: disable=too-few-public-methods
     """Converts a hexadecimal pairs of digits to the character represented by the number."""
 
     def __init__(self, s: Statement | Any) -> None:
@@ -279,7 +245,6 @@ class Unhex(Function):
 
 
 class Upper(Function):
-    # pylint: disable=too-few-public-methods
     """Converts a string to upper-case"""
 
     def __init__(self, s: Statement | Any) -> None:

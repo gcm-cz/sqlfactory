@@ -1,5 +1,5 @@
-from sqlfactory import In, PostgreSQLDialect, SQLiteDialect, Between, Eq, Select, Column, Direction
-from sqlfactory.dialect import OracleSQLDialect, MySQLDialect
+from sqlfactory import Between, Column, Direction, Eq, In, PostgreSQLDialect, Select, SQLiteDialect
+from sqlfactory.dialect import MySQLDialect, OracleSQLDialect
 from sqlfactory.func.control import IfNull
 
 

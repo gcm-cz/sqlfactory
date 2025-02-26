@@ -94,6 +94,8 @@ class UnaryExpression(Expression):
     """
 
     def __init__(self, operator: str, statement: Statement | Any) -> None:
+        super().__init__()
+
         self.operator = operator
         self.statement = statement
 
@@ -113,6 +115,7 @@ class BinaryExpression(Expression):
 
     def __init__(self, left: Statement | Any, operator: str, right: Statement | Any) -> None:
         super().__init__()
+
         self.left = left
         self.operator = operator
         self.right = right
@@ -183,7 +186,9 @@ class Column(Expression):
             raise ValueError("Invalid column name (contains more than <database>.<table>.<column>).")
 
     def __str__(self) -> str:
-        return ".".join(f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._column)
+        return ".".join(
+            f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._column
+        )
 
     @property
     def column(self) -> str:
@@ -264,7 +269,9 @@ class Table(Statement):
             raise ValueError("Invalid table name (contains more than <database>.<table>).")
 
     def __str__(self) -> str:
-        return ".".join(f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._table)
+        return ".".join(
+            f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._table
+        )
 
     @property
     def table(self) -> str | None:

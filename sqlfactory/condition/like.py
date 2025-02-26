@@ -70,8 +70,8 @@ class Like(ConditionBase):
     def __str__(self) -> str:
         if isinstance(self._value, Statement):
             return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self._value!s}"
-        else:
-            return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self.dialect.placeholder}"
+
+        return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self.dialect.placeholder}"
 
     @property
     def args(self) -> list[Any]:

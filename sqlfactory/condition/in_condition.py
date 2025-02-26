@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, cast, overload
 
-from sqlfactory.condition.base import And, Or, StatementOrColumn, ConditionBase
+from sqlfactory.condition.base import And, ConditionBase, Or, StatementOrColumn
 from sqlfactory.condition.simple import Eq, Ne
 from sqlfactory.entities import Column
 from sqlfactory.statement import Raw, Statement
@@ -15,8 +15,6 @@ if TYPE_CHECKING:
 
 
 class In(ConditionBase):
-    # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
-
     """
     `IN` condition for checking whether column value is in given list of values.
 
@@ -265,7 +263,11 @@ class In(ConditionBase):
             "IN" if not negative else "NOT IN",
             ", ".join(
                 [
-                    "(" + ", ".join([self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in value_tuple]) + ")"
+                    "("
+                    + ", ".join(
+                        [self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in value_tuple]
+                    )
+                    + ")"
                     for value_tuple in values
                 ]
             ),

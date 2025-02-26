@@ -103,8 +103,7 @@ class WithOrder:
         self._order.append((column, direction))
         return self
 
-    # pylint: disable=invalid-name
-    def ORDER_BY(self, column: OrderColumn, direction: Direction) -> Self:
+    def ORDER_BY(self, column: OrderColumn, direction: Direction) -> Self:  # pylint: disable=invalid-name
         """Alias for `WithOrder.order_by()` to be more SQL-like with all capitals."""
         return self.order_by(column, direction)
 

@@ -6,7 +6,6 @@ from sqlfactory.func.base import Function
 
 
 class Div(Function):
-    # pylint: disable=too-few-public-methods
     """
     Integer division.
     """
@@ -16,7 +15,6 @@ class Div(Function):
 
 
 class Abs(Function):
-    # pylint: disable=too-few-public-methods
     """
     Absolute value.
     """
@@ -26,7 +24,6 @@ class Abs(Function):
 
 
 class ACos(Function):
-    # pylint: disable=too-few-public-methods
     """
     Arc cosine.
     """
@@ -36,7 +33,6 @@ class ACos(Function):
 
 
 class ASin(Function):
-    # pylint: disable=too-few-public-methods
     """
     Arc sine.
     """
@@ -46,7 +42,6 @@ class ASin(Function):
 
 
 class ATan(Function):
-    # pylint: disable=too-few-public-methods
     """
     Arc tangent.
     """
@@ -56,7 +51,6 @@ class ATan(Function):
 
 
 class ATan2(Function):
-    # pylint: disable=too-few-public-methods
     """
     Arc tangent of two variables.
     """
@@ -66,7 +60,6 @@ class ATan2(Function):
 
 
 class Ceil(Function):
-    # pylint: disable=too-few-public-methods
     """
     Ceiling value.
     """
@@ -76,7 +69,6 @@ class Ceil(Function):
 
 
 class Ceiling(Function):
-    # pylint: disable=too-few-public-methods
     """
     Ceiling value.
     """
@@ -86,7 +78,6 @@ class Ceiling(Function):
 
 
 class Conv(Function):
-    # pylint: disable=too-few-public-methods
     """
     Convert number from one base to another.
     """
@@ -96,7 +87,6 @@ class Conv(Function):
 
 
 class Cos(Function):
-    # pylint: disable=too-few-public-methods
     """
     Cosine.
     """
@@ -106,7 +96,6 @@ class Cos(Function):
 
 
 class Cot(Function):
-    # pylint: disable=too-few-public-methods
     """
     Cotangent.
     """
@@ -116,7 +105,6 @@ class Cot(Function):
 
 
 class Crc32(Function):
-    # pylint: disable=too-few-public-methods
     """
     Computes a cyclic redundancy check (CRC) value.
     """
@@ -126,7 +114,6 @@ class Crc32(Function):
 
 
 class Crc32C(Function):
-    # pylint: disable=too-few-public-methods
     """
     Computes a cyclic redundancy check (CRC) value using the Castagnoli polynomial
     """
@@ -136,7 +123,6 @@ class Crc32C(Function):
 
 
 class Degrees(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts radians to degrees.
     """
@@ -146,7 +132,6 @@ class Degrees(Function):
 
 
 class Exp(Function):
-    # pylint: disable=too-few-public-methods
     """
     e raised to power of the argument
     """
@@ -156,7 +141,6 @@ class Exp(Function):
 
 
 class Floor(Function):
-    # pylint: disable=too-few-public-methods
     """
     Floor value.
     """
@@ -166,7 +150,6 @@ class Floor(Function):
 
 
 class Greatest(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return the largest argument
     """
@@ -176,7 +159,6 @@ class Greatest(Function):
 
 
 class Least(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return the smallest argument
     """
@@ -186,7 +168,6 @@ class Least(Function):
 
 
 class Ln(Function):
-    # pylint: disable=too-few-public-methods
     """
     Natural logarithm
     """
@@ -196,7 +177,6 @@ class Ln(Function):
 
 
 class Log(Function):
-    # pylint: disable=too-few-public-methods
     """
     Logarithm
     """
@@ -216,7 +196,6 @@ class Log(Function):
 
 
 class Log10(Function):
-    # pylint: disable=too-few-public-methods
     """
     Base-10 logarithm
     """
@@ -226,7 +205,6 @@ class Log10(Function):
 
 
 class Log2(Function):
-    # pylint: disable=too-few-public-methods
     """
     Base-2 logarithm
     """
@@ -236,7 +214,6 @@ class Log2(Function):
 
 
 class Mod(Function):
-    # pylint: disable=too-few-public-methods
     """
     Modulo operation
     """
@@ -246,7 +223,6 @@ class Mod(Function):
 
 
 class Oct(Function):
-    # pylint: disable=too-few-public-methods
     """
     Convert number to octal
     """
@@ -256,7 +232,6 @@ class Oct(Function):
 
 
 class Pi(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return the value of pi
     """
@@ -266,7 +241,6 @@ class Pi(Function):
 
 
 class Pow(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return X raised to power of Y.
     """
@@ -276,7 +250,6 @@ class Pow(Function):
 
 
 class Power(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return X raised to power of Y.
     """
@@ -286,7 +259,6 @@ class Power(Function):
 
 
 class Radians(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts degrees to radians.
     """
@@ -296,7 +268,6 @@ class Radians(Function):
 
 
 class Rand(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return a random floating-point value.
     """
@@ -306,7 +277,6 @@ class Rand(Function):
 
 
 class Round(Function):
-    # pylint: disable=too-few-public-methods
     """
     Round the argument to the nearest integer.
     """
@@ -316,7 +286,6 @@ class Round(Function):
 
 
 class Sign(Function):
-    # pylint: disable=too-few-public-methods
     """
     Sign of the argument
     """
@@ -326,7 +295,6 @@ class Sign(Function):
 
 
 class Sin(Function):
-    # pylint: disable=too-few-public-methods
     """
     Sine
     """
@@ -336,7 +304,6 @@ class Sin(Function):
 
 
 class Sqrt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Square root
     """
@@ -346,7 +313,6 @@ class Sqrt(Function):
 
 
 class Tan(Function):
-    # pylint: disable=too-few-public-methods
     """
     Tangent
     """
@@ -356,7 +322,6 @@ class Tan(Function):
 
 
 class Truncate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Truncate the argument to D decimal places.
     """
@@ -366,7 +331,6 @@ class Truncate(Function):
 
 
 class BitCount(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return the number of bits that are set in the argument.
     """

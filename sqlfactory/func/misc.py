@@ -5,7 +5,6 @@ from sqlfactory.statement import Statement
 
 
 class GetLock(Function):
-    # pylint: disable=too-few-public-methods
     """Tries to obtain a lock with a name."""
 
     def __init__(self, name: str | Statement, timeout: int | Statement) -> None:
@@ -13,7 +12,6 @@ class GetLock(Function):
 
 
 class Inet6Aton(Function):
-    # pylint: disable=too-few-public-methods
     """Converts an IPv6 address from its string representation to a binary string."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -21,7 +19,6 @@ class Inet6Aton(Function):
 
 
 class Inet6Ntoa(Function):
-    # pylint: disable=too-few-public-methods
     """Converts an IPv6 address from its binary string representation to a string."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -29,7 +26,6 @@ class Inet6Ntoa(Function):
 
 
 class InetAton(Function):
-    # pylint: disable=too-few-public-methods
     """Converts an IPv4 address from its string representation to a number."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -37,7 +33,6 @@ class InetAton(Function):
 
 
 class InetNtoa(Function):
-    # pylint: disable=too-few-public-methods
     """Converts an IP number to a string representation."""
 
     def __init__(self, ip: int | Statement) -> None:
@@ -45,7 +40,6 @@ class InetNtoa(Function):
 
 
 class IsFreeLock(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether a named lock is free."""
 
     def __init__(self, name: str | Statement) -> None:
@@ -53,7 +47,6 @@ class IsFreeLock(Function):
 
 
 class IsIpv4(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether a string is an IPv4 address."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -61,7 +54,6 @@ class IsIpv4(Function):
 
 
 class IsIpv4Compat(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether IPv6 address is a valid IPv4-compatible address."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -69,7 +61,6 @@ class IsIpv4Compat(Function):
 
 
 class IsIpv4Mapped(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether IPv6 is an IPv4-mapped address."""
 
     def __init__(self, ip: str) -> None:
@@ -77,7 +68,6 @@ class IsIpv4Mapped(Function):
 
 
 class IsIpv6(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether a string is an IPv6 address."""
 
     def __init__(self, ip: str | Statement) -> None:
@@ -85,7 +75,6 @@ class IsIpv6(Function):
 
 
 class IsUsedLock(Function):
-    # pylint: disable=too-few-public-methods
     """Checks whether a named lock is in use."""
 
     def __init__(self, name: str | Statement) -> None:
@@ -93,7 +82,6 @@ class IsUsedLock(Function):
 
 
 class MasterGtidWait(Function):
-    # pylint: disable=too-few-public-methods
     """Waits until the slave reaches a specified GTID position."""
 
     def __init__(self, gtid_set: str | Statement, timeout: int | Statement | None = None) -> None:
@@ -104,7 +92,6 @@ class MasterGtidWait(Function):
 
 
 class MasterPosWait(Function):
-    # pylint: disable=too-few-public-methods
     """Waits until the slave reaches a specified binary log position."""
 
     def __init__(self, log_file: str | Statement, log_pos: int | Statement, timeout: int | Statement | None = None) -> None:
@@ -115,7 +102,6 @@ class MasterPosWait(Function):
 
 
 class ReleaseAllLocks(Function):
-    # pylint: disable=too-few-public-methods
     """Releases all named locks."""
 
     def __init__(self) -> None:
@@ -123,7 +109,6 @@ class ReleaseAllLocks(Function):
 
 
 class ReleaseLock(Function):
-    # pylint: disable=too-few-public-methods
     """Releases a named lock."""
 
     def __init__(self, name: str | Statement) -> None:
@@ -131,7 +116,6 @@ class ReleaseLock(Function):
 
 
 class Sleep(Function):
-    # pylint: disable=too-few-public-methods
     """Sleeps for a specified number of seconds."""
 
     def __init__(self, seconds: int | Statement) -> None:
@@ -139,7 +123,6 @@ class Sleep(Function):
 
 
 class SysGuid(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a globally unique identifier."""
 
     def __init__(self) -> None:
@@ -147,7 +130,6 @@ class SysGuid(Function):
 
 
 class Uuid(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a universally unique identifier."""
 
     def __init__(self) -> None:
@@ -155,7 +137,6 @@ class Uuid(Function):
 
 
 class UuidShort(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a short universally unique identifier."""
 
     def __init__(self) -> None:

@@ -4,11 +4,10 @@ from typing import Any
 
 from sqlfactory.entities import Column
 from sqlfactory.func.base import Function
-from sqlfactory.statement import Raw, Statement
+from sqlfactory.statement import Statement
 
 
 class Benchmark(Function):
-    # pylint: disable=too-few-public-methods
     """Executes an expression repeatedly."""
 
     def __init__(self, count: int, expression: Statement) -> None:
@@ -16,7 +15,6 @@ class Benchmark(Function):
 
 
 class BinlogGtidPos(Function):
-    # pylint: disable=too-few-public-methods
     """Returns a string representation of the corresponding GTID position."""
 
     def __init__(self) -> None:
@@ -24,7 +22,6 @@ class BinlogGtidPos(Function):
 
 
 class Charset(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the character set."""
 
     def __init__(self) -> None:
@@ -32,7 +29,6 @@ class Charset(Function):
 
 
 class Coercibility(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the collation coercibility value of the string expression."""
 
     def __init__(self, expression: str) -> None:
@@ -40,7 +36,6 @@ class Coercibility(Function):
 
 
 class Collation(Function):
-    # pylint: disable=too-few-public-methods
     """Collation of the string argument"""
 
     def __init__(self, expression: str) -> None:
@@ -48,7 +43,6 @@ class Collation(Function):
 
 
 class Collate(Statement):
-    # pylint: disable=too-few-public-methods
     """String with collation"""
 
     def __init__(self, expression: str | Statement, collation: str) -> None:
@@ -58,7 +52,10 @@ class Collate(Statement):
         self._collation = collation
 
     def __str__(self) -> str:
-        return f"{str(self._expression) if isinstance(self._expression, Statement) else self.dialect.placeholder} COLLATE {self._collation}"
+        return (
+            f"{str(self._expression) if isinstance(self._expression, Statement) else self.dialect.placeholder} "
+            f"COLLATE {self._collation}"
+        )
 
     @property
     def args(self) -> list[Any]:
@@ -66,7 +63,6 @@ class Collate(Statement):
 
 
 class ConnectionId(Function):
-    # pylint: disable=too-few-public-methods
     """Connection ID"""
 
     def __init__(self) -> None:
@@ -74,7 +70,6 @@ class ConnectionId(Function):
 
 
 class CurrentRole(Function):
-    # pylint: disable=too-few-public-methods
     """Current role name"""
 
     def __init__(self) -> None:
@@ -82,7 +77,6 @@ class CurrentRole(Function):
 
 
 class CurrentUser(Function):
-    # pylint: disable=too-few-public-methods
     """Username/host that authenticated the current client"""
 
     def __init__(self) -> None:
@@ -90,7 +84,6 @@ class CurrentUser(Function):
 
 
 class Database(Function):
-    # pylint: disable=too-few-public-methods
     """Current default database"""
 
     def __init__(self) -> None:
@@ -98,7 +91,6 @@ class Database(Function):
 
 
 class DecodeHistogram(Function):
-    # pylint: disable=too-few-public-methods
     """Returns comma separated numerics corresponding to a probability distribution"""
 
     def __init__(self, hist_type: Any, histogram: Any) -> None:
@@ -106,7 +98,6 @@ class DecodeHistogram(Function):
 
 
 class Default(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the default value for a table column"""
 
     def __init__(self, column: Column) -> None:
@@ -114,7 +105,6 @@ class Default(Function):
 
 
 class FoundRows(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the number of (potentially) returned rows if there was no LIMIT involved."""
 
     def __init__(self) -> None:
@@ -122,7 +112,6 @@ class FoundRows(Function):
 
 
 class LastInsertId(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the value generated for an AUTO_INCREMENT column by the previous INSERT statement."""
 
     def __init__(self) -> None:
@@ -130,7 +119,6 @@ class LastInsertId(Function):
 
 
 class LastValue(Function):
-    # pylint: disable=too-few-public-methods
     """Evaluates expression and returns the last."""
 
     def __init__(self, expr: Statement, *exprs: Statement) -> None:
@@ -138,7 +126,6 @@ class LastValue(Function):
 
 
 class RowNumber(Function):
-    # pylint: disable=too-few-public-methods
     """Returns the number of accepted rows so far."""
 
     def __init__(self) -> None:
@@ -146,7 +133,6 @@ class RowNumber(Function):
 
 
 class Schema(Function):
-    # pylint: disable=too-few-public-methods
     """Current default schema"""
 
     def __init__(self) -> None:
@@ -154,7 +140,6 @@ class Schema(Function):
 
 
 class SessionUser(Function):
-    # pylint: disable=too-few-public-methods
     """Username/host that authenticated the current client"""
 
     def __init__(self) -> None:
@@ -162,7 +147,6 @@ class SessionUser(Function):
 
 
 class SystemUser(Function):
-    # pylint: disable=too-few-public-methods
     """Username/host that authenticated the current client"""
 
     def __init__(self) -> None:
@@ -170,7 +154,6 @@ class SystemUser(Function):
 
 
 class User(Function):
-    # pylint: disable=too-few-public-methods
     """Username/host that authenticated the current client"""
 
     def __init__(self) -> None:
@@ -178,7 +161,6 @@ class User(Function):
 
 
 class Version(Function):
-    # pylint: disable=too-few-public-methods
     """Database version"""
 
     def __init__(self) -> None:

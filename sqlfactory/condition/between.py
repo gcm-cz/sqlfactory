@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sqlfactory.condition.base import StatementOrColumn, ConditionBase
+from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
 from sqlfactory.statement import Statement
 

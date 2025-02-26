@@ -7,7 +7,6 @@ from sqlfactory.statement import Statement
 
 
 class AesDecrypt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Decrypts an encrypted string using AES.
     """
@@ -17,7 +16,6 @@ class AesDecrypt(Function):
 
 
 class AesEncrypt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Encrypts a string using AES.
     """
@@ -27,7 +25,6 @@ class AesEncrypt(Function):
 
 
 class Compress(Function):
-    # pylint: disable=too-few-public-methods
     """
     Compress a string.
     """
@@ -37,7 +34,6 @@ class Compress(Function):
 
 
 class DesDecrypt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Decrypts an encrypted string using DES.
     """
@@ -47,7 +43,6 @@ class DesDecrypt(Function):
 
 
 class DesEncrypt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Encrypts a string using DES.
     """
@@ -57,7 +52,6 @@ class DesEncrypt(Function):
 
 
 class Encode(Function):
-    # pylint: disable=too-few-public-methods
     """
     Encode a string.
     """
@@ -67,7 +61,6 @@ class Encode(Function):
 
 
 class Decode(Function):
-    # pylint: disable=too-few-public-methods
     """
     Decode a string.
     """
@@ -77,7 +70,6 @@ class Decode(Function):
 
 
 class Encrypt(Function):
-    # pylint: disable=too-few-public-methods
     """
     Encrypt a string using Unix crypt()
     """
@@ -90,7 +82,6 @@ class Encrypt(Function):
 
 
 class Kdf(Function):
-    # pylint: disable=too-few-public-methods
     """
     Key derivation function.
     """
@@ -118,7 +109,6 @@ class Kdf(Function):
 
 
 class OldPassword(Function):
-    # pylint: disable=too-few-public-methods
     """
     Hash a string using the old MySQL password hashing algorithm.
     """
@@ -128,7 +118,6 @@ class OldPassword(Function):
 
 
 class Password(Function):
-    # pylint: disable=too-few-public-methods
     """
     Hash a string using the MySQL password hashing algorithm.
     """
@@ -138,7 +127,6 @@ class Password(Function):
 
 
 class MD5(Function):
-    # pylint: disable=too-few-public-methods
     """
     Calculate an MD5 128-bit checksum.
     """
@@ -148,7 +136,6 @@ class MD5(Function):
 
 
 class RandomBytes(Function):
-    # pylint: disable=too-few-public-methods
     """
     Generate a random byte string.
     """
@@ -158,7 +145,6 @@ class RandomBytes(Function):
 
 
 class Sha1(Function):
-    # pylint: disable=too-few-public-methods
     """
     Calculate an SHA-1 160-bit checksum.
     """
@@ -168,7 +154,6 @@ class Sha1(Function):
 
 
 class Sha2(Function):
-    # pylint: disable=too-few-public-methods
     """
     Calculate an SHA-2 checksum.
     """
@@ -178,7 +163,6 @@ class Sha2(Function):
 
 
 class Uncompress(Function):
-    # pylint: disable=too-few-public-methods
     """
     Uncompress a compressed string.
     """
@@ -188,7 +172,6 @@ class Uncompress(Function):
 
 
 class UncompressLength(Function):
-    # pylint: disable=too-few-public-methods
     """
     Return the length of an uncompressed string.
     """

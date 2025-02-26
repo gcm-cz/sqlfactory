@@ -89,7 +89,8 @@ class Interval(Statement):
 
     def __str__(self) -> str:
         return "INTERVAL " + " ".join(
-            f"{self.dialect.placeholder if not isinstance(getattr(self, attr), Statement) else str(getattr(self, attr))} {attr.upper()}"
+            f"{self.dialect.placeholder if not isinstance(getattr(self, attr), Statement) else str(getattr(self, attr))} "
+            f"{attr.upper()}"
             for attr in reversed(self._ATTRIBUTES)
             if getattr(self, attr) is not None
         )
@@ -113,7 +114,6 @@ class Interval(Statement):
 
 
 class AddMonths(Function):
-    # pylint: disable=too-few-public-methods
     """
     Adds months to date.
     """
@@ -123,7 +123,6 @@ class AddMonths(Function):
 
 
 class AddDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Adds days to date.
     """
@@ -133,7 +132,6 @@ class AddDate(Function):
 
 
 class AddTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Adds time to date.
     """
@@ -143,7 +141,6 @@ class AddTime(Function):
 
 
 class ConvertTz(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts date from one timezone to another.
     """
@@ -153,7 +150,6 @@ class ConvertTz(Function):
 
 
 class CurDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current date.
     """
@@ -163,7 +159,6 @@ class CurDate(Function):
 
 
 class CurrentDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current date.
     """
@@ -173,7 +168,6 @@ class CurrentDate(Function):
 
 
 class CurrentTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current time.
     """
@@ -183,7 +177,6 @@ class CurrentTime(Function):
 
 
 class CurrentTimestamp(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current timestamp.
     """
@@ -193,7 +186,6 @@ class CurrentTimestamp(Function):
 
 
 class CurTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current time.
     """
@@ -203,7 +195,6 @@ class CurTime(Function):
 
 
 class Date(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts date from datetime.
     """
@@ -213,7 +204,6 @@ class Date(Function):
 
 
 class DateDiff(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns difference between two dates.
     """
@@ -223,7 +213,6 @@ class DateDiff(Function):
 
 
 class DateAdd(Function):
-    # pylint: disable=too-few-public-methods
     """
     Adds interval to date.
     """
@@ -233,7 +222,6 @@ class DateAdd(Function):
 
 
 class DateFormat(Function):
-    # pylint: disable=too-few-public-methods
     """
     Formats date.
     """
@@ -243,7 +231,6 @@ class DateFormat(Function):
 
 
 class DateSub(Function):
-    # pylint: disable=too-few-public-methods
     """
     Subtracts interval from date.
     """
@@ -253,7 +240,6 @@ class DateSub(Function):
 
 
 class Day(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts day from date.
     """
@@ -263,7 +249,6 @@ class Day(Function):
 
 
 class DayName(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns name of the day.
     """
@@ -273,7 +258,6 @@ class DayName(Function):
 
 
 class DayOfMonth(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts day of month from date.
     """
@@ -283,7 +267,6 @@ class DayOfMonth(Function):
 
 
 class DayOfWeek(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts day of week from date.
     """
@@ -293,7 +276,6 @@ class DayOfWeek(Function):
 
 
 class DayOfYear(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts day of year from date.
     """
@@ -303,7 +285,6 @@ class DayOfYear(Function):
 
 
 class Extract(Statement):
-    # pylint: disable=too-few-public-methods
     """
     Extracts part of date.
     """
@@ -324,7 +305,6 @@ class Extract(Statement):
 
 
 class FormatPicoTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Formats pico time.
     """
@@ -334,7 +314,6 @@ class FormatPicoTime(Function):
 
 
 class FromDays(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts days to date.
     """
@@ -344,7 +323,6 @@ class FromDays(Function):
 
 
 class FromUnixTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts UNIX timestamp to date.
     """
@@ -354,7 +332,6 @@ class FromUnixTime(Function):
 
 
 class GetFormat(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns date format.
     """
@@ -366,7 +343,6 @@ class GetFormat(Function):
 
 
 class Hour(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts hour from datetime.
     """
@@ -376,7 +352,6 @@ class Hour(Function):
 
 
 class LastDay(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns last day of month.
     """
@@ -386,7 +361,6 @@ class LastDay(Function):
 
 
 class LocalTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns local time.
     """
@@ -396,7 +370,6 @@ class LocalTime(Function):
 
 
 class LocalTimestamp(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns local timestamp.
     """
@@ -406,7 +379,6 @@ class LocalTimestamp(Function):
 
 
 class MakeDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Creates date from year and day of year.
     """
@@ -416,7 +388,6 @@ class MakeDate(Function):
 
 
 class MakeTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Creates time from hours, minutes, seconds.
     """
@@ -426,7 +397,6 @@ class MakeTime(Function):
 
 
 class Microsecond(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts microseconds from datetime.
     """
@@ -436,7 +406,6 @@ class Microsecond(Function):
 
 
 class Minute(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts minutes from datetime.
     """
@@ -446,7 +415,6 @@ class Minute(Function):
 
 
 class MonthName(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns name of the month.
     """
@@ -456,7 +424,6 @@ class MonthName(Function):
 
 
 class Now(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current date and time.
     """
@@ -466,7 +433,6 @@ class Now(Function):
 
 
 class PeriodAdd(Function):
-    # pylint: disable=too-few-public-methods
     """
     Add months to a period.
     """
@@ -476,7 +442,6 @@ class PeriodAdd(Function):
 
 
 class PeriodDiff(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns number of months between two periods.
     """
@@ -486,7 +451,6 @@ class PeriodDiff(Function):
 
 
 class Quarter(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts quarter from date.
     """
@@ -496,7 +460,6 @@ class Quarter(Function):
 
 
 class Second(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts seconds from datetime.
     """
@@ -506,7 +469,6 @@ class Second(Function):
 
 
 class SecToTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts seconds to time.
     """
@@ -516,7 +478,6 @@ class SecToTime(Function):
 
 
 class StrToDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts string to date.
     """
@@ -526,7 +487,6 @@ class StrToDate(Function):
 
 
 class SubDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Subtracts days from date.
     """
@@ -536,7 +496,6 @@ class SubDate(Function):
 
 
 class SubTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Subtracts time from date.
     """
@@ -546,7 +505,6 @@ class SubTime(Function):
 
 
 class SysDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current date.
     """
@@ -556,7 +514,6 @@ class SysDate(Function):
 
 
 class Time(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts time from datetime.
     """
@@ -566,7 +523,6 @@ class Time(Function):
 
 
 class TimeDiff(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns difference between two times.
     """
@@ -576,7 +532,6 @@ class TimeDiff(Function):
 
 
 class Timestamp(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts date to timestamp.
     """
@@ -586,7 +541,6 @@ class Timestamp(Function):
 
 
 class TimeFormat(Function):
-    # pylint: disable=too-few-public-methods
     """
     Formats time.
     """
@@ -596,7 +550,6 @@ class TimeFormat(Function):
 
 
 class TimeToSec(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts time to seconds.
     """
@@ -606,7 +559,6 @@ class TimeToSec(Function):
 
 
 class ToDays(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts date to days.
     """
@@ -616,7 +568,6 @@ class ToDays(Function):
 
 
 class ToSeconds(Function):
-    # pylint: disable=too-few-public-methods
     """
     Converts date to seconds.
     """
@@ -626,7 +577,6 @@ class ToSeconds(Function):
 
 
 class UnixTimestamp(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns UNIX timestamp.
     """
@@ -636,7 +586,6 @@ class UnixTimestamp(Function):
 
 
 class UtcDate(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current date in UTC.
     """
@@ -646,7 +595,6 @@ class UtcDate(Function):
 
 
 class UtcTime(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current time in UTC.
     """
@@ -656,7 +604,6 @@ class UtcTime(Function):
 
 
 class UtcTimestamp(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns current timestamp in UTC.
     """
@@ -666,7 +613,6 @@ class UtcTimestamp(Function):
 
 
 class Week(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns week number.
     """
@@ -679,7 +625,6 @@ class Week(Function):
 
 
 class WeekDay(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns day of week.
     """
@@ -689,7 +634,6 @@ class WeekDay(Function):
 
 
 class WeekOfYear(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns week of year.
     """
@@ -699,7 +643,6 @@ class WeekOfYear(Function):
 
 
 class Year(Function):
-    # pylint: disable=too-few-public-methods
     """
     Extracts year from date.
     """
@@ -709,7 +652,6 @@ class Year(Function):
 
 
 class YearWeek(Function):
-    # pylint: disable=too-few-public-methods
     """
     Returns year and week number.
     """

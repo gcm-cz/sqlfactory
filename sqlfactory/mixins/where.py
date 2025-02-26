@@ -39,6 +39,10 @@ class WithWhere:
         >>> from sqlfactory import Select, And, Equals
         >>> sel = Select().where(And(Equals("id", 1), Equals("status", "active")))
 
+        **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to be
+        value. If you want to have column on the right side or value on the left, you must explicitely use `Column()` function.
+        And if you want literal value on the left side, you must explicitely use `Value()` function.
+
         :param condition: Condition to be used in WHERE clause.
         """
         if self._where is not None:
@@ -51,7 +55,6 @@ class WithWhere:
 
         return self
 
-    # pylint: disable=invalid-name
-    def WHERE(self, condition: ConditionBase) -> Self:
+    def WHERE(self, condition: ConditionBase) -> Self:  # pylint: disable=invalid-name
         """Alias for `WithWhere.where()` to be more SQL-like with all capitals."""
         return self.where(condition)

@@ -1,7 +1,21 @@
 from typing import Any
 
-from sqlfactory import Union, Select, Limit, Direction, UnionAll, UnionDistinct, Eq, Column, Intersect, IntersectAll, \
-    IntersectDistinct, Except, ExceptAll, ExceptDistinct
+from sqlfactory import (
+    Column,
+    Direction,
+    Eq,
+    Except,
+    ExceptAll,
+    ExceptDistinct,
+    Intersect,
+    IntersectAll,
+    IntersectDistinct,
+    Limit,
+    Select,
+    Union,
+    UnionAll,
+    UnionDistinct,
+)
 from sqlfactory.func.control import IfNull
 
 

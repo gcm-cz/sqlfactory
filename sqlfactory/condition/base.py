@@ -105,6 +105,8 @@ class Condition(ConditionBase):
         :param args: Optional arguments used in condition.
         """
 
+        super().__init__()
+
         self.condition = condition
         """Condition with placeholders."""
 
@@ -133,6 +135,8 @@ class CompoundCondition(ConditionBase):
         :param operator: Which operator to use for joining specific conditions.
         :param conditions: Conditions to join using given operator.
         """
+        super().__init__()
+
         self.operator = operator
         self._sub_conditions: list[ConditionBase | Raw] = [
             Condition(condition) if isinstance(condition, str) else condition for condition in conditions

@@ -8,7 +8,6 @@ from sqlfactory.statement import Raw, Statement
 
 
 class AggregateFunction(Function):
-    # pylint: disable=too-few-public-methods
     """Base class for aggregate functions"""
 
     def __init__(self, agg: str, column: ColumnArg | Statement):
@@ -16,7 +15,6 @@ class AggregateFunction(Function):
 
 
 class Avg(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """AVG(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -24,7 +22,6 @@ class Avg(AggregateFunction):
 
 
 class BitAnd(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """BIT_AND(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -32,7 +29,6 @@ class BitAnd(AggregateFunction):
 
 
 class BitOr(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """BIT_OR(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -40,7 +36,6 @@ class BitOr(AggregateFunction):
 
 
 class BitXor(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """BIT_XOR(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -48,7 +43,6 @@ class BitXor(AggregateFunction):
 
 
 class Count(Function):
-    # pylint: disable=too-few-public-methods
     """
     - COUNT(<column>)
     - COUNT(DISTINCT <column>)
@@ -71,7 +65,6 @@ class Count(Function):
 
 
 class Max(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """MAX(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -79,7 +72,6 @@ class Max(AggregateFunction):
 
 
 class Min(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """MIN(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -87,7 +79,6 @@ class Min(AggregateFunction):
 
 
 class Std(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """STD(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):
@@ -95,7 +86,6 @@ class Std(AggregateFunction):
 
 
 class Sum(AggregateFunction):
-    # pylint: disable=too-few-public-methods
     """SUM(<column>)"""
 
     def __init__(self, column: ColumnArg | Statement):

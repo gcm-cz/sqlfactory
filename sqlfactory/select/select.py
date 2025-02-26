@@ -8,8 +8,8 @@ from collections.abc import Collection
 from functools import reduce
 from typing import Any, Self, TypeAlias
 
-from sqlfactory.dialect import SQLDialect
 from sqlfactory.condition.base import ConditionBase
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.join import WithJoin
@@ -22,7 +22,7 @@ from sqlfactory.statement import Statement
 
 
 class Select(ConditionalExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
-    # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
+    # pylint: disable=too-many-arguments, too-many-ancestors  # Yes, SELECT is complex.
     """
     `SELECT` statement to create complex select queries.
 
@@ -38,6 +38,10 @@ class Select(ConditionalExecutableStatement, WithWhere, WithOrder, WithLimit, Wi
     ...     .limit(2, 10)
     ...     .execute(cursor)
     ... )
+
+    **Note:** `Eq()` and all other condition functions are expecting first argument to be column and second argument to be value.
+    If you want to have column on the right side or value on the left, you must explicitely use `Column()` function. And if you
+    want literal value on the left side, you must explicitely use `Value()` function.
 
     Subqueries are also supported:
 
@@ -95,7 +99,7 @@ class Select(ConditionalExecutableStatement, WithWhere, WithOrder, WithLimit, Wi
         self.columns = select or ColumnList(columns)
         """Columns to select."""
 
-        if table is not None and not isinstance(table, Collection) or isinstance(table, str):
+        if (table is not None and not isinstance(table, Collection)) or isinstance(table, str):
             table = [table]
 
         self.table: list[Statement] = [Table(t) if isinstance(t, str) else t for t in table] if table is not None else []

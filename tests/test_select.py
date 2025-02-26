@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import Aliased, Column, ColumnList, Direction, Eq, Join, Limit, Select, SelectColumn, Raw
+from sqlfactory import Aliased, Column, ColumnList, Direction, Eq, Join, Limit, Raw, Select, SelectColumn
 from sqlfactory.func.agg import Count
 from sqlfactory.func.control import IfNull
 

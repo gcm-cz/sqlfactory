@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from contextvars import ContextVar, Token
 from types import TracebackType
-from typing import Type, Optional, ClassVar, Self
+from typing import ClassVar, Optional, Self, Type
 
 
 class SQLDialect(ABC):

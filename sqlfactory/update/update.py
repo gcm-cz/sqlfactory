@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional, Self, TypeAlias
 
-from sqlfactory.dialect import SQLDialect
 from sqlfactory.condition.base import ConditionBase
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.limit import Limit, WithLimit

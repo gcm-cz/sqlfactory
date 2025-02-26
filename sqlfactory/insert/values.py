@@ -5,7 +5,6 @@ from sqlfactory.func.base import Function
 
 
 class Values(Function):
-    # pylint: disable=too-few-public-methods  # Too few public methods, as everything is handled by super class.
     """
     `VALUES(<column>)` for usage in `INSERT INTO ... ON DUPLICATE KEY UPDATE column = VALUES(column)` statements.
     """
