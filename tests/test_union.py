@@ -217,26 +217,10 @@ def test_except_order_limit():
     assert sel.args == [5, 10]
 
 
-def test_union_executable():
+def test_union_bool():
     u = Union()
 
-    assert not bool(u)
-
-    class FakeCursor:
-        def __init__(self):
-            self.executed = False
-
-        def execute(self, query: str, args: tuple[Any]) -> None:
-            print(f"Executed {query} with args {args}")
-            self.executed = True
-
-    c = FakeCursor()
-    u.execute(c)
-
-    assert c.executed is False
-
+    assert bool(u) is False
 
     u.append(Select("1"))
-
-    u.execute(c)
-    assert c.executed is True
+    assert bool(u) is True

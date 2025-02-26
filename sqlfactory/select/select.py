@@ -11,7 +11,7 @@ from typing import Any, Self, TypeAlias
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import ColumnArg, Table
-from sqlfactory.execute import ConditionalExecutableStatement
+from sqlfactory.execute import ExecutableStatement
 from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
@@ -21,8 +21,8 @@ from sqlfactory.select.join import Join
 from sqlfactory.statement import Statement
 
 
-class Select(ConditionalExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
-    # pylint: disable=too-many-arguments, too-many-ancestors  # Yes, SELECT is complex.
+class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
+    # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     `SELECT` statement to create complex select queries.
 

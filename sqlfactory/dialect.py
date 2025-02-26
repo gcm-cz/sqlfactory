@@ -59,13 +59,13 @@ class SQLDialect(ABC):
 
     """
 
-    dialect_context: ClassVar[ContextVar[SQLDialect]] = ContextVar("SQLDialect", default=None)
+    dialect_context: ClassVar[ContextVar[Optional[SQLDialect]]] = ContextVar("SQLDialect", default=None)
     """
     Context variable holding currently set SQL dialect.
     """
 
     def __init__(self) -> None:
-        self._token: list[Token[SQLDialect]] = []
+        self._token: list[Token[SQLDialect | None]] = []
 
     @property
     @abstractmethod
