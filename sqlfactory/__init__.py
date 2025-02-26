@@ -114,21 +114,12 @@ from sqlfactory.select import (
     UnionDistinct,
 )
 from sqlfactory.statement import Raw, Statement
-from sqlfactory.update import UPDATE, Update
+from sqlfactory.update import UPDATE, Update, UpdateColumn
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     "DELETE",
-    "EXCEPT",
-    "EXCEPT_ALL",
-    "EXCEPT_DISTINCT",
     "INSERT",
-    "INTERSECT",
-    "INTERSECT_ALL",
-    "INTERSECT_DISTINCT",
     "SELECT",
-    "UNION",
-    "UNION_ALL",
-    "UNION_DISTINCT",
     "UPDATE",
     "Aliased",
     "And",
@@ -145,6 +136,9 @@ __all__ = [
     "Except",
     "ExceptAll",
     "ExceptDistinct",
+    "EXCEPT",
+    "EXCEPT_ALL",
+    "EXCEPT_DISTINCT",
     "Ge",
     "GreaterThan",
     "GreaterThanOrEquals",
@@ -155,6 +149,9 @@ __all__ = [
     "Intersect",
     "IntersectAll",
     "IntersectDistinct",
+    "INTERSECT",
+    "INTERSECT_ALL",
+    "INTERSECT_DISTINCT",
     "Join",
     "Le",
     "LeftJoin",
@@ -178,7 +175,11 @@ __all__ = [
     "Union",
     "UnionAll",
     "UnionDistinct",
+    "UNION",
+    "UNION_ALL",
+    "UNION_DISTINCT",
     "Update",
+    "UpdateColumn",
     "Values",
     "execute",
     "func",

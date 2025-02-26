@@ -80,3 +80,9 @@ def test_update_column_without_args():
     upd = UpdateColumn("foo", Column("bar"))
     assert str(upd) == "`foo` = `bar`"
     assert upd.args == []
+
+
+def test_update_set_kwarg():
+    upd = UPDATE("table", set={"column1": "value1", "column2": "value2"}, where=Eq("id", 1))
+    assert str(upd) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s"
+    assert upd.args == ["value1", "value2", 1]

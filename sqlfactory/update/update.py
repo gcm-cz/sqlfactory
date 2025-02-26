@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Self, TypeAlias
+from typing import Any, Mapping, Optional, Self, TypeAlias
 
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.entities import Column, ColumnArg, Table
@@ -55,20 +55,51 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
     Examples:
 
     >>> from sqlfactory import Update, Eq
-    >>> Update("table").set("column1", 1).where(Eq("column2", 2))
+    >>> upd = Update("table").set("column1", 1).where(Eq("column2", 2))
+    >>> str(upd)
+    'UPDATE `table` SET `column1` = %s WHERE `column2` = %s'
+    >>> upd.args
+    [1, 2]
 
     >>> from sqlfactory import Update, Table
     >>> t = Table("table")
-    >>> Update(t).set(t.column1, 1).where(t.column2 == 2)
+    >>> upd = Update(t).set(t.column1, 1).where(t.column2 == 2)
+    >>> str(upd)
+    'UPDATE `table` SET `table`.`column1` = %s WHERE `table`.`column2` = %s'
+    >>> upd.args
+    [1, 2]
+
+    >>> from sqlfactory import Update
+    >>> upd = Update("table", set={"column1": 1}, where=Eq("column2", 2))
+    >>> str(upd)
+    'UPDATE `table` SET `column1` = %s WHERE `column2` = %s'
+    >>> upd.args
+    [1, 2]
+
+    >>> from sqlfactory import Update, UpdateColumn
+    >>> upd = Update("table", UpdateColumn("column1", 1), where=Eq("column2", 2))
+    >>> str(upd)
+    'UPDATE `table` SET `column1` = %s WHERE `column2` = %s'
+    >>> upd.args
+    [1, 2]
+
     """
 
     def __init__(
-        self, table: Table | str, *fields: UpdateColumn, where: Optional[ConditionBase] = None, limit: Optional[Limit] = None
+        self,
+        table: Table | str,
+        *fields: UpdateColumn,
+        set: Optional[Mapping[str | Column, Any]] = None,  # noqa: A002
+        where: Optional[ConditionBase] = None,
+        limit: Optional[Limit] = None,
     ) -> None:
+        # pylint: disable=redefined-builtin
         """
         :param table: Table to update.
         :param fields: List of UpdateColumn instances containing columns to be updated. This is not very pleasant way
             to create the statement, use set() method instead.
+        :param set: Mapping of column names to values to be set. Alternative to specifying columns as UpdateColumn variable
+            arguments. You can also use set() method on the Update instance to add another columns to be updated.
         :param where: WHERE condition
         :param limit: Limit number of updated rows
         """
@@ -79,6 +110,10 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
 
         self.fields: list[UpdateColumn] = list(fields)
         """Fields that should be updated."""
+
+        if set:
+            for column, value in set.items():
+                self.set(column, value)
 
     def __str__(self) -> str:
         """
