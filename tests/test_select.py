@@ -182,8 +182,8 @@ def test_plain_columns():
 
 
 def test_multiple_group_by():
-    sel = Select("column1", table="table").group_by("column1").group_by("column2")
-    assert str(sel) == "SELECT `column1` FROM `table` GROUP BY `column1`, `column2`"
+    sel = Select("column1", table="table").group_by("column1").group_by("column2", "column3")
+    assert str(sel) == "SELECT `column1` FROM `table` GROUP BY `column1`, `column2`, `column3`"
 
 
 def test_multiple_where():
