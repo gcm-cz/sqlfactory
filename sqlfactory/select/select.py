@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from collections.abc import Collection
 from functools import reduce
-from typing import Any, Self, TypeAlias
+from typing import Any, Self, TypeAlias, cast
 
-from sqlfactory.condition.base import ConditionBase, And
+from sqlfactory.condition.base import And, ConditionBase
 from sqlfactory.dialect import SQLDialect
-from sqlfactory.entities import ColumnArg, Table, Column
+from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ExecutableStatement
 from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
@@ -94,9 +94,9 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
             raise AttributeError("Cannot specify individual columns when attribute select is present.")
 
         if select and not isinstance(select, ColumnList):
-                select = ColumnList(select)
+            select = ColumnList(select)
 
-        self.columns = select or ColumnList(columns)
+        self.columns: ColumnList = cast(ColumnList | None, select) or ColumnList(columns)
         """Columns to select."""
 
         if (table is not None and not isinstance(table, Collection)) or isinstance(table, str):
