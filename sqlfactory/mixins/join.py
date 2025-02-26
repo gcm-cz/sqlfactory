@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Collection, Generic, Self, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Collection, Self, overload
 
 from sqlfactory.condition import ConditionBase
 from sqlfactory.entities import Table
@@ -8,8 +8,6 @@ from sqlfactory.statement import Statement
 
 if TYPE_CHECKING:
     from sqlfactory.select import Select  # pragma: no cover
-
-T = TypeVar("T")
 
 
 class Join(Statement):
@@ -193,7 +191,7 @@ class CrossJoin(Join):
         return "CROSS JOIN"
 
 
-class WithJoin(Generic[T]):
+class WithJoin:
     """Mixin to provide JOIN support for query generator."""
 
     def __init__(self, *args: Any, join: Collection[Join] | None = None, **kwargs: Any) -> None:

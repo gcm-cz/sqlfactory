@@ -44,8 +44,7 @@ class UpdateColumn(Statement):
         return [self._value]
 
 
-class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Update"]):
-    # pylint: disable=too-many-ancestors  # This is intentional, as this class is a combination of multiple mixins.
+class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
     """
     Builds `UPDATE` statement SQL query.
 
@@ -149,5 +148,5 @@ class Update(ConditionalExecutableStatement, WithWhere["Update"], WithLimit["Upd
 
 UPDATE: TypeAlias = Update  # pylint: disable=invalid-name
 """
-Alias for Update statement to provide better SQL compatibility, as SQL is often written in all caps.
+Alias for `Update` statement to provide better SQL compatibility, as SQL is often written in all caps.
 """

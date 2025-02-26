@@ -12,14 +12,7 @@ from sqlfactory.mixins.where import WithWhere
 from sqlfactory.select.join import Join
 
 
-class Delete(
-    ExecutableStatement,
-    WithWhere["Delete"],
-    WithOrder["Delete"],
-    WithLimit["Delete"],
-    WithJoin["Delete"],
-):
-    # pylint: disable=too-many-ancestors
+class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     """
     `DELETE` statement
 
@@ -104,5 +97,5 @@ class Delete(
 
 DELETE: TypeAlias = Delete  # pylint: disable=invalid-name
 """
-Alias for Delete statement to provide better SQL compatibility, as SQL is often written in all caps.
+Alias for `Delete` statement to provide better SQL compatibility, as SQL is often written in all caps.
 """

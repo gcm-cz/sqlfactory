@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Collection, Generic, Literal, Optional, Self, TypeVar
+from typing import Any, Collection, Literal, Optional, Self
 
 from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.statement import Statement
@@ -63,10 +63,7 @@ class Order(list[tuple[OrderColumn, Direction | Literal["ASC", "DESC"]]], Statem
         return out
 
 
-T = TypeVar("T")
-
-
-class WithOrder(Generic[T]):
+class WithOrder:
     """Mixin to provide ORDER BY support for query generator."""
 
     def __init__(self, *args: Any, order: OrderArg | None = None, **kwargs: Any) -> None:

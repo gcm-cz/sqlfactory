@@ -196,5 +196,5 @@ class Insert(ConditionalExecutableStatement):
 # Alias for Insert, for better SQL compatibility
 INSERT: TypeAlias = Insert  # pylint: disable=invalid-name
 """
-Alias for Insert statement to provide better SQL compatibility, as SQL is often written in all caps.
+Alias for `Insert` statement to provide better SQL compatibility, as SQL is often written in all caps.
 """

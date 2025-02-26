@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Self, TypeVar, overload
+from typing import Any, Self, overload
 
 from sqlfactory.statement import ConditionalStatement, Statement
-
-T = TypeVar("T")
 
 
 class Limit(ConditionalStatement, Statement):
@@ -97,7 +95,7 @@ class Limit(ConditionalStatement, Statement):
         return []
 
 
-class WithLimit(Generic[T]):
+class WithLimit:
     """
     Mixin to provide LIMIT support for query generator.
 

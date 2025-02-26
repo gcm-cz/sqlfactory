@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Self, TypeVar
+from typing import Any, Self
 
 from sqlfactory.condition.base import And, ConditionBase
 
-T = TypeVar("T")
 
-
-class WithWhere(Generic[T]):
+class WithWhere:
     """
     Mixin to provide `WHERE` support for query generator.
 

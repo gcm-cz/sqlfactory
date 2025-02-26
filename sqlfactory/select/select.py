@@ -20,8 +20,8 @@ from sqlfactory.select.join import Join
 from sqlfactory.statement import Statement
 
 
-class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], WithLimit["Select"], WithJoin["Select"]):
-    # pylint: disable=too-many-arguments, too-many-ancestors  # Yes, SELECT is complex.
+class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
+    # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     `SELECT` statement to create complex select queries.
 
@@ -195,5 +195,5 @@ class Select(ExecutableStatement, WithWhere["Select"], WithOrder["Select"], With
 
 SELECT: TypeAlias = Select  # pylint: disable=invalid-name
 """
-Alias for Select statement to provide better SQL compatibility, as SQL is often written in all caps.
+Alias for `Select` statement to provide better SQL compatibility, as SQL is often written in all caps.
 """
