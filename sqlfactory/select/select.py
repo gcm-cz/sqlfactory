@@ -8,9 +8,9 @@ from collections.abc import Collection
 from functools import reduce
 from typing import Any, Self, TypeAlias
 
-from sqlfactory.condition.base import ConditionBase
+from sqlfactory.condition.base import ConditionBase, And
 from sqlfactory.dialect import SQLDialect
-from sqlfactory.entities import ColumnArg, Table
+from sqlfactory.entities import ColumnArg, Table, Column
 from sqlfactory.execute import ExecutableStatement
 from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
@@ -65,7 +65,7 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     def __init__(
         self,
         *columns: Statement | ColumnArg,
-        select: ColumnList | None = None,
+        select: ColumnList | list[str] | None = None,
         table: Table | str | Statement | Collection[Table | str | Statement] | None = None,
         join: Collection[Join] | None = None,
         where: ConditionBase | None = None,
@@ -94,7 +94,7 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
             raise AttributeError("Cannot specify individual columns when attribute select is present.")
 
         if select and not isinstance(select, ColumnList):
-            raise TypeError("Select argument must be instance of ColumnList.")
+                select = ColumnList(select)
 
         self.columns = select or ColumnList(columns)
         """Columns to select."""
@@ -120,11 +120,18 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
 
         >>> Select().group_by("column1", "column2", "column3")
         >>> "SELECT ... GROUP BY `column1`, `column2`, `column3`"
+
+        **Note:** When calling `Select.group_by()` multiple times, it will join the grouped columns together.
         """
         if self._group_by is not None:
-            raise AttributeError("GROUP BY has already been specified.")
+            self._group_by.append(column)
 
-        self._group_by = ColumnList([column, *list(columns)])
+            if columns:
+                self._group_by.extend([Column(column) if not isinstance(column, Statement) else column for column in columns])
+
+        else:
+            self._group_by = ColumnList([column, *list(columns)])
+
         return self
 
     # pylint: disable=invalid-name
@@ -139,7 +146,14 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         >>> Select().having(Eq("column1", 3))
         >>> "SELECT ... HAVING `column1` = %s", [3]
         """
-        self._having = condition
+        if self._having is not None:
+            if isinstance(self._having, And):
+                self._having.append(condition)
+            else:
+                self._having = And(self._having, condition)
+        else:
+            self._having = condition
+
         return self
 
     # pylint: disable=invalid-name

@@ -7,13 +7,53 @@ Quick start:
 
 Main class of interest: `Select`
 
-Quick example:
+### Quick example
 
 ```python
 from sqlfactory import Select, Eq
 
 query = Select("id", "name", table="products", where=Eq("enabled", True))
 ```
+
+Adding another WHERE condition:
+
+```python
+query.where(Eq("id", 1))
+```
+
+**Note:** Multiple where method calls are chained using AND operator. If you need to use OR operator, you can use `Or` class.
+
+**Note:** `Eq` and other conditions expects column name as first argument and value as second argument. If you need to compare
+column with another column, you can use `Column` class as a second argument.
+
+**Note:** Method chaining modifies the original statement in place, it does not return copy.
+
+#### Ordering
+
+```python
+query.order_by("id", Direction.ASC)  # ORDER BY `id` ASC
+```
+
+#### Limit
+
+```python
+query.limit(10)     # LIMIT 10
+query.limit(5, 10)  # LIMIT 5, 10
+```
+
+#### Group by
+
+```python
+query.group_by("id", "name", "create_date")  # GROUP BY `id`, `name`, `create_date`
+
+query.having(Count("id") > 2)  # HAVING COUNT(`id`) > 2
+```
+
+**Note:** Multiple calls to `Select.group_by()` will combine the columns in the GROUP BY clause in the order the methods were
+called.
+
+**Note:** Multiple calls to `Select.having()` will combine the conditions using AND operator, same as `Select.where()`.
+
 ## INSERT ...
 
 Main class of interest: `Insert`
@@ -29,6 +69,14 @@ query = Insert.into("products")("id", "name").values(
 )
 ```
 
+**Note:** Multiple calls to `Insert.values()` will add more rows to the INSERT statement.
+
+```python
+from sqlfactory import Values
+
+query.on_duplicate_key_update(name=Values("name"))   # ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)
+```
+
 ## UPDATE ...
 
 Main class of interest: `Update`
@@ -39,7 +87,11 @@ Quick example:
 from sqlfactory import Update, Eq
 
 query = Update("products", set={"enabled": False}, where=Eq("id", 1))
+
+query.set("another_column", "value")  # SET `another_column` = %s
 ```
+
+**Note:** Multiple calls to `Update.set()` will add more columns to the UPDATE statement.
 
 ## DELETE ...
 

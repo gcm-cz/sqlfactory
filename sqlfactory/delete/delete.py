@@ -19,11 +19,13 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
 
     Usage:
 
+    >>> from sqlfactory import Delete, In
     >>> Delete("table", where=In("id", [1, 2, 3]))
     >>> "DELETE FROM `table` WHERE `id` IN (1,2,3)"
 
     More advanced DELETE with JOINs is also supported:
 
+    >>> from sqlfactory import Delete, Join, Eq
     >>> Delete("table", delete=["table"], join=[Join("table2", on=Eq("table.id", "table2.id"))], where=Eq("table2.value", 10))
     >>> "DELETE `table` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id` WHERE `table2`.`value` = 10"
     """

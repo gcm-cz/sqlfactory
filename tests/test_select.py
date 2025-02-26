@@ -171,17 +171,19 @@ def test_errors():
     with pytest.raises(AttributeError):
         Select("column1", select=ColumnList("column2"), table="test")
 
-    # The select argument must be a ColumnList, not regular list.
-    with pytest.raises(TypeError):
-        Select(select=["column1"], table="test")
-
-    # Multiple group_by statements are not allowed.
-    with pytest.raises(AttributeError):
-        Select("column1", table="table").group_by("column1").group_by("column2")
-
     # join() with instance of Join class cannot have additional arguments.
     with pytest.raises(AttributeError):
         (Select("column1", table="table").join(Join("table2"), Eq("table.id", Column("table2.id"))))
+
+
+def test_plain_columns():
+    sel = Select(select=["column1"], table="test")
+    assert str(sel) == "SELECT `column1` FROM `test`"
+
+
+def test_multiple_group_by():
+    sel = Select("column1", table="table").group_by("column1").group_by("column2")
+    assert str(sel) == "SELECT `column1` FROM `table` GROUP BY `column1`, `column2`"
 
 
 def test_multiple_where():
@@ -191,6 +193,16 @@ def test_multiple_where():
 
     sel.where(Eq("column3", "value3"))
     assert str(sel) == "SELECT * FROM `xyz` WHERE (`column1` = %s AND `column2` = %s AND `column3` = %s)"
+    assert sel.args == ["value1", "value2", "value3"]
+
+
+def test_multiple_having():
+    sel = Select(table="xyz").group_by("column1").having(Eq("column1", "value1")).HAVING(Eq("column2", "value2"))
+    assert str(sel) == "SELECT * FROM `xyz` GROUP BY `column1` HAVING (`column1` = %s AND `column2` = %s)"
+    assert sel.args == ["value1", "value2"]
+
+    sel.having(Eq("column3", "value3"))
+    assert str(sel) == "SELECT * FROM `xyz` GROUP BY `column1` HAVING (`column1` = %s AND `column2` = %s AND `column3` = %s)"
     assert sel.args == ["value1", "value2", "value3"]
 
 

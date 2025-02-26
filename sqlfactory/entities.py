@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from sqlfactory.statement import Raw, Statement
 
 if TYPE_CHECKING:
     from sqlfactory.condition.simple import Eq, Ge, Gt, Le, Lt, Ne  # pragma: nocover
+    from sqlfactory.condition.in_condition import In  # pragma: nocover
 
 
 class Expression(Statement):
@@ -86,6 +88,24 @@ class Expression(Statement):
 
     def __neg__(self) -> Expression:
         return UnaryExpression("~", self)
+
+    def in_(self, args: Collection[Any]) -> In:
+        """Shorthand to `In(column, args)`."""
+        from sqlfactory.condition.in_condition import In
+        return In(self, args)
+
+    def IN(self, args: Collection[Any]) -> In:
+        """Shorthand to `In(column, args)`"""
+        return self.in_(args)
+
+    def not_in(self, args: Collection[Any]) -> In:
+        """Shorthand to `In(column, args, negative=True)`."""
+        from sqlfactory.condition.in_condition import In
+        return In(self, args, negative=True)
+
+    def NOT_IN(self, args: Collection[Any]) -> In:
+        """Shorthand to `In(column, ..., negative=True)`."""
+        return self.not_in(args)
 
 
 class UnaryExpression(Expression):
