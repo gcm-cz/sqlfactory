@@ -7,6 +7,7 @@ def test_like():
     like_condition = Like("`column1`", "%pattern%")
     assert str(like_condition) == "`column1` LIKE %s"
     assert like_condition.args == ["%pattern%"]
+    assert bool(like_condition) is True
 
 
 def test_like_negative():

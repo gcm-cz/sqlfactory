@@ -55,77 +55,89 @@ class Expression(Statement):
         return Ne(self, other)
 
     def __add__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} + {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "+", other)
 
     def __sub__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} - {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "-", other)
 
     def __mul__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} * {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "*", other)
 
     def __truediv__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} / {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "/", other)
 
     def __mod__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} % {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "%", other)
 
     def __and__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} & {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "&", other)
 
     def __or__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} | {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "|", other)
 
     def __xor__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} ^ {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "^", other)
 
     def __lshift__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} << {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, "<<", other)
 
     def __rshift__(self, other: Statement | Any) -> Expression:
-        return RawExpression(
-            f"({self!s} >> {str(other) if isinstance(other, Statement) else '%s'})",
-            *self.args,
-            *other.args if isinstance(other, Statement) else [other] if not isinstance(other, Statement) else [],
-        )
+        return BinaryExpression(self, ">>", other)
 
     def __neg__(self) -> Expression:
-        return RawExpression(f"(~{self!s})", *self.args)
+        return UnaryExpression("~", self)
+
+
+class UnaryExpression(Expression):
+    """
+    Expression where operator preceeds expression.
+    """
+
+    def __init__(self, operator: str, statement: Statement | Any) -> None:
+        self.operator = operator
+        self.statement = statement
+
+    def __str__(self) -> str:
+        stmt = self.statement if isinstance(self.statement, Statement) else self.dialect.placeholder
+        return f"({self.operator}{stmt!s})"
+
+    @property
+    def args(self) -> list[Any]:
+        return self.statement.args if isinstance(self.statement, Statement) else [self.statement]
+
+
+class BinaryExpression(Expression):
+    """
+    Expression where left and right statements are combined using operator.
+    """
+
+    def __init__(self, left: Statement | Any, operator: str, right: Statement | Any) -> None:
+        super().__init__()
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def __str__(self) -> str:
+        left = self.left if isinstance(self.left, Statement) else self.dialect.placeholder
+        right = self.right if isinstance(self.right, Statement) else self.dialect.placeholder
+
+        return f"({left!s} {self.operator} {right!s})"
+
+    @property
+    def args(self) -> list[Any]:
+        out: list[Any] = []
+
+        if isinstance(self.left, Statement):
+            out.extend(self.left.args)
+        else:
+            out.append(self.left)
+
+        if isinstance(self.right, Statement):
+            out.extend(self.right.args)
+        else:
+            out.append(self.right)
+
+        return out
 
 
 class RawExpression(Expression, Raw):
@@ -171,7 +183,7 @@ class Column(Expression):
             raise ValueError("Invalid column name (contains more than <database>.<table>.<column>).")
 
     def __str__(self) -> str:
-        return ".".join(f"`{x}`" if not x.startswith("`") else x for x in self._column)
+        return ".".join(f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._column)
 
     @property
     def column(self) -> str:
@@ -252,7 +264,7 @@ class Table(Statement):
             raise ValueError("Invalid table name (contains more than <database>.<table>).")
 
     def __str__(self) -> str:
-        return ".".join(f"`{x}`" if not x.startswith("`") else x for x in self._table)
+        return ".".join(f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._table)
 
     @property
     def table(self) -> str | None:

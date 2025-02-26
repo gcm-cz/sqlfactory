@@ -1,12 +1,13 @@
 from typing import Any, Self, TypeAlias
 
-from sqlfactory.entities import Statement
+from sqlfactory.dialect import SQLDialect
+from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.select.select import Select
 
 
-class Union(Statement, WithOrder, WithLimit):
+class Union(ConditionalExecutableStatement, WithOrder, WithLimit):
     """
     Construct UNION statement by combining multiple SELECTs.
 
@@ -43,6 +44,7 @@ class Union(Statement, WithOrder, WithLimit):
         *selects: Select,
         order: OrderArg | None = None,
         limit: Limit | None = None,
+        dialect: SQLDialect | None = None,
     ) -> None:
         """
         Construct UNION statement by combining multiple SELECTs.
@@ -51,7 +53,7 @@ class Union(Statement, WithOrder, WithLimit):
         :param order: Ordering specification (same as for `Select`)
         :param limit: Limit specification (same as for `Select`)
         """
-        super().__init__(order=order, limit=limit)
+        super().__init__(order=order, limit=limit, dialect=dialect)
         self._selects = list(selects)
 
     def append(self, select: Select) -> Self:
@@ -95,6 +97,9 @@ class Union(Statement, WithOrder, WithLimit):
             out.extend(self._limit.args)
 
         return out
+
+    def __bool__(self) -> bool:
+        return bool(self._selects)
 
 
 class UnionAll(Union):

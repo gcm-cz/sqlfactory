@@ -7,6 +7,7 @@ def test_between():
     between_condition = Between("`column1`", 5, 10)
     assert str(between_condition) == "`column1` BETWEEN %s AND %s"
     assert between_condition.args == [5, 10]
+    assert bool(between_condition) is True
 
 
 def test_between_negative():

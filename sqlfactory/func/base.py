@@ -10,6 +10,8 @@ class Function(Expression):
     """Generic function with name and variable number of arguments."""
 
     def __init__(self, function: str, *args: Statement | Any) -> None:
+        super().__init__()
+
         self.function = function
         self._args = args
 
@@ -20,7 +22,7 @@ class Function(Expression):
             if isinstance(arg, Statement):
                 out.append(str(arg))
             else:
-                out.append("%s")
+                out.append(self.dialect.placeholder)
 
         return out
 

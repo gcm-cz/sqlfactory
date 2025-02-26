@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, cast, overload
 
-from sqlfactory.condition.base import And, Condition, Or, StatementOrColumn
+from sqlfactory.condition.base import And, Or, StatementOrColumn, ConditionBase
 from sqlfactory.condition.simple import Eq, Ne
 from sqlfactory.entities import Column
 from sqlfactory.statement import Raw, Statement
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from sqlfactory.select.select import Select  # pragma: no cover
 
 
-class In(Condition):
+class In(ConditionBase):
     # pylint: disable=too-few-public-methods   # Everything is handled by super classes.
 
     """
@@ -124,24 +124,44 @@ class In(Condition):
         :param values: Values to compare (list of values, or list of tuples of values for multi-column In).
         :param negative: Whether to perform negative comparison (NOT IN)
         """
-        is_multi_column = isinstance(column, tuple)
+        super().__init__()
 
+        self._is_multi_column = isinstance(column, tuple)
+        self._column = column
+        self._values = values
+        self._negative = negative
+
+    def __str__(self) -> str:
         from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
 
-        if isinstance(values, Select):
-            stmt, args = self._build_subquery_in(column, values, negative=negative)
+        if isinstance(self._values, Select):
+            stmt, _ = self._build_subquery_in(self._column, self._values, negative=self._negative)
 
-        elif is_multi_column:
-            stmt, args = self._build_multi_in(cast(tuple[StatementOrColumn], column), values, negative=negative)
+        elif self._is_multi_column:
+            stmt, _ = self._build_multi_in(cast(tuple[StatementOrColumn], self._column), self._values, negative=self._negative)
         else:
-            stmt, args = self._build_simple_in(cast(StatementOrColumn, column), values, negative=negative)
+            stmt, _ = self._build_simple_in(cast(StatementOrColumn, self._column), self._values, negative=self._negative)
 
-        super().__init__(stmt, *args)
+        return stmt
+
+    @property
+    def args(self) -> list[Any]:
+        from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
+
+        if isinstance(self._values, Select):
+            _, args = self._build_subquery_in(self._column, self._values, negative=self._negative)
+
+        elif self._is_multi_column:
+            _, args = self._build_multi_in(cast(tuple[StatementOrColumn], self._column), self._values, negative=self._negative)
+        else:
+            _, args = self._build_simple_in(cast(StatementOrColumn, self._column), self._values, negative=self._negative)
+
+        return args
 
     @staticmethod
     def _build_subquery_in(
         columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Select, *, negative: bool = False
-    ) -> tuple[str, Collection[Any]]:
+    ) -> tuple[str, list[Any]]:
         # pylint: disable=consider-using-f-string
         args = []
 
@@ -172,10 +192,9 @@ class In(Condition):
 
         return in_stmt, args
 
-    @staticmethod
     def _build_simple_in(
-        column: StatementOrColumn, values: Collection[Any], *, negative: bool = False
-    ) -> tuple[str, Collection[Any]]:
+        self, column: StatementOrColumn, values: Collection[Any], *, negative: bool = False
+    ) -> tuple[str, list[Any]]:
         # pylint: disable=consider-using-f-string
         if not isinstance(column, Statement):
             column = Column(column)
@@ -190,7 +209,7 @@ class In(Condition):
             in_stmt = "{} {} ({})".format(
                 str(column),
                 "IN" if not negative else "NOT IN",
-                ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in values]),
+                ", ".join([self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in values]),
             )
 
             if isinstance(column, Statement):
@@ -219,10 +238,9 @@ class In(Condition):
 
         return "FALSE" if not negative else "TRUE", []
 
-    @staticmethod
     def _build_multi_in(
-        column: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *, negative: bool = False
-    ) -> tuple[str, Collection[Any]]:
+        self, column: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], *, negative: bool = False
+    ) -> tuple[str, list[Any]]:
         # pylint: disable=consider-using-f-string
         column = tuple(Column(col) if not isinstance(col, Statement) else col for col in column)
 
@@ -247,7 +265,7 @@ class In(Condition):
             "IN" if not negative else "NOT IN",
             ", ".join(
                 [
-                    "(" + ", ".join(["%s" if not isinstance(value, Statement) else str(value) for value in value_tuple]) + ")"
+                    "(" + ", ".join([self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in value_tuple]) + ")"
                     for value_tuple in values
                 ]
             ),
@@ -271,3 +289,6 @@ class In(Condition):
             or_stmt.append(And(*[(Eq if not negative else Ne)(col, value) for col, value in zip(column, value_tuple)]))
 
         return (str(or_stmt), or_stmt.args)
+
+    def __bool__(self) -> bool:
+        return True

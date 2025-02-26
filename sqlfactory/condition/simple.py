@@ -2,11 +2,11 @@
 
 from typing import Any, TypeAlias
 
-from sqlfactory.condition.base import Condition, StatementOrColumn
+from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.statement import Statement
 
 
-class SimpleCondition(Condition):
+class SimpleCondition(ConditionBase):
     # pylint: disable=too-few-public-methods  # As everything is handled in base classes.
     """
     Simple condition comparing one column with given value, using specified operator.
@@ -19,27 +19,38 @@ class SimpleCondition(Condition):
         :param operator: Operator to use for comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
         """
+        super().__init__()
+
         if not isinstance(column, Statement):
             # pylint: disable=import-outside-toplevel,cyclic-import
             from sqlfactory.entities import Column
 
             column = Column(column)
 
-        args = []
+        self._column = column
+        self._operator = operator
+        self._value = value
 
-        if isinstance(column, Statement):
-            args.extend(column.args)
+    @property
+    def args(self) -> list[Any]:
+        args = [*self._column.args]
 
-        if isinstance(value, Statement):
-            args.extend(value.args)
+        if isinstance(self._value, Statement):
+            args.extend(self._value.args)
 
-        elif not isinstance(value, Statement):
-            args.append(value)
+        elif not isinstance(self._value, Statement):
+            args.append(self._value)
 
-        if isinstance(value, Statement):
-            super().__init__(f"{column!s} {operator} {value!s}", *args)
+        return args
+
+    def __str__(self) -> str:
+        if isinstance(self._value, Statement):
+            return f"{self._column!s} {self._operator} {self._value!s}"
         else:
-            super().__init__(f"{column!s} {operator} %s", *args)
+            return f"{self._column!s} {self._operator} {self.dialect.placeholder}"
+
+    def __bool__(self) -> bool:
+        return True
 
 
 class Equals(SimpleCondition):

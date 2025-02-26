@@ -2,6 +2,7 @@
 
 from typing import Any, Collection, TypeAlias
 
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.entities import Table
 from sqlfactory.execute import ExecutableStatement
@@ -36,6 +37,7 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         *,
         delete: Collection[Table | str] | None = None,
         join: Collection[Join] | None = None,
+        dialect: SQLDialect | None = None,
     ) -> None:
         """
         :param table: Table to delete from
@@ -43,7 +45,7 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         :param order: Ordering of matched rows, usefull when limiting number of deleted rows.
         :param limit: Limit number of deleted rows.
         """
-        super().__init__(where=where, order=order, limit=limit, join=join)
+        super().__init__(where=where, order=order, limit=limit, join=join, dialect=dialect)
 
         self.table = table if isinstance(table, Table) else Table(table)
         """Main table to delete from."""
@@ -56,27 +58,28 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
 
     def __str__(self) -> str:
         """Construct the DELETE statement."""
-        q: list[str] = []
+        with self.dialect:
+            q: list[str] = []
 
-        if not self.delete:
-            q.append(f"DELETE FROM {self.table!s}")
-        else:
-            q.append(f"DELETE {', '.join(str(t) for t in self.delete)} FROM {self.table!s}")
+            if not self.delete:
+                q.append(f"DELETE FROM {self.table!s}")
+            else:
+                q.append(f"DELETE {', '.join(str(t) for t in self.delete)} FROM {self.table!s}")
 
-        if self._join:
-            q.extend(map(str, self._join))
+            if self._join:
+                q.extend(map(str, self._join))
 
-        if self._where:
-            q.append("WHERE")
-            q.append(str(self._where))
+            if self._where:
+                q.append("WHERE")
+                q.append(str(self._where))
 
-        if self._order:
-            q.append(str(self._order))
+            if self._order:
+                q.append(str(self._order))
 
-        if self._limit:
-            q.append(str(self._limit))
+            if self._limit:
+                q.append(str(self._limit))
 
-        return " ".join(q)
+            return " ".join(q)
 
     @property
     def args(self) -> list[Any]:

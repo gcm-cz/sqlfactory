@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlfactory import Union, Select, Limit, Direction, UnionAll, UnionDistinct, Eq, Column, Intersect, IntersectAll, \
     IntersectDistinct, Except, ExceptAll, ExceptDistinct
 from sqlfactory.func.control import IfNull
@@ -199,3 +201,28 @@ def test_except_order_limit():
     )
     assert str(sel) == "(SELECT `a`, `b` FROM `table1`) EXCEPT (SELECT `a`, `b` FROM `table2`) ORDER BY `a` DESC LIMIT %s, %s"
     assert sel.args == [5, 10]
+
+
+def test_union_executable():
+    u = Union()
+
+    assert not bool(u)
+
+    class FakeCursor:
+        def __init__(self):
+            self.executed = False
+
+        def execute(self, query: str, args: tuple[Any]) -> None:
+            print(f"Executed {query} with args {args}")
+            self.executed = True
+
+    c = FakeCursor()
+    u.execute(c)
+
+    assert c.executed is False
+
+
+    u.append(Select("1"))
+
+    u.execute(c)
+    assert c.executed is True

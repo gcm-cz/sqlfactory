@@ -8,9 +8,10 @@ from collections.abc import Collection
 from functools import reduce
 from typing import Any, Self, TypeAlias
 
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.entities import ColumnArg, Table
-from sqlfactory.execute import ExecutableStatement
+from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
@@ -20,7 +21,7 @@ from sqlfactory.select.join import Join
 from sqlfactory.statement import Statement
 
 
-class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
+class Select(ConditionalExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     `SELECT` statement to create complex select queries.
@@ -69,6 +70,7 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         order: OrderArg | None = None,
         limit: Limit | None = None,
         for_update: bool = False,
+        dialect: SQLDialect | None = None,
     ) -> None:
         """
         :param columns: Columns to select.
@@ -82,7 +84,7 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         :param limit: Limit results
         :param for_update: Lock rows for update
         """
-        super().__init__(where=where, order=order, limit=limit, join=join)
+        super().__init__(where=where, order=order, limit=limit, join=join, dialect=dialect)
 
         if columns and select:
             raise AttributeError("Cannot specify individual columns when attribute select is present.")
@@ -93,13 +95,10 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         self.columns = select or ColumnList(columns)
         """Columns to select."""
 
-        if not table:
-            raise AttributeError("Missing required keyword argument table.")
-
-        if not isinstance(table, Collection) or isinstance(table, str):
+        if table is not None and not isinstance(table, Collection) or isinstance(table, str):
             table = [table]
 
-        self.table: list[Statement] = [Table(t) if isinstance(t, str) else t for t in table]
+        self.table: list[Statement] = [Table(t) if isinstance(t, str) else t for t in table] if table is not None else []
         """Table (or tables) to select from."""
 
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
@@ -145,33 +144,40 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         return self.having(condition)
 
     def __str__(self) -> str:
-        out: list[str] = ["SELECT", str(self.columns) if self.columns else "*", f"FROM {', '.join(map(str, self.table))}"]
+        with self.dialect:
+            if not self.columns and not self.table:
+                return ""
 
-        if self._join:
-            out.extend(map(str, self._join))
+            out: list[str] = ["SELECT", str(self.columns) if self.columns else "*"]
 
-        if self._where:
-            out.append("WHERE")
-            out.append(str(self._where))
+            if self.table:
+                out.append(f"FROM {', '.join(map(str, self.table))}")
 
-        if self._group_by:
-            out.append("GROUP BY")
-            out.append(str(self._group_by))
+            if self._join:
+                out.extend(map(str, self._join))
 
-        if self._having:
-            out.append("HAVING")
-            out.append(str(self._having))
+            if self._where:
+                out.append("WHERE")
+                out.append(str(self._where))
 
-        if self._order:
-            out.append(str(self._order))
+            if self._group_by:
+                out.append("GROUP BY")
+                out.append(str(self._group_by))
 
-        if self._limit:
-            out.append(str(self._limit))
+            if self._having:
+                out.append("HAVING")
+                out.append(str(self._having))
 
-        if self._for_update:
-            out.append("FOR UPDATE")
+            if self._order:
+                out.append(str(self._order))
 
-        return " ".join(out)
+            if self._limit:
+                out.append(str(self._limit))
+
+            if self._for_update:
+                out.append("FOR UPDATE")
+
+            return " ".join(out)
 
     @property
     def args(self) -> list[Any]:
@@ -191,6 +197,9 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
             + (self._order.args if self._order else [])
             + (self._limit.args if self._limit else [])
         )
+
+    def __bool__(self) -> bool:
+        return bool(self.columns) or bool(self.table)
 
 
 SELECT: TypeAlias = Select  # pylint: disable=invalid-name

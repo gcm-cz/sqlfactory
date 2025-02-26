@@ -61,6 +61,8 @@ class Interval(Statement):
         day_hour: Any = None,
         year_month: Any = None,
     ) -> None:
+        super().__init__()
+
         self.microsecond = microsecond
         self.second = second
         self.minute = minute
@@ -87,7 +89,7 @@ class Interval(Statement):
 
     def __str__(self) -> str:
         return "INTERVAL " + " ".join(
-            f"{'%s' if not isinstance(getattr(self, attr), Statement) else str(getattr(self, attr))} {attr.upper()}"
+            f"{self.dialect.placeholder if not isinstance(getattr(self, attr), Statement) else str(getattr(self, attr))} {attr.upper()}"
             for attr in reversed(self._ATTRIBUTES)
             if getattr(self, attr) is not None
         )
@@ -300,15 +302,25 @@ class DayOfYear(Function):
         super().__init__("DAYOFYEAR", date)
 
 
-class Extract(Function):
+class Extract(Statement):
     # pylint: disable=too-few-public-methods
     """
     Extracts part of date.
     """
 
     def __init__(self, unit: str, date: Any) -> None:
-        args = [date] if not isinstance(date, Statement) else date.args if isinstance(date, Statement) else []
-        super().__init__("EXTRACT", Raw(f"{unit} FROM {str(date) if isinstance(date, Statement) else '%s'}", *args))
+        super().__init__()
+
+        self._unit = unit
+        self._date = date
+
+    def __str__(self) -> str:
+        return f"EXTRACT({self._unit} FROM {str(self._date) if isinstance(self._date, Statement) else self.dialect.placeholder})"
+
+    @property
+    def args(self) -> list[Any]:
+        """Arguments for the Extract function."""
+        return [self._date] if not isinstance(self._date, Statement) else self._date.args
 
 
 class FormatPicoTime(Function):

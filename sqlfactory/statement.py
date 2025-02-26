@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, ClassVar
+
+from sqlfactory.dialect import SQLDialect, MySQLDialect
 
 
 class Statement(ABC):
@@ -29,6 +31,38 @@ class Statement(ABC):
     print(str(statement))  # SELECT * FROM table WHERE column = %s
     print(statement.args)  # [3]
     """
+
+    default_dialect: ClassVar[SQLDialect] = MySQLDialect()
+    """
+    Default SQL dialect for all SQL statements, if not overwritten by explicit dialect or dialect context.
+    """
+
+    def __init__(self, *args: Any, dialect: SQLDialect | None = None, **kwargs: Any) -> None:
+        self._explicit_dialect: SQLDialect | None = dialect
+        super().__init__(*args, **kwargs)
+
+    @property
+    def dialect(self) -> SQLDialect:
+        """
+        Dialect for building this particular statement. Priorities are:
+
+        - explicit dialect passed to class constructor
+        - dialect set in the context (`with SQLDialect(): ...`)
+        - default dialect (`Statement.default_dialect`)
+        """
+
+        if self._explicit_dialect is not None:
+            return self._explicit_dialect
+
+        dialect = SQLDialect.dialect_context.get()
+        if dialect:
+            return dialect
+
+        return self.__class__.default_dialect
+
+    @dialect.setter
+    def dialect(self, dialect: SQLDialect | None) -> None:
+        self._explicit_dialect = dialect
 
     @abstractmethod
     def __str__(self) -> str:

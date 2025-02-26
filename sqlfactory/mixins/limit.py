@@ -51,6 +51,8 @@ class Limit(ConditionalStatement, Statement):
         :param offset: Optional keyword argument for specifying offset.
         """
 
+        super().__init__()
+
         if offset_or_limit is not None and offset is not None and limit is not None:
             raise AttributeError("Unable to specify both positional argument offset and keyword argument offset.")
 
@@ -72,10 +74,10 @@ class Limit(ConditionalStatement, Statement):
 
     def __str__(self) -> str:
         if self.offset is not None:
-            return "LIMIT %s, %s"
+            return f"LIMIT {self.dialect.placeholder}, {self.dialect.placeholder}"
 
         if self.limit is not None:
-            return "LIMIT %s"
+            return f"LIMIT {self.dialect.placeholder}"
 
         return ""
 

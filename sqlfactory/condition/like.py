@@ -2,12 +2,12 @@
 
 from typing import Any
 
-from sqlfactory.condition.base import Condition, StatementOrColumn
+from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
 from sqlfactory.statement import Statement
 
 
-class Like(Condition):
+class Like(ConditionBase):
     """
     SQL `LIKE` condition for comparing strings against pattern.
 
@@ -48,26 +48,15 @@ class Like(Condition):
         :param value: Value to match the column (or statement) against.
         :param negative: Whether to use negative matching (NOT LIKE).
         """
-        args = []
+
+        super().__init__()
 
         if not isinstance(column, Statement):
             column = Column(column)
 
-        if isinstance(column, Statement):
-            args.extend(column.args)
-
-        if isinstance(value, Statement):
-            args.extend(value.args)
-        else:
-            args.append(value)
-
-        if isinstance(value, Statement):
-            super().__init__(
-                f"{column!s}{' NOT' if negative else ''} LIKE {value!s}",
-                *args,
-            )
-        else:
-            super().__init__(f"{column!s}{' NOT' if negative else ''} LIKE %s", *args)
+        self._column = column
+        self._value = value
+        self._negative = negative
 
     @staticmethod
     def escape(s: str) -> str:
@@ -77,3 +66,25 @@ class Like(Condition):
         :return: String with escaped characters - % -> %%, _ -> __, to be safely used as part of pattern in LIKE statement.
         """
         return s.replace("%", "%%").replace("_", "__")
+
+    def __str__(self) -> str:
+        if isinstance(self._value, Statement):
+            return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self._value!s}"
+        else:
+            return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self.dialect.placeholder}"
+
+    @property
+    def args(self) -> list[Any]:
+        """Like statement arguments."""
+
+        args = [*self._column.args]
+
+        if isinstance(self._value, Statement):
+            args.extend(self._value.args)
+        else:
+            args.append(self._value)
+
+        return args
+
+    def __bool__(self) -> bool:
+        return True

@@ -2,13 +2,12 @@
 
 from typing import Any
 
-from sqlfactory.condition.base import Condition, StatementOrColumn
+from sqlfactory.condition.base import StatementOrColumn, ConditionBase
 from sqlfactory.entities import Column
 from sqlfactory.statement import Statement
 
 
-# pylint: disable=too-few-public-methods  # As everything is handled by base classes.
-class Between(Condition):
+class Between(ConditionBase):
     # pylint: disable=duplicate-code  # It does not make sense to generalize two-row statement used on two places.
     """
     Provides generation for following syntax:
@@ -43,30 +42,50 @@ class Between(Condition):
         :param upper_bound: Upper inclusive bound of matching value
         :param negative: Whether to negate the condition.
         """
-
-        lower_bound_s = "%s"
-        upper_bound_s = "%s"
+        super().__init__()
 
         if not isinstance(column, Statement):
             column = Column(column)
 
+        self._column = column
+        self._lower_bound = lower_bound
+        self._upper_bound = upper_bound
+        self._negative = negative
+
+    def __str__(self) -> str:
+        lower_bound_s = self.dialect.placeholder
+        upper_bound_s = self.dialect.placeholder
+
+        if isinstance(self._lower_bound, Statement):
+            lower_bound_s = str(self._lower_bound)
+
+        if isinstance(self._upper_bound, Statement):
+            upper_bound_s = str(self._upper_bound)
+
+        return f"{self._column!s} {'NOT ' if self._negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}"
+
+    @property
+    def args(self) -> list[Any]:
+        """
+        Return argument values of the condition.
+        """
+
         args = []
 
-        if isinstance(column, Statement):
-            args.extend(column.args)
+        if isinstance(self._column, Statement):
+            args.extend(self._column.args)
 
-        if isinstance(lower_bound, Statement):
-            lower_bound_s = str(lower_bound)
-            if isinstance(lower_bound, Statement):
-                args.extend(lower_bound.args)
+        if isinstance(self._lower_bound, Statement):
+            args.extend(self._lower_bound.args)
         else:
-            args.append(lower_bound)
+            args.append(self._lower_bound)
 
-        if isinstance(upper_bound, Statement):
-            upper_bound_s = str(upper_bound)
-            if isinstance(upper_bound, Statement):
-                args.extend(upper_bound.args)
+        if isinstance(self._upper_bound, Statement):
+            args.extend(self._upper_bound.args)
         else:
-            args.append(upper_bound)
+            args.append(self._upper_bound)
 
-        super().__init__(f"{column!s} {'NOT ' if negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}", *args)
+        return args
+
+    def __bool__(self) -> bool:
+        return True

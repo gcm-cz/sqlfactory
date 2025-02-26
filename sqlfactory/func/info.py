@@ -47,21 +47,22 @@ class Collation(Function):
         super().__init__("COLLATION", expression)
 
 
-class Collate(Raw):
+class Collate(Statement):
     # pylint: disable=too-few-public-methods
     """String with collation"""
 
     def __init__(self, expression: str | Statement, collation: str) -> None:
-        super().__init__(
-            f"{str(expression) if isinstance(expression, Statement) else '%s'} COLLATE {collation}",
-            *(
-                expression.args
-                if isinstance(expression, Statement)
-                else [expression]
-                if not isinstance(expression, Statement)
-                else []
-            ),
-        )
+        super().__init__()
+
+        self._expression = expression
+        self._collation = collation
+
+    def __str__(self) -> str:
+        return f"{str(self._expression) if isinstance(self._expression, Statement) else self.dialect.placeholder} COLLATE {self._collation}"
+
+    @property
+    def args(self) -> list[Any]:
+        return self._expression.args if isinstance(self._expression, Statement) else [self._expression]
 
 
 class ConnectionId(Function):

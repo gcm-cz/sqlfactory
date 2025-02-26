@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import Aliased, Column, ColumnList, Direction, Eq, Join, Limit, Select, SelectColumn
+from sqlfactory import Aliased, Column, ColumnList, Direction, Eq, Join, Limit, Select, SelectColumn, Raw
 from sqlfactory.func.agg import Count
 from sqlfactory.func.control import IfNull
 
@@ -151,11 +151,22 @@ def test_select_order_by_multiple_columns():
     assert select_condition.args == []
 
 
-def test_errors():
-    # The table argument is required
-    with pytest.raises(AttributeError):
-        Select()
+def test_without_table():
+    s = Select()
+    assert bool(s) is False
+    assert str(s) == ""
 
+    s.add(Raw("%s", 1))
+    assert bool(s) is True
+    assert str(s) == "SELECT %s"
+    assert s.args == [1]
+
+    s = Select(table="test")
+    assert bool(s) is True
+    assert str(s) == "SELECT * FROM `test`"
+
+
+def test_errors():
     # Positional columns and select cannot be mixed.
     with pytest.raises(AttributeError):
         Select("column1", select=ColumnList("column2"), table="test")

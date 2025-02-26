@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional, Self, TypeAlias
 
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
@@ -18,11 +19,13 @@ class UpdateColumn(Statement):
     """
 
     def __init__(self, column: ColumnArg, value: Statement | Any) -> None:
+        super().__init__()
+
         self._column = column if isinstance(column, Column) else Column(column)
         self._value = value
 
     def __str__(self) -> str:
-        return f"{self._column!s} = {str(self._value) if isinstance(self._value, Statement) else '%s'}"
+        return f"{self._column!s} = {str(self._value) if isinstance(self._value, Statement) else self.dialect.placeholder}"
 
     def __hash__(self) -> int:
         return hash(self._column)
@@ -92,6 +95,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
         set: Optional[Mapping[str | Column, Any]] = None,  # noqa: A002
         where: Optional[ConditionBase] = None,
         limit: Optional[Limit] = None,
+        dialect: SQLDialect | None = None,
     ) -> None:
         # pylint: disable=redefined-builtin
         """
@@ -103,7 +107,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
         :param where: WHERE condition
         :param limit: Limit number of updated rows
         """
-        super().__init__(where=where, limit=limit)
+        super().__init__(where=where, limit=limit, dialect=dialect)
 
         self.table = table if isinstance(table, Table) else Table(table)
         """Table that should be updated."""
@@ -119,19 +123,20 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
         """
         Return the UPDATE statement with %s placeholders for arguments.
         """
-        if not self.fields:
-            raise AttributeError("At least one column must be updated.")
+        with self.dialect:
+            if not self.fields:
+                raise AttributeError("At least one column must be updated.")
 
-        query = [f"UPDATE {self.table!s}", f"SET {', '.join(map(str, self.fields))}"]
+            query = [f"UPDATE {self.table!s}", f"SET {', '.join(map(str, self.fields))}"]
 
-        if self._where:
-            query.append("WHERE")
-            query.append(str(self._where))
+            if self._where:
+                query.append("WHERE")
+                query.append(str(self._where))
 
-        if self._limit:
-            query.append(str(self._limit))
+            if self._limit:
+                query.append(str(self._limit))
 
-        return " ".join(query)
+            return " ".join(query)
 
     @property
     def args(self) -> list[Any]:

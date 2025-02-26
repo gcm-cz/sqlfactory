@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import Any, Self, TypeAlias
 
+from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.insert.values import Values
@@ -24,14 +25,14 @@ class Insert(ConditionalExecutableStatement):
     >>> "INSERT IGNORE INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
     """
 
-    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False) -> None:
+    def __init__(self, table: Table | str, ignore: bool = False, replace: bool = False, *, dialect: SQLDialect | None = None,) -> None:
         """
         :param table: Table to insert into
         :param ignore: use INSERT IGNORE?
         :param replace: use REPLACE?
         """
 
-        super().__init__()
+        super().__init__(dialect=dialect)
 
         if ignore and replace:
             raise AttributeError("Only one of ignore or replace can be specified.")
@@ -141,40 +142,42 @@ class Insert(ConditionalExecutableStatement):
 
     def __str__(self) -> str:
         """Constructs INSERT statement from provided data."""
-        if not self._columns:
-            raise AttributeError("At least one column must be specified.")
 
-        if self._replace:
-            q = [f"REPLACE INTO {self._table!s}"]
-        else:
-            q = [f"INSERT{' IGNORE' if self._ignore else ''} INTO {self._table!s}"]
+        with self.dialect:
+            if not self._columns:
+                raise AttributeError("At least one column must be specified.")
 
-        if self._columns:
-            q.append(f"({', '.join(map(str, self._columns))})")
+            if self._replace:
+                q = [f"REPLACE INTO {self._table!s}"]
+            else:
+                q = [f"INSERT{' IGNORE' if self._ignore else ''} INTO {self._table!s}"]
 
-        q.append("VALUES")
+            if self._columns:
+                q.append(f"({', '.join(map(str, self._columns))})")
 
-        count_columns = len(self._columns)
+            q.append("VALUES")
 
-        for idx, row in enumerate(self._values):
-            row_placeholders = []
+            count_columns = len(self._columns)
 
-            if len(row) != count_columns:
-                raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
+            for idx, row in enumerate(self._values):
+                row_placeholders = []
 
-            for value in row:
-                if isinstance(value, Statement):
-                    row_placeholders.append(str(value))
-                else:
-                    row_placeholders.append("%s")
+                if len(row) != count_columns:
+                    raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
 
-            q.append(f"({', '.join(row_placeholders)}){',' if idx < len(self._values) - 1 else ''}")
+                for value in row:
+                    if isinstance(value, Statement):
+                        row_placeholders.append(str(value))
+                    else:
+                        row_placeholders.append(self.dialect.placeholder)
 
-        if self._on_duplicate_key_update_set:
-            q.append("ON DUPLICATE KEY UPDATE")
-            q.append(", ".join([f"{update_set[0]!s} = {update_set[1]}" for update_set in self._on_duplicate_key_update_set]))
+                q.append(f"({', '.join(row_placeholders)}){',' if idx < len(self._values) - 1 else ''}")
 
-        return " ".join(q)
+            if self._on_duplicate_key_update_set:
+                q.append("ON DUPLICATE KEY UPDATE")
+                q.append(", ".join([f"{update_set[0]!s} = {update_set[1]}" for update_set in self._on_duplicate_key_update_set]))
+
+            return " ".join(q)
 
     @property
     def args(self) -> list[Any]:
