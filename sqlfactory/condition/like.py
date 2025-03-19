@@ -1,6 +1,6 @@
 """LIKE statement"""
 
-from typing import Any, NoReturn
+from typing import Any
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
@@ -94,7 +94,9 @@ class Like(ConditionBase):
         Allows using the `~` operator to negate the LIKE condition, converting it to a NOT LIKE condition.
         Note: Cannot use ~ operator on NotLike conditions.
         """
-        return NotLike(self._column, self._value)
+        if isinstance(self, NotLike):
+            raise TypeError("Cannot use ~ operator on NotLike conditions")
+        return Like(self._column, self._value, negative=True)
 
 
 class NotLike(Like):
@@ -130,10 +132,3 @@ class NotLike(Like):
         :param value: Value to match the column (or statement) against.
         """
         super().__init__(column, value, negative=True)
-
-    def __invert__(self) -> NoReturn:
-        """
-        Allows using the `~` operator to negate the LIKE condition, converting it to a NOT LIKE condition.
-        Note: Cannot use ~ operator on NotLike conditions.
-        """
-        raise TypeError("Cannot use ~ operator on NotLike conditions")

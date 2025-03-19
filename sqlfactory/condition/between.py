@@ -1,6 +1,6 @@
 """BETWEEN condition generator"""
 
-from typing import Any, NoReturn
+from typing import Any
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
@@ -95,7 +95,9 @@ class Between(ConditionBase):
         Allows using the `~` operator to negate the BETWEEN condition, converting it to a NOT BETWEEN condition.
         Note: Cannot use ~ operator on NotBetween conditions.
         """
-        return NotBetween(self._column, self._lower_bound, self._upper_bound)
+        if isinstance(self, NotBetween):
+            raise TypeError("Cannot use ~ operator on NotBetween conditions")
+        return Between(self._column, self._lower_bound, self._upper_bound, negative=True)
 
 
 class NotBetween(Between):
@@ -127,10 +129,3 @@ class NotBetween(Between):
         :param upper_bound: Upper inclusive bound of matching value
         """
         super().__init__(column, lower_bound, upper_bound, negative=True)
-
-    def __invert__(self) -> NoReturn:
-        """
-        Allows using the `~` operator to negate the BETWEEN condition, converting it to a NOT BETWEEN condition.
-        Note: Cannot use ~ operator on NotBetween conditions.
-        """
-        raise TypeError("Cannot use ~ operator on NotBetween conditions")
