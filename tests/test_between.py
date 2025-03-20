@@ -49,6 +49,11 @@ def test_not_between():
     assert between_condition.args == [5, 10]
     assert bool(between_condition) is True
 
+def test_invert_between_condition():
+    between_condition = Between("`column1`", 5, 10)
+    assert str(~between_condition) == "`column1` NOT BETWEEN %s AND %s"
+    assert between_condition.args == [5, 10]
+
 def test_double_negation():
     not_between_condition = NotBetween("`column1`", 5, 10)
     with pytest.raises(TypeError, match="Cannot use ~ operator on NotBetween conditions"):

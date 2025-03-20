@@ -42,6 +42,11 @@ def test_not_like():
     assert not_like_condition.args == ["%pattern%"]
     assert bool(not_like_condition) is True
 
+def test_invert_like_condition():
+    like_condition = Like("`column1`", "%pattern%")
+    assert str(~like_condition) == "`column1` NOT LIKE %s"
+    assert like_condition.args == ["%pattern%"]
+
 def test_double_negation():
     not_like_condition = NotLike("`column1`", "%pattern%")
     with pytest.raises(TypeError, match="Cannot use ~ operator on NotLike conditions"):

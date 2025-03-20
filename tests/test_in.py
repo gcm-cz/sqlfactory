@@ -138,9 +138,14 @@ def test_empty_in_tuple_columns_with_statement():
     assert str(in_condition) == "FALSE"
     assert in_condition.args == []
 
-def test_not_int():
+def test_not_in():
     in_condition = NotIn(Column("column1"), [1, 2, 3])
     assert str(in_condition) == "`column1` NOT IN (%s, %s, %s)"
+    assert in_condition.args == [1, 2, 3]
+
+def test_invert_in_condition():
+    in_condition = In("column1", [1, 2, 3])
+    assert str(~in_condition) == "`column1` NOT IN (%s, %s, %s)"
     assert in_condition.args == [1, 2, 3]
 
 def test_double_negation():
