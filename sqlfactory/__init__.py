@@ -212,7 +212,10 @@ from sqlfactory.condition import (
     Like,
     Lt,
     Ne,
+    NotBetween,
     NotEquals,
+    NotIn,
+    NotLike,
     Or,
 )
 from sqlfactory.delete import DELETE, Delete
@@ -302,6 +305,9 @@ __all__ = [  # noqa: RUF022
     "Lt",
     "Ne",
     "NotEquals",
+    "NotIn",
+    "NotLike",
+    "NotBetween",
     "Or",
     "Order",
     "Raw",

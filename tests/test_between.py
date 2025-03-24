@@ -1,5 +1,7 @@
+import pytest
+
 from sqlfactory import Column
-from sqlfactory.condition.between import Between
+from sqlfactory.condition.between import Between, NotBetween
 from sqlfactory.func.str import Concat
 
 
@@ -40,3 +42,19 @@ def test_between_with_statement_with_args():
     between_condition = Between(statement1, statement2, statement3)
     assert str(between_condition) == "CONCAT(`column1`, %s) BETWEEN CONCAT(%s, `column2`) AND CONCAT(%s, %s)"
     assert between_condition.args == ["foo", "bar", "bar", "foo"]
+
+def test_not_between():
+    between_condition = NotBetween("`column1`", 5, 10)
+    assert str(between_condition) == "`column1` NOT BETWEEN %s AND %s"
+    assert between_condition.args == [5, 10]
+    assert bool(between_condition) is True
+
+def test_invert_between_condition():
+    between_condition = Between("`column1`", 5, 10)
+    assert str(~between_condition) == "`column1` NOT BETWEEN %s AND %s"
+    assert between_condition.args == [5, 10]
+
+def test_double_negation():
+    not_between_condition = NotBetween("`column1`", 5, 10)
+    with pytest.raises(TypeError, match="Cannot use ~ operator on NotBetween conditions"):
+        ~not_between_condition

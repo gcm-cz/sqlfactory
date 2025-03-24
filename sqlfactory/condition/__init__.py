@@ -1,9 +1,9 @@
 """Conditions for WHERE, ON, HAVING clauses in SQL statements."""
 
 from sqlfactory.condition.base import And, Condition, ConditionBase, Or
-from sqlfactory.condition.between import Between
-from sqlfactory.condition.in_condition import In
-from sqlfactory.condition.like import Like
+from sqlfactory.condition.between import Between, NotBetween
+from sqlfactory.condition.in_condition import In, NotIn
+from sqlfactory.condition.like import Like, NotLike
 from sqlfactory.condition.simple import (
     Eq,
     Equals,
@@ -37,6 +37,9 @@ __all__ = [
     "Like",
     "Lt",
     "Ne",
+    "NotBetween",
     "NotEquals",
+    "NotIn",
+    "NotLike",
     "Or",
 ]
