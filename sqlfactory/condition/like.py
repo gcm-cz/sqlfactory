@@ -1,6 +1,6 @@
 """LIKE statement"""
 
-from typing import Any
+from typing import Any, NoReturn
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
@@ -88,3 +88,52 @@ class Like(ConditionBase):
 
     def __bool__(self) -> bool:
         return True
+
+    def __invert__(self) -> "Like":
+        """
+        Allows using the `~` operator to negate the LIKE condition, converting it to a NOT LIKE condition.
+        Note: Cannot use ~ operator on NotLike conditions.
+        """
+        return NotLike(self._column, self._value)
+
+
+class NotLike(Like):
+    """
+    SQL `NOT LIKE` condition for comparing strings against pattern.
+
+    This is a dedicated class for NOT LIKE conditions, which is equivalent to using Like with negative=True.
+    It provides a more intuitive API for NOT LIKE conditions.
+
+    Examples:
+
+    - Simple
+        ```python
+        # `column` NOT LIKE %s
+        NotLike("column", "pattern")
+        "`column` NOT LIKE %s", ["pattern"]
+        ```
+    - Statement
+        ```python
+        NotLike("column", Concat("%", Column("other_column"), "%"))
+        "`column` NOT LIKE CONCAT(%s, `other_column`, %s)", ["%", "%"]
+        ```
+    - Instead of column, you can also use any other expression
+        ```python
+        NotLike(Concat("column", "other_column"), "pattern")
+        "CONCAT(`column`, `other_column`) NOT LIKE %s", ["pattern"]
+        ```
+    """
+
+    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+        """
+        :param column: Column (or statement) on left side of NOT LIKE operator.
+        :param value: Value to match the column (or statement) against.
+        """
+        super().__init__(column, value, negative=True)
+
+    def __invert__(self) -> NoReturn:
+        """
+        Allows using the `~` operator to negate the LIKE condition, converting it to a NOT LIKE condition.
+        Note: Cannot use ~ operator on NotLike conditions.
+        """
+        raise TypeError("Cannot use ~ operator on NotLike conditions")

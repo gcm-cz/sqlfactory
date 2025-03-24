@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, cast, overload
+from typing import TYPE_CHECKING, Any, NoReturn, cast, overload
 
 from sqlfactory.condition.base import And, ConditionBase, Or, StatementOrColumn
 from sqlfactory.condition.simple import Eq, Ne
@@ -294,3 +294,84 @@ class In(ConditionBase):
 
     def __bool__(self) -> bool:
         return True
+
+    def __invert__(self) -> "In":
+        """
+        Allows using the `~` operator to negate the IN condition, converting it to a NOT IN condition.
+        Note: Cannot use ~ operator on NotIn conditions.
+        """
+        return NotIn(self._column, self._values)
+
+
+class NotIn(In):
+    """
+    `NOT IN` condition for checking whether column value is not in given list of values.
+
+    This is a dedicated class for NOT IN conditions, which is equivalent to using In with negative=True.
+    It provides a more intuitive API for NOT IN conditions.
+
+    Examples:
+
+    ### Single column
+
+    - Simple NOT IN statement:
+        ```python
+        # `column` NOT IN (%s, %s, %s)
+        NotIn("column", [1, 2, 3])
+        "`column` NOT IN (%s, %s, %s)", [1, 2, 3]
+        ```
+    - Statement NOT IN values
+        ```python
+        # <statement> NOT IN (%s, %s, %s)
+        NotIn(Date("column"), ["2021-01-01", "2021-01-02", "2021-01-03"])
+        "Date(`column`) NOT IN (%s, %s, %s)", ["2021-01-01", "2021-01-02", "2021-01-03"]
+        ```
+    - Value with None works out-of-the-box
+        ```python
+        NotIn("column", [1, None, 3])
+        "`column` NOT IN (%s, %s) AND `column` IS NOT NULL", [1, 3]
+        ```
+
+    ### Multi column
+
+    - Against tuples of values:
+        ```python
+        # (`column1`, `column2`) NOT IN ((%s, %s), (%s, %s), (%s, %s))
+        NotIn(("column1", "column2"), [(1, 2), (3, 4), (5, 6)])
+        "(`column1`, `column2`) NOT IN ((%s, %s), (%s, %s), (%s, %s))", [1, 2, 3, 4, 5, 6]
+        ```
+    - Values with `None`:
+        ```python
+        NotIn(("column1", "column2"), [(1, 2), (3, None), (5, 6)])
+        "(`column1`, `column2`) NOT IN ((%s, %s), (%s, %s)) AND NOT (`column1` = %s AND `column2` IS NULL)", [1, 2, 3, 5, 6]
+        ```
+
+    ### Subquery NOT IN
+
+    ```python
+    NotIn("column", Select("column", table="table", where=Eq("column", 1)))
+    ```
+
+    ```python
+    NotIn(("column1", "column2"), Select("column1", "column2", table="table", where=Eq("column", 1)))
+    ```
+    """
+
+    def __init__(
+        self,
+        column: StatementOrColumn | tuple[StatementOrColumn, ...],
+        values: Collection[Any | tuple[Any, ...]] | Select,
+        /,
+    ) -> None:
+        """
+        :param column: Column to compare, or tuple of columns for multi-column comparison.
+        :param values: Values to compare (list of values, or list of tuples of values for multi-column Not_In).
+        """
+        super().__init__(column, values, negative=True)
+
+    def __invert__(self) -> NoReturn:
+        """
+        Allows using the `~` operator to negate the NOT IN condition, converting it to an IN condition.
+        Note: Cannot use ~ operator on NotIn conditions.
+        """
+        raise TypeError("Cannot use ~ operator on NotIn conditions")
