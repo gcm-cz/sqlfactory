@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, cast, overload
+from typing import TYPE_CHECKING, Any, NoReturn, cast, overload
 
 from sqlfactory.condition.base import And, ConditionBase, Or, StatementOrColumn
 from sqlfactory.condition.simple import Eq, Ne
@@ -300,9 +300,7 @@ class In(ConditionBase):
         Allows using the `~` operator to negate the IN condition, converting it to a NOT IN condition.
         Note: Cannot use ~ operator on NotIn conditions.
         """
-        if isinstance(self, NotIn):
-            raise TypeError("Cannot use ~ operator on NotIn conditions")
-        return In(self._column, self._values, negative=True)
+        return NotIn(self._column, self._values)
 
 
 class NotIn(In):
@@ -370,3 +368,10 @@ class NotIn(In):
         :param values: Values to compare (list of values, or list of tuples of values for multi-column Not_In).
         """
         super().__init__(column, values, negative=True)
+
+    def __invert__(self) -> NoReturn:
+        """
+        Allows using the `~` operator to negate the NOT IN condition, converting it to an IN condition.
+        Note: Cannot use ~ operator on NotIn conditions.
+        """
+        raise TypeError("Cannot use ~ operator on NotIn conditions")

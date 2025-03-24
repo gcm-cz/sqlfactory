@@ -3,6 +3,7 @@ import pytest
 from sqlfactory import Column, In, NotIn
 from sqlfactory.func.str import Concat
 
+
 def test_in_single_column():
     in_condition = In("column1", [1, 2, 3])
     assert str(in_condition) == "`column1` IN (%s, %s, %s)"
