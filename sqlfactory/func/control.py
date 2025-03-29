@@ -25,3 +25,10 @@ class If(Function):
 
     def __init__(self, expr: Statement | Any, if_true: Statement | Any, if_false: Statement | Any) -> None:
         super().__init__("IF", expr, if_true, if_false)
+
+
+class Coalesce(Function):
+    """Returns first non-NULL parameter."""
+
+    def __init__(self, expr: Statement | Any, *args: Statement | Any) -> None:
+        super().__init__("COALESCE", expr, *args)

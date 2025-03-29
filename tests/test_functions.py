@@ -1,6 +1,6 @@
 from sqlfactory import Column, Raw
 from sqlfactory.func.agg import AggregateFunction, Avg, BitAnd, BitOr, BitXor, Count, Max, Min, Std, Sum
-from sqlfactory.func.control import If, IfNull, NullIf
+from sqlfactory.func.control import If, IfNull, NullIf, Coalesce
 from sqlfactory.func.str import (
     Ascii,
     Bin,
@@ -140,6 +140,30 @@ def test_if():
     if_func = If(Column("column1") == Column("column2"), "true_value", "false_value")
     assert str(if_func) == "IF(`column1` = `column2`, %s, %s)"
     assert if_func.args == ["true_value", "false_value"]
+
+
+def test_coalesce():
+    coalesce_func = Coalesce(Column("column1"), Column("column2"), Column("column3"))
+    assert str(coalesce_func) == "COALESCE(`column1`, `column2`, `column3`)"
+    assert coalesce_func.args == []
+
+
+def test_coalesce_expression():
+    coalesce_func = Coalesce(Column("column1") + Column("column2"), Column("column3"))
+    assert str(coalesce_func) == "COALESCE((`column1` + `column2`), `column3`)"
+    assert coalesce_func.args == []
+
+
+def test_coalesce_single_arg():
+    coalesce_func = Coalesce(Column("column1"))
+    assert str(coalesce_func) == "COALESCE(`column1`)"
+    assert coalesce_func.args == []
+
+
+def test_coalesce_with_values():
+    coalesce_func = Coalesce(Column("column1"), Column("column2") + 1, "default")
+    assert str(coalesce_func) == "COALESCE(`column1`, (`column2` + %s), %s)"
+    assert coalesce_func.args == [1, "default"]
 
 
 def test_ascii():
