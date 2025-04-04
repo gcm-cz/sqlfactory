@@ -4,6 +4,7 @@ from sqlfactory.condition.base import And, Condition, ConditionBase, Or
 from sqlfactory.condition.between import Between, NotBetween
 from sqlfactory.condition.in_condition import In, NotIn
 from sqlfactory.condition.like import Like, NotLike
+from sqlfactory.condition.rlike import NotRLike, RLike
 from sqlfactory.condition.simple import (
     Eq,
     Equals,
@@ -41,5 +42,7 @@ __all__ = [
     "NotEquals",
     "NotIn",
     "NotLike",
+    "NotRLike",
     "Or",
+    "RLike",
 ]
