@@ -216,7 +216,9 @@ from sqlfactory.condition import (
     NotEquals,
     NotIn,
     NotLike,
+    NotRLike,
     Or,
+    RLike,
 )
 from sqlfactory.delete import DELETE, Delete
 from sqlfactory.dialect import MySQLDialect, OracleSQLDialect, PostgreSQLDialect, SQLDialect, SQLiteDialect
@@ -308,11 +310,13 @@ __all__ = [  # noqa: RUF022
     "NotIn",
     "NotLike",
     "NotBetween",
+    "NotRLike",
     "Or",
     "Order",
     "Raw",
     "RightJoin",
     "RightOuterJoin",
+    "RLike",
     "Select",
     "SelectColumn",
     "Statement",
