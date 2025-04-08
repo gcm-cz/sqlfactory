@@ -1,7 +1,12 @@
 import pytest
 
 from sqlfactory import Aliased, Column, Eq, In, Join, Select
-from sqlfactory.func.agg import Sum
+from sqlfactory.condition.base import And
+from sqlfactory.condition.in_condition import NotIn
+from sqlfactory.entities import Table
+from sqlfactory.func.agg import Count, Sum
+from sqlfactory.mixins.join import LeftJoin
+from sqlfactory.select.aliased import SelectColumn
 
 
 def test_select_from_select():
@@ -48,6 +53,36 @@ def test_select_in_join():
 
     assert str(sel) == "SELECT `package`.`id`, `t1`.`total_price` FROM `package` JOIN (SELECT `product`.`package_id`, SUM(`price`) AS `total_price` FROM `product` WHERE `product`.`is_default` = %s GROUP BY `product`.`package_id`) AS `t1` ON `t1`.`package_id` = `package`.`id` WHERE `package`.`id` = %s"
     assert sel.args == [2, 1]
+
+
+def test_select_from_select_with_join():
+    ids = [1, 2, 3]
+    sel = Select(
+        SelectColumn("filtered_product.product_id"),
+        table=Aliased(
+            Select(
+                SelectColumn("product_tag.product_id"),
+                table=Table("product"),
+                group_by=["product_tag.product_id"],
+                having=Eq(Count("product_tag.tag_id", distinct=True), len(ids)),
+                where=In("product_tag.tag_id", ids),
+            ),
+            alias="filtered_product",
+        ),
+        join=[
+            LeftJoin(
+                table="product_tag",
+                alias="extra_product",
+                on=And(
+                    Eq("filtered_product.product_id", Column("extra_product.product_id")),
+                    NotIn("extra_product.tag_id", ids),
+                ),
+            ),
+        ],
+        where=Eq("extra_product.product_id", None),
+    )
+    assert str(sel) == "SELECT `filtered_product`.`product_id` FROM (SELECT `product_tag`.`product_id` FROM `product` WHERE `product_tag`.`tag_id` IN (%s, %s, %s) GROUP BY `product_tag`.`product_id` HAVING COUNT(DISTINCT `product_tag`.`tag_id`) = %s) AS `filtered_product` LEFT JOIN `product_tag` AS `extra_product` ON (`filtered_product`.`product_id` = `extra_product`.`product_id` AND `extra_product`.`tag_id` NOT IN (%s, %s, %s)) WHERE `extra_product`.`product_id` IS %s"
+    assert sel.args == [1, 2, 3, 3, 1, 2, 3, None]
 
 
 def test_select_in_join_without_alias():

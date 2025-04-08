@@ -200,15 +200,10 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     @property
     def args(self) -> list[Any]:
         """Argument values for the SELECT statement."""
-        out = self.columns.args
-
-        if self._join:
-            for join in self._join:
-                out.extend(join.args)
-
         return (
-            out
+            self.columns.args
             + reduce(lambda acc, t: acc + (t.args if isinstance(t, Statement) else []), self.table, [])
+            + (reduce(lambda x, y: x + (y.args), self._join, []) if self._join else [])
             + (self._where.args if self._where else [])
             + (self._group_by.args if self._group_by else [])
             + (self._having.args if self._having else [])
