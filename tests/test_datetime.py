@@ -63,6 +63,10 @@ from sqlfactory.func.datetime import (
     WeekOfYear,
     Year,
     YearWeek,
+    Month,
+    TimestampAdd,
+    TSUnit,
+    TimestampDiff,
 )
 
 
@@ -283,6 +287,12 @@ def test_minute():
     assert minute_func.args == ["01:00:00"]
 
 
+def test_month():
+    month_func = Month("2022-01-01")
+    assert str(month_func) == "MONTH(%s)"
+    assert month_func.args == ["2022-01-01"]
+
+
 def test_month_name():
     month_name_func = MonthName("2022-01-01")
     assert str(month_name_func) == "MONTHNAME(%s)"
@@ -365,6 +375,18 @@ def test_timestamp():
     timestamp_func = Timestamp("2022-01-01 01:00:00")
     assert str(timestamp_func) == "TIMESTAMP(%s)"
     assert timestamp_func.args == ["2022-01-01 01:00:00"]
+
+
+def test_timestampadd():
+    timestampadd_func = TimestampAdd(TSUnit.MINUTE, 1, "2022-01-01 01:00:00")
+    assert str(timestampadd_func) == "TIMESTAMPADD(MINUTE, %s, %s)"
+    assert timestampadd_func.args == [1, "2022-01-01 01:00:00"]
+
+
+def test_timestampdiff():
+    timestampdiff_func = TimestampDiff(TSUnit.MINUTE, "2022-01-01 01:00:00", "2022-01-01 02:00:00")
+    assert str(timestampdiff_func) == "TIMESTAMPDIFF(MINUTE, %s, %s)"
+    assert timestampdiff_func.args == ["2022-01-01 01:00:00", "2022-01-01 02:00:00"]
 
 
 def test_time_format():

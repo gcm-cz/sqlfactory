@@ -1,7 +1,7 @@
 # noqa: A005
 
 """Date/Time SQL functions (https://mariadb.com/kb/en/date-time-functions/)."""
-
+from enum import StrEnum
 from typing import Any, Literal
 
 from sqlfactory.func.base import Function
@@ -414,6 +414,15 @@ class Minute(Function):
         super().__init__("MINUTE", time)
 
 
+class Month(Function):
+    """
+    Returns a month from 1 to 12.
+    """
+
+    def __init__(self, time: Any) -> None:
+        super().__init__("MONTH", time)
+
+
 class MonthName(Function):
     """
     Returns name of the month.
@@ -538,6 +547,48 @@ class Timestamp(Function):
 
     def __init__(self, date: Any) -> None:
         super().__init__("TIMESTAMP", date)
+
+
+class TSUnit(StrEnum):
+    """Valid units for `TimestampAdd` / `TimestampSub` functions."""
+
+    MICROSECOND = "MICROSECOND"
+    SECOND = "SECOND"
+    MINUTE = "MINUTE"
+    HOUR = "HOUR"
+    DAY = "DAY"
+    WEEK = "WEEK"
+    MONTH = "MONTH"
+    QUARTER = "QUARTER"
+    YEAR = "YEAR"
+
+    SQL_TSI_MICROSECOND = "SQL_TSI_MICROSECOND"
+    SQL_TSI_SECOND = "SQL_TSI_SECOND"
+    SQL_TSI_MINUTE = "SQL_TSI_MINUTE"
+    SQL_TSI_HOUR = "SQL_TSI_HOUR"
+    SQL_TSI_DAY = "SQL_TSI_DAY"
+    SQL_TSI_WEEK = "SQL_TSI_WEEK"
+    SQL_TSI_MONTH = "SQL_TSI_MONTH"
+    SQL_TSI_QUARTER = "SQL_TSI_QUARTER"
+    SQL_TSI_YEAR = "SQL_TSI_YEAR"
+
+
+class TimestampAdd(Function):
+    """
+    Add interval to date or datetime.
+    """
+
+    def __init__(self, unit: TSUnit, interval: Any, date: Any) -> None:
+        super().__init__("TIMESTAMPADD", Raw(unit.value), interval, date)
+
+
+class TimestampDiff(Function):
+    """
+    Difference between two datetimes.
+    """
+
+    def __init__(self, unit: TSUnit, datetime_expr1: Any, datetime_expr2: Any) -> None:
+        super().__init__("TIMESTAMPDIFF", Raw(unit.value), datetime_expr1, datetime_expr2)
 
 
 class TimeFormat(Function):
