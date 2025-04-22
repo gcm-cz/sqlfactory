@@ -1,6 +1,7 @@
 # noqa: A005
 
 """Date/Time SQL functions (https://mariadb.com/kb/en/date-time-functions/)."""
+
 from enum import StrEnum
 from typing import Any, Literal
 
