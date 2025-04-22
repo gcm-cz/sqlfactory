@@ -121,6 +121,7 @@ query = Delete("products", where=Eq("enabled", False))
   - Multiple rows at once
   - Replace
   - On duplicate key update (MySQL / MariaDB specific)
+  - `INSERT ... SELECT`
 - `UPDATE` statements
   - Variable set of columns to change
   - Where condition

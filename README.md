@@ -30,6 +30,7 @@ API documentation with more examples is available at [GitLab Pages](https://gcm-
   - Multiple rows at once
   - Replace
   - On duplicate key update (MySQL / MariaDB specific)
+  - `INSERT ... SELECT`
 - `UPDATE` statements
   - Variable set of columns to change
   - Where condition
