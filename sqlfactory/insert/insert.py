@@ -9,10 +9,13 @@ from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.insert.values import Values
+from sqlfactory.select import Select
 from sqlfactory.statement import Statement
 
 
 class Insert(ConditionalExecutableStatement):
+    # pylint: disable=too-many-instance-attributes
+
     """
     INSERT statement
 
@@ -23,6 +26,11 @@ class Insert(ConditionalExecutableStatement):
 
     >>> Insert("table", ignore=True)("column1", "column2", "column3").values((1, 2, 3), (4, 5, 6))
     >>> "INSERT IGNORE INTO `table` (`column1`, `column2`, `column3`) VALUES (1, 2, 3), (4, 5, 6)"
+
+    There is also INSERT ... SELECT syntax support:
+
+    >>> Insert("table")("column1", "column2").select(Select("a", "b", table="table2"))
+    >>> "INSERT INTO `table` (`column1`, `column2`) SELECT `a`, `b` FROM `table2`"
     """
 
     def __init__(
@@ -50,6 +58,7 @@ class Insert(ConditionalExecutableStatement):
         self._table = table if isinstance(table, Table) else Table(table)
         self._columns: list[Column] = []
         self._values: list[Collection[Any]] = []
+        self._select: Select | None = None
         self._on_duplicate_key_update_set: list[tuple[Column, str]] = []
         self._on_duplicate_key_update_args: list[Any] = []
 
@@ -97,12 +106,15 @@ class Insert(ConditionalExecutableStatement):
         Specify values to insert. Each row should be one collection. The semantics is identical to the SQL syntax.
 
         >>> Insert.into("table")("a", "b").values(
-        >>>    ("row 1, column a", "row 1, column b"),
-        >>>    ("row 2, column a", "row 2, column b")
-        >>> )
+        ...    ("row 1, column a", "row 1, column b"),
+        ...    ("row 2, column a", "row 2, column b")
+        ... )
 
         Beware of common error of omitting the inner collection for single row inserts.
         """
+        if self._select is not None:
+            raise AttributeError("Unable to mix values() and select() in one insert statement.")
+
         self._values.extend(rows)
         return self
 
@@ -110,6 +122,26 @@ class Insert(ConditionalExecutableStatement):
     def VALUES(self, *rows: Collection[Any]) -> Self:
         """Alias for `Insert.values()` to provide better SQL compatibility by using all caps."""
         return self.values(*rows)
+
+    def select(self, select: Select) -> Self:
+        """
+        Specify SELECT statement to insert from.
+
+        >>> Insert.into("table")("a", "b").select(Select(
+        ...    "a", "b", table="table2", where=Gt("a", 1)
+        ... ))
+        """
+
+        if self._values:
+            raise AttributeError("Unable to mix values() and select() in one insert statement.")
+
+        self._select = select
+
+        return self
+
+    def SELECT(self, select: Select) -> Self:
+        """Alias for select() to provide better SQL compatibility using all caps."""
+        return self.select(select)
 
     def on_duplicate_key_update(self, **kwargs: Values | Statement | Any) -> Self:
         """
@@ -162,23 +194,26 @@ class Insert(ConditionalExecutableStatement):
             if self._columns:
                 q.append(f"({', '.join(map(str, self._columns))})")
 
-            q.append("VALUES")
+            if self._values:
+                q.append("VALUES")
 
-            count_columns = len(self._columns)
+                count_columns = len(self._columns)
 
-            for idx, row in enumerate(self._values):
-                row_placeholders = []
+                for idx, row in enumerate(self._values):
+                    row_placeholders = []
 
-                if len(row) != count_columns:
-                    raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
+                    if len(row) != count_columns:
+                        raise AttributeError(f"Row {idx} has different number of values than specified number of columns.")
 
-                for value in row:
-                    if isinstance(value, Statement):
-                        row_placeholders.append(str(value))
-                    else:
-                        row_placeholders.append(self.dialect.placeholder)
+                    for value in row:
+                        if isinstance(value, Statement):
+                            row_placeholders.append(str(value))
+                        else:
+                            row_placeholders.append(self.dialect.placeholder)
 
-                q.append(f"({', '.join(row_placeholders)}){',' if idx < len(self._values) - 1 else ''}")
+                    q.append(f"({', '.join(row_placeholders)}){',' if idx < len(self._values) - 1 else ''}")
+            elif self._select:
+                q.append(str(self._select))
 
             if self._on_duplicate_key_update_set:
                 q.append("ON DUPLICATE KEY UPDATE")
@@ -191,12 +226,15 @@ class Insert(ConditionalExecutableStatement):
         """Argument values for the statement."""
         out = []
 
-        for row in self._values:
-            for v in row:
-                if isinstance(v, Statement):
-                    out.extend(v.args)
-                elif not isinstance(v, Statement):
-                    out.append(v)
+        if self._select:
+            out.extend(self._select.args)
+        else:
+            for row in self._values:
+                for v in row:
+                    if isinstance(v, Statement):
+                        out.extend(v.args)
+                    elif not isinstance(v, Statement):
+                        out.append(v)
 
         out.extend(self._on_duplicate_key_update_args)
 

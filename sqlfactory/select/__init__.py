@@ -1,3 +1,4 @@
+# noqa: A005  # shadows built-in select
 """SELECT statement builder."""
 
 from sqlfactory.mixins.join import CrossJoin, InnerJoin, Join, LeftJoin, LeftOuterJoin, RightJoin, RightOuterJoin

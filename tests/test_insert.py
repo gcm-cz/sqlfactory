@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import INSERT, Column, Insert, Values
+from sqlfactory import INSERT, Column, Insert, Values, Select, Eq, SELECT
 from sqlfactory.func.control import IfNull
 from sqlfactory.func.datetime import Now
 from sqlfactory.func.str import Concat
@@ -112,3 +112,27 @@ def test_insert_expression():
     ins = Insert("table")("a", "b").values(("hello", IfNull(Column("a"), "world")))
     assert str(ins) == "INSERT INTO `table` (`a`, `b`) VALUES (%s, IFNULL(`a`, %s))"
     assert ins.args == ["hello", "world"]
+
+
+def test_insert_select():
+    ins = Insert.into("table")("a", "b").select(Select(
+        "column1", "column2",
+        table="table2",
+        where=Eq("column1", 1)
+    ))
+    assert str(ins) == "INSERT INTO `table` (`a`, `b`) SELECT `column1`, `column2` FROM `table2` WHERE `column1` = %s"
+    assert ins.args == [1]
+
+
+def test_mixing_insert_values_and_select():
+    with pytest.raises(AttributeError):
+        Insert.into("table")("a", "b").values((1, 2)).select(Select())
+
+    with pytest.raises(AttributeError):
+        Insert.into("table")("a", "b").select(Select()).values((1, 2))
+
+
+def test_insert_select_all_caps():
+    ins = INSERT.INTO("table")("column1", "column2").SELECT(SELECT("a", "b", table="table2"))
+    assert str(ins) == "INSERT INTO `table` (`column1`, `column2`) SELECT `a`, `b` FROM `table2`"
+    assert ins.args == []
