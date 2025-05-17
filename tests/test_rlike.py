@@ -38,10 +38,12 @@ def test_not_rlike():
     assert not_rlike_condition.args == ["[a-z]pattern.*"]
     assert bool(not_rlike_condition) is True
 
+
 def test_invert_rlike_condition():
     rlike_condition = RLike("`column1`", ".*pattern.*")
     assert str(~rlike_condition) == "`column1` NOT RLIKE %s"
     assert rlike_condition.args == [".*pattern.*"]
+
 
 def test_double_negation():
     not_rlike_condition = NotRLike("`column1`", ".*pattern.*")

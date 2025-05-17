@@ -117,6 +117,7 @@ query = Delete("products", where=Eq("enabled", False))
   - Having
   - Ordering
   - Limit
+  - Common Table Expressions (CTE)
 - `INSERT` statements
   - Multiple rows at once
   - Replace
@@ -257,6 +258,7 @@ from sqlfactory.select import (
     Union,
     UnionAll,
     UnionDistinct,
+    With,
 )
 from sqlfactory.statement import Raw, Statement, Value
 from sqlfactory.update import UPDATE, Update, UpdateColumn
@@ -332,6 +334,7 @@ __all__ = [  # noqa: RUF022
     "UpdateColumn",
     "Value",
     "Values",
+    "With",
     "SQLDialect",
     "MySQLDialect",
     "SQLiteDialect",

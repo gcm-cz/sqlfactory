@@ -51,7 +51,10 @@ def test_oracle_dialect():
     sel.where(cond)
 
     with OracleSQLDialect():
-        assert str(sel) == 'SELECT IFNULL("a", :1) FROM "table" WHERE ("id" = :2 AND "a" IN (:3, :4, :5)) ORDER BY "a" DESC LIMIT :6, :7'
+        assert (
+            str(sel)
+            == 'SELECT IFNULL("a", :1) FROM "table" WHERE ("id" = :2 AND "a" IN (:3, :4, :5)) ORDER BY "a" DESC LIMIT :6, :7'
+        )
         assert sel.args == ["xyz", 442, 1, 2, 3, 0, 10]
 
 
@@ -66,10 +69,14 @@ def test_explicit_dialect():
     sel.where(Eq("id", 442))
     sel.where(cond)
 
-    assert str(sel) == 'SELECT IFNULL("a", :1) FROM "table" WHERE ("id" = :2 AND "a" IN (:3, :4, :5)) ORDER BY "a" DESC LIMIT :6, :7'
+    assert (
+        str(sel) == 'SELECT IFNULL("a", :1) FROM "table" WHERE ("id" = :2 AND "a" IN (:3, :4, :5)) ORDER BY "a" DESC LIMIT :6, :7'
+    )
     assert sel.args == ["xyz", 442, 1, 2, 3, 0, 10]
 
     sel.dialect = MySQLDialect()
 
-    assert str(sel) == 'SELECT IFNULL(`a`, %s) FROM `table` WHERE (`id` = %s AND `a` IN (%s, %s, %s)) ORDER BY `a` DESC LIMIT %s, %s'
+    assert (
+        str(sel) == "SELECT IFNULL(`a`, %s) FROM `table` WHERE (`id` = %s AND `a` IN (%s, %s, %s)) ORDER BY `a` DESC LIMIT %s, %s"
+    )
     assert sel.args == ["xyz", 442, 1, 2, 3, 0, 10]

@@ -322,3 +322,13 @@ def test_distinct():
 
     col = SelectColumn("table.column", distinct=False)
     assert str(col) == "`table`.`column`"
+
+
+def test_select_star():
+    sel = Select("*", table="table")
+    assert str(sel) == "SELECT * FROM `table`"
+    assert sel.args == []
+
+    sel = Select("table.*", table="table")
+    assert str(sel) == "SELECT `table`.* FROM `table`"
+    assert sel.args == []

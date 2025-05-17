@@ -1,4 +1,3 @@
-
 from sqlfactory import (
     Column,
     Direction,
@@ -39,7 +38,9 @@ def test_union_append():
 
     sel.append(Select("a", "b", table="table3"))
 
-    assert str(sel) == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`)"
+    assert (
+        str(sel) == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`)"
+    )
     assert sel.args == []
 
 
@@ -51,7 +52,10 @@ def test_union_order_limit():
         order=[("a", "ASC")],
     )
 
-    assert str(sel) == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) ORDER BY `a` ASC"
+    assert (
+        str(sel)
+        == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) ORDER BY `a` ASC"
+    )
     assert sel.args == []
 
     sel = Union(
@@ -61,7 +65,10 @@ def test_union_order_limit():
         limit=Limit(5, 10),
     )
 
-    assert str(sel) == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) LIMIT %s, %s"
+    assert (
+        str(sel)
+        == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) LIMIT %s, %s"
+    )
     assert sel.args == [5, 10]
 
     sel = Union(
@@ -72,7 +79,10 @@ def test_union_order_limit():
         limit=Limit(5, 10),
     )
 
-    assert str(sel) == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) ORDER BY `a` DESC LIMIT %s, %s"
+    assert (
+        str(sel)
+        == "(SELECT `a`, `b` FROM `table1`) UNION (SELECT `a`, `b` FROM `table2`) UNION (SELECT `a`, `b` FROM `table3`) ORDER BY `a` DESC LIMIT %s, %s"
+    )
     assert sel.args == [5, 10]
 
 
@@ -104,7 +114,10 @@ def test_union_args():
         limit=Limit(5, 10),
     )
 
-    assert str(sel) == "(SELECT `a`, `b` FROM `table1` WHERE `id` = %s) UNION (SELECT `a`, `b` FROM `table2` WHERE `id` = %s) ORDER BY IFNULL(`a`, %s) DESC LIMIT %s, %s"
+    assert (
+        str(sel)
+        == "(SELECT `a`, `b` FROM `table1` WHERE `id` = %s) UNION (SELECT `a`, `b` FROM `table2` WHERE `id` = %s) ORDER BY IFNULL(`a`, %s) DESC LIMIT %s, %s"
+    )
     assert sel.args == [123, 456, 3, 5, 10]
 
 

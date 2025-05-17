@@ -168,19 +168,18 @@ def test_column_neg():
 def test_column_in():
     c = Column("t.c")
 
-    exp = c.in_([1,2,3])
+    exp = c.in_([1, 2, 3])
     assert str(exp) == "`t`.`c` IN (%s, %s, %s)"
     assert exp.args == [1, 2, 3]
 
-    exp = c.IN([1,2,3])
+    exp = c.IN([1, 2, 3])
     assert str(exp) == "`t`.`c` IN (%s, %s, %s)"
     assert exp.args == [1, 2, 3]
 
-    exp = c.not_in([1,2,3])
+    exp = c.not_in([1, 2, 3])
     assert str(exp) == "`t`.`c` NOT IN (%s, %s, %s)"
     assert exp.args == [1, 2, 3]
 
-    exp = c.NOT_IN([1,2,3])
+    exp = c.NOT_IN([1, 2, 3])
     assert str(exp) == "`t`.`c` NOT IN (%s, %s, %s)"
     assert exp.args == [1, 2, 3]
-

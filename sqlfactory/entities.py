@@ -187,6 +187,20 @@ class Column(Expression):
     >>> Column("database.table.column")
     >>> "`database`.`table`.`column`"
 
+    Star-columns are also supported, although they are not recommended to be used. Always try to specify exact columns to select.
+
+    >>> from sqlfactory import Column
+    >>> Column("*")
+    >>> "*"
+
+    >>> from sqlfactory import Column
+    >>> Column("table.*")
+    >>> "`table`.*"
+
+    >>> from sqlfactory import Column
+    >>> Column("database.table.*")
+    >>> "`database`.`table`.*"
+
     To use column with `Select` statement with alias, you can use `Aliased` or `SelectColumn` classes instead.
 
     The class also provides shorthand for creating conditional SQL statements and arithmetic SQL statements. You can use Column
@@ -211,7 +225,8 @@ class Column(Expression):
 
     def __str__(self) -> str:
         return ".".join(
-            f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) else x for x in self._column
+            f"{self.dialect.quote}{x}{self.dialect.quote}" if not x.startswith(self.dialect.quote) and x != "*" else x
+            for x in self._column
         )
 
     @property
