@@ -177,7 +177,7 @@ class Insert(ConditionalExecutableStatement):
 
     def __bool__(self) -> bool:
         """Checks whether there are any rows to insert. Usage for conditional execution of the statement."""
-        return bool(self._values)
+        return (bool(self._values) and self._select is None) or (self._select is not None and bool(self._select))
 
     def __str__(self) -> str:
         """Constructs INSERT statement from provided data."""
