@@ -118,6 +118,7 @@ def test_insert_select():
     ins = Insert.into("table")("a", "b").select(Select("column1", "column2", table="table2", where=Eq("column1", 1)))
     assert str(ins) == "INSERT INTO `table` (`a`, `b`) SELECT `column1`, `column2` FROM `table2` WHERE `column1` = %s"
     assert ins.args == [1]
+    assert bool(ins) is True
 
 
 def test_mixing_insert_values_and_select():
