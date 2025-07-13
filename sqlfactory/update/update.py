@@ -9,7 +9,7 @@ from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.limit import Limit, WithLimit
-from sqlfactory.mixins.order import WithOrder, OrderArg
+from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
 from sqlfactory.statement import Statement
 

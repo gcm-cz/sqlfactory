@@ -89,25 +89,13 @@ def test_update_set_kwarg():
 
 
 def test_update_order_by():
-    update = (
-         Update(
-            "table",
-            where=Eq("id", 1)
-         )
-         .set("column1", "foo")
-         .set("column2", "bar")
-         .order_by("column1", Direction.ASC)
-    )
+    update = Update("table", where=Eq("id", 1)).set("column1", "foo").set("column2", "bar").order_by("column1", Direction.ASC)
     assert str(update) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s ORDER BY `column1` ASC"
     assert update.args == ["foo", "bar", 1]
 
 
 def test_update_with_order_by_constructor():
-    update = Update(
-        "table",
-        where=Eq("id", 1),
-        order=[("column1", Direction.ASC)]
-    ).set("column1", "foo").set("column2", "bar")
+    update = Update("table", where=Eq("id", 1), order=[("column1", Direction.ASC)]).set("column1", "foo").set("column2", "bar")
 
     assert str(update) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s ORDER BY `column1` ASC"
     assert update.args == ["foo", "bar", 1]
