@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import Column, Eq, Limit, Update
+from sqlfactory import Column, Eq, Limit, Update, Direction
 from sqlfactory.func.str import Concat
 from sqlfactory.update.update import UPDATE, UpdateColumn
 
@@ -86,3 +86,28 @@ def test_update_set_kwarg():
     upd = UPDATE("table", set={"column1": "value1", "column2": "value2"}, where=Eq("id", 1))
     assert str(upd) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s"
     assert upd.args == ["value1", "value2", 1]
+
+
+def test_update_order_by():
+    update = (
+         Update(
+            "table",
+            where=Eq("id", 1)
+         )
+         .set("column1", "foo")
+         .set("column2", "bar")
+         .order_by("column1", Direction.ASC)
+    )
+    assert str(update) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s ORDER BY `column1` ASC"
+    assert update.args == ["foo", "bar", 1]
+
+
+def test_update_with_order_by_constructor():
+    update = Update(
+        "table",
+        where=Eq("id", 1),
+        order=[("column1", Direction.ASC)]
+    ).set("column1", "foo").set("column2", "bar")
+
+    assert str(update) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s ORDER BY `column1` ASC"
+    assert update.args == ["foo", "bar", 1]

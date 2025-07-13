@@ -9,6 +9,7 @@ from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.mixins.limit import Limit, WithLimit
+from sqlfactory.mixins.order import WithOrder, OrderArg
 from sqlfactory.mixins.where import WithWhere
 from sqlfactory.statement import Statement
 
@@ -47,7 +48,7 @@ class UpdateColumn(Statement):
         return [self._value]
 
 
-class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
+class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
     """
     Builds `UPDATE` statement SQL query.
 
@@ -94,6 +95,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
         *fields: UpdateColumn,
         set: Optional[Mapping[str | Column, Any]] = None,  # noqa: A002
         where: Optional[ConditionBase] = None,
+        order: OrderArg | None = None,
         limit: Optional[Limit] = None,
         dialect: SQLDialect | None = None,
     ) -> None:
@@ -105,9 +107,10 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
         :param set: Mapping of column names to values to be set. Alternative to specifying columns as UpdateColumn variable
             arguments. You can also use set() method on the Update instance to add another columns to be updated.
         :param where: WHERE condition
+        :param order: Optional ordering of the updated rows. Might be needed to avoid violating keys when updating multiple rows.
         :param limit: Limit number of updated rows
         """
-        super().__init__(where=where, limit=limit, dialect=dialect)
+        super().__init__(where=where, order=order, limit=limit, dialect=dialect)
 
         self.table = table if isinstance(table, Table) else Table(table)
         """Table that should be updated."""
@@ -133,6 +136,9 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
                 query.append("WHERE")
                 query.append(str(self._where))
 
+            if self._order:
+                query.append(str(self._order))
+
             if self._limit:
                 query.append(str(self._limit))
 
@@ -150,6 +156,9 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit):
 
         if self._where is not None:
             out.extend(self._where.args)
+
+        if self._order is not None:
+            out.extend(self._order.args)
 
         if self._limit is not None:
             out.extend(self._limit.args)
