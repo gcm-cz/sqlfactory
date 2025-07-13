@@ -49,6 +49,7 @@ class UpdateColumn(Statement):
 
 
 class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
+    # pylint: disable=too-many-ancestors
     """
     Builds `UPDATE` statement SQL query.
 
