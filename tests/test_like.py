@@ -36,16 +36,19 @@ def test_like_escape():
     assert Like.escape("a%b_c") == "a%%b__c"
     assert Like.escape("a%%b__c") == "a%%%%b____c"
 
+
 def test_not_like():
     not_like_condition = NotLike("`column1`", "%pattern%")
     assert str(not_like_condition) == "`column1` NOT LIKE %s"
     assert not_like_condition.args == ["%pattern%"]
     assert bool(not_like_condition) is True
 
+
 def test_invert_like_condition():
     like_condition = Like("`column1`", "%pattern%")
     assert str(~like_condition) == "`column1` NOT LIKE %s"
     assert like_condition.args == ["%pattern%"]
+
 
 def test_double_negation():
     not_like_condition = NotLike("`column1`", "%pattern%")

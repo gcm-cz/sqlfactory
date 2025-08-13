@@ -11,6 +11,7 @@ from sqlfactory.entities import Column
 from sqlfactory.statement import Raw, Statement
 
 if TYPE_CHECKING:
+    from sqlfactory.select.cte import With  # pragma: no cover
     from sqlfactory.select.select import Select  # pragma: no cover
 
 
@@ -99,7 +100,7 @@ class In(ConditionBase):
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
-    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select, /, negative: bool = False) -> None:
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select | With, /, negative: bool = False) -> None:
         """Provides type definition for statement (`column1`, `column2`) IN (SELECT ...)"""
 
     @overload
@@ -107,13 +108,13 @@ class In(ConditionBase):
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
 
     @overload
-    def __init__(self, column: StatementOrColumn, values: Select, /, negative: bool = False) -> None:
+    def __init__(self, column: StatementOrColumn, values: Select | With, /, negative: bool = False) -> None:
         """Provides type definition for statement `column` IN (SELECT ...)"""
 
     def __init__(
         self,
         column: StatementOrColumn | tuple[StatementOrColumn, ...],
-        values: Collection[Any | tuple[Any, ...]] | Select,
+        values: Collection[Any | tuple[Any, ...]] | Select | With,
         /,
         negative: bool = False,
     ) -> None:
@@ -130,9 +131,10 @@ class In(ConditionBase):
         self._negative = negative
 
     def __str__(self) -> str:
+        from sqlfactory.select.cte import With  # pylint: disable=import-outside-toplevel
         from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
 
-        if isinstance(self._values, Select):
+        if isinstance(self._values, (Select, With)):
             stmt, _ = self._build_subquery_in(self._column, self._values, negative=self._negative)
 
         elif self._is_multi_column:
@@ -144,9 +146,10 @@ class In(ConditionBase):
 
     @property
     def args(self) -> list[Any]:
+        from sqlfactory.select.cte import With  # pylint: disable=import-outside-toplevel
         from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
 
-        if isinstance(self._values, Select):
+        if isinstance(self._values, (Select, With)):
             _, args = self._build_subquery_in(self._column, self._values, negative=self._negative)
 
         elif self._is_multi_column:
@@ -158,7 +161,7 @@ class In(ConditionBase):
 
     @staticmethod
     def _build_subquery_in(
-        columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Select, *, negative: bool = False
+        columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Select | With, *, negative: bool = False
     ) -> tuple[str, list[Any]]:
         # pylint: disable=consider-using-f-string
         args = []
@@ -357,10 +360,26 @@ class NotIn(In):
     ```
     """
 
+    @overload
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Collection[tuple[Any, ...]], /) -> None:
+        """Provides type definition for statement (`column1`, `column2`) NOT IN ((%s, %s), (%s, %s), (%s, %s))"""
+
+    @overload
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select | With, /) -> None:
+        """Provides type definition for statement (`column1`, `column2`) NOT IN (SELECT ...)"""
+
+    @overload
+    def __init__(self, column: StatementOrColumn, values: Collection[Any], /) -> None:
+        """Provides type definition for statement `column` NOT IN (%s, %s, %s)"""
+
+    @overload
+    def __init__(self, column: StatementOrColumn, values: Select | With, /) -> None:
+        """Provides type definition for statement `column` NOT IN (SELECT ...)"""
+
     def __init__(
         self,
         column: StatementOrColumn | tuple[StatementOrColumn, ...],
-        values: Collection[Any | tuple[Any, ...]] | Select,
+        values: Collection[Any | tuple[Any, ...]] | Select | With,
         /,
     ) -> None:
         """

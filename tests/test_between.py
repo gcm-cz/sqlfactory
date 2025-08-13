@@ -43,16 +43,19 @@ def test_between_with_statement_with_args():
     assert str(between_condition) == "CONCAT(`column1`, %s) BETWEEN CONCAT(%s, `column2`) AND CONCAT(%s, %s)"
     assert between_condition.args == ["foo", "bar", "bar", "foo"]
 
+
 def test_not_between():
     between_condition = NotBetween("`column1`", 5, 10)
     assert str(between_condition) == "`column1` NOT BETWEEN %s AND %s"
     assert between_condition.args == [5, 10]
     assert bool(between_condition) is True
 
+
 def test_invert_between_condition():
     between_condition = Between("`column1`", 5, 10)
     assert str(~between_condition) == "`column1` NOT BETWEEN %s AND %s"
     assert between_condition.args == [5, 10]
+
 
 def test_double_negation():
     not_between_condition = NotBetween("`column1`", 5, 10)
