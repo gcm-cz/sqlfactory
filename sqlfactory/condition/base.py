@@ -250,3 +250,12 @@ class Or(CompoundCondition):
         :param conditions: Conditions that should be joined using OR operator.
         """
         super().__init__("OR", *conditions)
+
+    def __str__(self) -> str:
+        """
+        Create SQL statement of joined conditions.
+        """
+        if not self.sub_conditions:
+            return "FALSE"
+
+        return super().__str__()

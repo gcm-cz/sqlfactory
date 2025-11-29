@@ -48,7 +48,7 @@ def test_empty_and_or():
     assert empty_and.args == []
 
     empty_or = Or()
-    assert str(empty_or) == "TRUE"
+    assert str(empty_or) == "FALSE"
     assert empty_or.args == []
 
 
