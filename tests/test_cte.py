@@ -1,4 +1,6 @@
-from sqlfactory import With, Select, Gt, Eq, Column, And, In, Lt, Aliased, Union, Or, Ge
+import pytest
+
+from sqlfactory import With, Select, Gt, Eq, Column, And, In, Lt, Aliased, Union, Or, Ge, Value, UnionDistinct
 
 
 def test_cte_simple():
@@ -56,3 +58,44 @@ def test_cte_recursive():
         == "WITH RECURSIVE `ancestors` AS ((SELECT * FROM `folks` WHERE `name` = %s) UNION (SELECT `f`.* FROM `folks` AS `f`, `ancestors` AS `a` WHERE (`f`.`id` = `a`.`father` OR `f`.`id` = `a`.`mother`))) SELECT * FROM `ancestors`"
     )
     assert cte.args == ["Alex"]
+
+
+def test_cte_columns():
+    sel = With(
+        "cte",
+        ["depth", "from", "to"],
+        recursive=True,
+        cte=UnionDistinct(
+            Select(Value(0), Value(1), Value(1)),
+            Select(
+                Column("depth") + 1,
+                Column("t1.from"),
+                Column("t1.to"),
+                table=[
+                    Aliased("edges", "t1"),
+                    Aliased("cte", "t2")
+                ],
+                where=Eq("t1.from", Column("t2.to"))
+            )
+        ),
+        select=Select("*", table="cte")
+    )
+
+    assert str(sel) == "WITH RECURSIVE `cte` (`depth`, `from`, `to`) AS ((SELECT %s, %s, %s) UNION DISTINCT (SELECT (`depth` + %s), `t1`.`from`, `t1`.`to` FROM `edges` AS `t1`, `cte` AS `t2` WHERE `t1`.`from` = `t2`.`to`)) SELECT * FROM `cte`"
+    assert sel.args == [0, 1, 1, 1]
+
+
+def test_cte_incomplete():
+    with pytest.raises(AttributeError):
+        str(With("test"))
+
+    with pytest.raises(AttributeError):
+        str(With("test", cte=Select(Value(1))))
+
+    with pytest.raises(AttributeError):
+        str(With("test", select=Select("*", table="test")))
+
+    assert bool(With("test")) is False
+    assert bool(With("test", cte=Select(Value(1)))) is False
+    assert bool(With("test", select=Select("*", table="test"))) is False
+    assert bool(With("test", cte=Select(Value(1)), select=Select("*", table="test"))) is True

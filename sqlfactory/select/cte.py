@@ -99,6 +99,9 @@ class With(ExecutableStatement):
         if not self._cte:
             raise AttributeError("Missing CTE part of the select.")
 
+        if not self._select:
+            raise AttributeError("Missing SELECT part of the CTE statement.")
+
         with self.dialect:
             columns = "" if not self._columns else f" ({', '.join(map(str, self._columns))})"
 
