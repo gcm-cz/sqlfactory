@@ -331,6 +331,20 @@ class Table(Statement):
         return Column(f"{'.'.join(self._table)}.{name}")
 
     @property
+    def __isabstractmethod__(self) -> bool:
+        """
+        This is needed to be able to use Table instance in abstract classes as ClassVar.
+
+        class Something(ABC):
+            table: ClassVar[Table] = Table("table")
+
+        - ABC checks for __isabstractmethod__ property for all attributes in __dict__, and because Table did not
+        contains it, __getattr__ is called, which returns Column, which evaluates to True, which in turn makes
+        ABC think that Table is abstract method. So by providing explicit implementation here, we avoid this error.
+        """
+        return False
+
+    @property
     def args(self) -> list[Any]:
         """Table does not have any arguments, this always returns empty list."""
         return []

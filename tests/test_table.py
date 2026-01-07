@@ -2,9 +2,12 @@
 Test suite for the Table class
 """
 
+from abc import ABC
+from typing import ClassVar
+
 import pytest
 
-from sqlfactory import Column, Table
+from sqlfactory import Column, Statement, Table
 
 
 def test_table_init():
@@ -35,3 +38,11 @@ def test_table_getattr():
     assert c.column == "column"
     assert c.table == "table"
     assert c.database == "database"
+
+
+def test_table_is_not_abstract():
+    class BaseClass(ABC):
+        table: ClassVar[Table] = Table("table")
+
+    bc = BaseClass()
+    assert str(bc.table) == "`table`"

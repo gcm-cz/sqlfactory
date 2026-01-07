@@ -1,4 +1,6 @@
-from sqlfactory import Raw
+import pytest
+
+from sqlfactory import Raw, Statement
 from sqlfactory.func.control import IfNull
 
 
@@ -27,3 +29,8 @@ def test_uniqueness_of_funcs():
 
 def test_not_equal_with_string():
     assert Raw("abc") != "abc"
+
+
+def test_stmt_cannot_be_instantiated():
+    with pytest.raises(TypeError):
+        Statement()
