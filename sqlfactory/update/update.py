@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from typing import Any, Collection, Mapping, Optional, Self, TypeAlias
 
-from sqlfactory import Join
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
-from sqlfactory.mixins.join import WithJoin
+from sqlfactory.mixins.join import Join, WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
@@ -139,7 +138,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
         """
         super().__init__(join=join, where=where, order=order, limit=limit, dialect=dialect)
 
-        if isinstance(table, Table) or isinstance(table, str):
+        if isinstance(table, (Table, str)):
             table = [table]
 
         self.table = [t if isinstance(t, Table) else Table(t) for t in table]
