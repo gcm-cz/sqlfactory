@@ -90,6 +90,28 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
     >>> upd.args
     [1, 2]
 
+    >>> from sqlfactory import Update
+    >>> upd = Update(
+    ...     ["table1", "table2"],
+    ...     set={"table1.value": "foo", "table2.value": "bar"},
+    ...     where=Eq("table1.id", Column("table2.id"))
+    ... )
+    >>> str(upd)
+    'UPDATE `table1`, `table2` SET `table1`.`value` = %s, `table2`.`value` = %s WHERE `table1`.`id` = `table2`.`id`'
+    >>> upd.args
+    ['foo', 'bar']
+
+    >>> from sqlfactory import Update, Join, Eq
+    >>> upd = Update(
+    ...     "table1",
+    ...     join=[Join("table2", Eq("table1.id", "table2.id"))],
+    ...     set={"table1.value": "foo", "table2.value": "bar"}
+    ... )
+    >>> str(upd)
+    'UPDATE `table1` JOIN `table2` ON `table1`.`id` = `table2`.`id` SET `table1`.`value` = %s, `table2`.`value` = %s'
+    >>> upd.args
+    ['foo', 'bar']
+
     """
 
     def __init__(

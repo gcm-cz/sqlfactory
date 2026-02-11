@@ -17,34 +17,35 @@ API documentation with more examples is available at [GitLab Pages](https://gcm-
 ## Features
 
 - `SELECT` statements
-  - Variable select columns
-  - Multiple tables
-  - Subselects
-  - Joins
-  - Where condition
-  - Group by
-  - Having
-  - Ordering
-  - Limit
-  - Common Table Expressions (CTE)
+    - Variable select columns
+    - Multiple tables
+    - Subselects
+    - Joins
+    - Where condition
+    - Group by
+    - Having
+    - Ordering
+    - Limit
+    - Common Table Expressions (CTE)
 - `INSERT` statements
-  - Multiple rows at once
-  - Replace
-  - On duplicate key update (MySQL / MariaDB specific)
-  - `INSERT ... SELECT`
+    - Multiple rows at once
+    - Replace
+    - On duplicate key update (MySQL / MariaDB specific)
+    - `INSERT ... SELECT`
 - `UPDATE` statements
-  - Variable set of columns to change
-  - Where condition
-  - Limit
+    - Variable set of columns to change
+    - Joins
+    - Where condition
+    - Limit
 - `DELETE` statements
-  - Join
-  - Subselects
-  - Where condition
-  - Order
-  - Limit
+    - Joins
+    - Subselects
+    - Where condition
+    - Order
+    - Limit
 - `UNION` [`ALL`], `EXCEPT` [`ALL`], `INTERSECT` [`ALL`]
 - Multiple SQL dialects support - MySQL / MariaDB, SQLite, PostgreSQL, custom.
-  - Can support numeric placeholders (`$1`, `$2`, ...) in custom implementation.
+    - Can support numeric placeholders (`$1`, `$2`, ...) in custom implementation.
 
 ## Basic concepts
 
@@ -59,9 +60,10 @@ API documentation with more examples is available at [GitLab Pages](https://gcm-
 - `statement.__str__()` method (`str(statement)`) is used to get the final SQL statement.
 - `statement.args` property is used to get the values of placeholders.
 - `statement.execute()` function is used to execute the statement that could be executed on top of DB-API 2.0 compatible cursor
-  (or any object that has execute() method taking string as SQL and variable arguments or tuple of arguments as placeholder values).
+  (or any object that has execute() method taking string as SQL and variable arguments or tuple of arguments as placeholder
+  values).
 - It does not matter whether you are in async or sync code, or what database you are using. SQLFactory is database-agnostic and
-    does not care about the underlying database. It only cares about building the SQL statement.
+  does not care about the underlying database. It only cares about building the SQL statement.
 - SQLFactory is not an ORM. It does not map objects to tables or rows. By design.
 - SQLFactory utilizes modern Python syntax and type hints, requiring Python 3.11+. It is fully type-safe and works well with
   IDE code completion.
@@ -73,6 +75,7 @@ API documentation with more examples is available at [GitLab Pages](https://gcm-
 Let's have look at few examples, because examples tell much more than a thousand words:
 
 TL;DR:
+
 ```python
 sql = Select("column1", "column2", table="books").where(Eq("column1", "value") & In("column2", [1, 2, 3]))
 
@@ -82,7 +85,7 @@ sql.execute(cursor)
 # OR
 cursor.execute(
     str(sql),  # Produces SQL string with value placeholders as %s 
-    sql.args   # Returns arguments for the placeholders
+    sql.args  # Returns arguments for the placeholders
 )
 ```
 
@@ -93,7 +96,10 @@ All the following examples are self-contained. You can copy-paste them into your
 Let's see how to build a SELECT statement like this:
 
 ```sql
-SELECT column1, column2, column3 FROM books WHERE column1 = 'value' AND column2 IN (1, 2, 3);
+SELECT column1, column2, column3
+FROM books
+WHERE column1 = 'value'
+  AND column2 IN (1, 2, 3);
 ```
 
 All the following examples are equivalent and produce the same SQL query:
@@ -106,12 +112,12 @@ Select("column1", "column2", "column3", table="books", where=And(Eq("column1", "
 
 # A little more like a SQL:
 SELECT("column1", "column2", "column3", table="books")
-    .WHERE(Eq("column1", "value") & In("column2", [1, 2, 3]))
+.WHERE(Eq("column1", "value") & In("column2", [1, 2, 3]))
 
 # A little more like a python, but still SQL:
 books = Table("books")
 SELECT(books.column1, books.column2, books.column3, table=books)
-    .WHERE((books.column1 == "value") & In(books.column2, [1, 2, 3]))
+.WHERE((books.column1 == "value") & In(books.column2, [1, 2, 3]))
 ```
 
 ---
@@ -119,7 +125,9 @@ SELECT(books.column1, books.column2, books.column3, table=books)
 Inserts are simple, too:
 
 ```sql
-INSERT INTO books (column1, column2, column3) VALUES ('value1', 'value2', 'value3'), ('value4', 'value5', 'value6');
+INSERT INTO books (column1, column2, column3)
+VALUES ('value1', 'value2', 'value3'),
+       ('value4', 'value5', 'value6');
 ```
 
 ```python
@@ -149,23 +157,26 @@ INSERT("books")("column1", "column2", "column3").VALUES(
 Even updates (and in fact deletes, too):
 
 ```sql
-UPDATE books SET column1 = 'value1', column2 = 'value2' WHERE column3 = 'value3';
+UPDATE books
+SET column1 = 'value1',
+    column2 = 'value2'
+WHERE column3 = 'value3';
 ```
 
 ```python
 from sqlfactory import Update, Table, Eq
 
 Update("books")
-    .set("column1", "value1")
-    .set("column2", "value2")
-    .where(Eq("column3", "value3"))
+.set("column1", "value1")
+.set("column2", "value2")
+.where(Eq("column3", "value3"))
 
 # Of course, you can use Table object as well
 books = Table("books")
 Update(books)
-    .set(books.column1, "value1")
-    .set(books.column2, "value2")
-    .where(books.column3 == "value3")
+.set(books.column1, "value1")
+.set(books.column2, "value2")
+.where(books.column3 == "value3")
 ```
 
 It might seem strange to have so many ways to do the same thing, but it's up to you to choose the one that fits your
