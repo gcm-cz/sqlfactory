@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import Column, Eq, Limit, Update, Direction
+from sqlfactory import And, Column, Direction, Eq, Join, Limit, Table, Update
 from sqlfactory.func.str import Concat
 from sqlfactory.update.update import UPDATE, UpdateColumn
 
@@ -99,3 +99,34 @@ def test_update_with_order_by_constructor():
 
     assert str(update) == "UPDATE `table` SET `column1` = %s, `column2` = %s WHERE `id` = %s ORDER BY `column1` ASC"
     assert update.args == ["foo", "bar", 1]
+
+
+def test_update_multiple_tables():
+    update = Update(
+        ["table1", Table("table2")],
+        where=Eq("table1.id", 1),
+        set={"table1.column": "foo", "table2.column": "bar"}
+    )
+
+    assert str(update) == "UPDATE `table1`, `table2` SET `table1`.`column` = %s, `table2`.`column` = %s WHERE `table1`.`id` = %s"
+    assert update.args == ["foo", "bar", 1]
+
+
+def test_update_join():
+    update = Update(
+        "table1",
+        join=[
+            Join(
+                "table2",
+                And(
+                    Eq("table1.id", Column("table2.table1_id")),
+                    Eq("table2.id", 3)
+                )
+            )
+        ],
+        where=Eq("table2.value", 10),
+        set={"table1.column": "foo"}
+    )
+
+    assert str(update) == "UPDATE `table1` JOIN `table2` ON (`table1`.`id` = `table2`.`table1_id` AND `table2`.`id` = %s) SET `table1`.`column` = %s WHERE `table2`.`value` = %s"
+    assert update.args == [3, "foo", 10]

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Self, TypeAlias
+from typing import Any, Collection, Mapping, Optional, Self, TypeAlias
 
+from sqlfactory import Join
 from sqlfactory.condition.base import ConditionBase
 from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
+from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
@@ -48,7 +50,7 @@ class UpdateColumn(Statement):
         return [self._value]
 
 
-class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
+class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, WithJoin):
     # pylint: disable=too-many-ancestors
     """
     Builds `UPDATE` statement SQL query.
@@ -92,8 +94,9 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
 
     def __init__(
         self,
-        table: Table | str,
+        table: Table | str | Collection[Table | str],
         *fields: UpdateColumn,
+        join: Collection[Join] | None = None,
         set: Optional[Mapping[str | Column, Any]] = None,  # noqa: A002
         where: Optional[ConditionBase] = None,
         order: OrderArg | None = None,
@@ -102,19 +105,23 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
     ) -> None:
         # pylint: disable=redefined-builtin
         """
-        :param table: Table to update.
+        :param table: Table to update. Or multiple tables, if collection is used.
         :param fields: List of UpdateColumn instances containing columns to be updated. This is not very pleasant way
             to create the statement, use set() method instead.
+        :param join: Optional join to update multiple tables.
         :param set: Mapping of column names to values to be set. Alternative to specifying columns as UpdateColumn variable
             arguments. You can also use set() method on the Update instance to add another columns to be updated.
         :param where: WHERE condition
         :param order: Optional ordering of the updated rows. Might be needed to avoid violating keys when updating multiple rows.
         :param limit: Limit number of updated rows
         """
-        super().__init__(where=where, order=order, limit=limit, dialect=dialect)
+        super().__init__(join=join, where=where, order=order, limit=limit, dialect=dialect)
 
-        self.table = table if isinstance(table, Table) else Table(table)
-        """Table that should be updated."""
+        if isinstance(table, Table) or isinstance(table, str):
+            table = [table]
+
+        self.table = [t if isinstance(t, Table) else Table(t) for t in table]
+        """Tables that should be updated."""
 
         self.fields: list[UpdateColumn] = list(fields)
         """Fields that should be updated."""
@@ -131,7 +138,12 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
             if not self.fields:
                 raise AttributeError("At least one column must be updated.")
 
-            query = [f"UPDATE {self.table!s}", f"SET {', '.join(map(str, self.fields))}"]
+            query = [f"UPDATE {', '.join(str(t) for t in self.table)}"]
+
+            if self._join:
+                query.extend(map(str, self._join))
+
+            query.append(f"SET {', '.join(map(str, self.fields))}")
 
             if self._where:
                 query.append("WHERE")
@@ -151,6 +163,10 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder):
         Return all arguments used in the UPDATE statement.
         """
         out = []
+
+        if self._join:
+            for join in self._join:
+                out.extend(join.args)
 
         for field in self.fields:
             out.extend(field.args)
