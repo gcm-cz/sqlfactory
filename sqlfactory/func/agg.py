@@ -3,11 +3,11 @@
 from typing import Literal
 
 from sqlfactory.entities import Column, ColumnArg
-from sqlfactory.func.base import Function
+from sqlfactory.func.window import WindowableFunction
 from sqlfactory.statement import Raw, Statement
 
 
-class AggregateFunction(Function):
+class AggregateFunction(WindowableFunction):
     """Base class for aggregate functions"""
 
     def __init__(self, agg: str, column: ColumnArg | Statement):
@@ -42,7 +42,7 @@ class BitXor(AggregateFunction):
         super().__init__("BIT_XOR", column)
 
 
-class Count(Function):
+class Count(WindowableFunction):
     """
     - COUNT(<column>)
     - COUNT(DISTINCT <column>)

@@ -118,6 +118,7 @@ query = Delete("products", where=Eq("enabled", False))
   - Ordering
   - Limit
   - Common Table Expressions (CTE)
+  - Window functions
 - `INSERT` statements
   - Multiple rows at once
   - Replace
@@ -225,6 +226,25 @@ from sqlfactory.condition import (
 from sqlfactory.delete import DELETE, Delete
 from sqlfactory.dialect import MySQLDialect, OracleSQLDialect, PostgreSQLDialect, SQLDialect, SQLiteDialect
 from sqlfactory.entities import Column, Table
+from sqlfactory.func.window import (
+    CumeDist,
+    DenseRank,
+    FirstValue,
+    Frame,
+    FrameBound,
+    FrameType,
+    Lag,
+    LastValue,
+    Lead,
+    NthValue,
+    Ntile,
+    OverClause,
+    PercentRank,
+    Rank,
+    RowNumber,
+    WindowableFunction,
+    WindowFunction,
+)
 from sqlfactory.insert import INSERT, Insert, Values
 from sqlfactory.mixins import Direction, Limit, Order
 from sqlfactory.select import (
@@ -340,6 +360,24 @@ __all__ = [  # noqa: RUF022
     "SQLiteDialect",
     "PostgreSQLDialect",
     "OracleSQLDialect",
+    # Window functions
+    "CumeDist",
+    "DenseRank",
+    "FirstValue",
+    "Frame",
+    "FrameBound",
+    "FrameType",
+    "Lag",
+    "LastValue",
+    "Lead",
+    "NthValue",
+    "Ntile",
+    "OverClause",
+    "PercentRank",
+    "Rank",
+    "RowNumber",
+    "WindowFunction",
+    "WindowableFunction",
     "execute",
     "func",
     "mixins",
