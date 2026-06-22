@@ -86,3 +86,43 @@ def test_raw_condition():
 
     with pytest.raises(AttributeError):
         condition.append(Condition("`column1` = %s"), 10)
+
+
+def test_negative_and():
+    condition = And(Condition("`column1` = %s", 5), Condition("`column2` = %s", 10), negative=True)
+    assert str(condition) == "NOT (`column1` = %s AND `column2` = %s)"
+    assert condition.args == [5, 10]
+
+
+def test_negative_or():
+    condition = Or(Condition("`column1` = %s", 5), Condition("`column2` = %s", 10), negative=True)
+    assert str(condition) == "NOT (`column1` = %s OR `column2` = %s)"
+    assert condition.args == [5, 10]
+
+
+def test_negative_single_condition():
+    condition = And(Condition("`column1` = %s", 5), negative=True)
+    assert str(condition) == "NOT (`column1` = %s)"
+    assert condition.args == [5]
+
+
+def test_invert_operator():
+    condition = And(Condition("`column1` = %s", 5), Condition("`column2` = %s", 10))
+    inverted = ~condition
+    assert str(inverted) == "NOT (`column1` = %s AND `column2` = %s)"
+    assert inverted.args == [5, 10]
+    # Original condition is not modified.
+    assert str(condition) == "(`column1` = %s AND `column2` = %s)"
+
+
+def test_invert_twice():
+    condition = Or(Condition("`column1` = %s", 5), Condition("`column2` = %s", 10))
+    assert str(~~condition) == str(condition)
+
+
+def test_invert_preserves_type():
+    condition = Or(Condition("`column1` = %s", 5))
+    inverted = ~condition
+    assert isinstance(inverted, Or)
+
+

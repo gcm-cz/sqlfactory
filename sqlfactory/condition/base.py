@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from collections.abc import Iterable
+from copy import copy
 from typing import Any, Self, overload
 
 from sqlfactory.statement import ConditionalStatement, Raw, Statement
@@ -130,14 +131,16 @@ class CompoundCondition(ConditionBase):
     (AND and OR), this class is not meant to be used directly, but rather through And and Or classes.
     """
 
-    def __init__(self, operator: str, *conditions: ConditionBase | Raw | str) -> None:
+    def __init__(self, operator: str, *conditions: ConditionBase | Raw | str, negative: bool = False) -> None:
         """
         :param operator: Which operator to use for joining specific conditions.
         :param conditions: Conditions to join using given operator.
+        :param negative: Whether to negate the whole compound condition (wrap it in `NOT (...)`).
         """
         super().__init__()
 
         self.operator = operator
+        self._negative = negative
         self._sub_conditions: list[ConditionBase | Raw] = [
             Condition(condition) if isinstance(condition, str) else condition for condition in conditions
         ]
@@ -185,7 +188,10 @@ class CompoundCondition(ConditionBase):
         """
         sub_conditions = list(map(str, self.sub_conditions))
         if sub_conditions:
-            return "(" + f" {self.operator} ".join(sub_conditions) + ")" if len(sub_conditions) > 1 else sub_conditions[0]
+            inner = f" {self.operator} ".join(sub_conditions)
+            if len(sub_conditions) > 1 or self._negative:
+                inner = f"({inner})"
+            return f"NOT {inner}" if self._negative else inner
 
         return "TRUE"
 
@@ -207,6 +213,16 @@ class CompoundCondition(ConditionBase):
         """
         return bool(self.sub_conditions)
 
+    def __invert__(self) -> Self:
+        """
+        Allows using the `~` operator to negate the whole compound condition, wrapping it in `NOT (...)`.
+        Inverting an already negated compound condition returns it to its non-negated form.
+        """
+        out = copy(self)
+        out._negative = not self._negative
+        out._sub_conditions = list(self._sub_conditions)
+        return out
+
 
 class And(CompoundCondition):
     """
@@ -223,11 +239,12 @@ class And(CompoundCondition):
     >>> "(`id` = 1 AND (`name` = 'hello' OR `name` = 'world'))"
     """
 
-    def __init__(self, *conditions: ConditionBase | str) -> None:
+    def __init__(self, *conditions: ConditionBase | str, negative: bool = False) -> None:
         """
         :param conditions: Conditions that should be joined using AND operator.
+        :param negative: Whether to negate the whole compound condition (wrap it in `NOT (...)`).
         """
-        super().__init__("AND", *conditions)
+        super().__init__("AND", *conditions, negative=negative)
 
 
 class Or(CompoundCondition):
@@ -245,11 +262,12 @@ class Or(CompoundCondition):
     >>> "(`id` = 1 OR (`name` = 'hello' AND `name` = 'world'))"
     """
 
-    def __init__(self, *conditions: ConditionBase | str) -> None:
+    def __init__(self, *conditions: ConditionBase | str, negative: bool = False) -> None:
         """
         :param conditions: Conditions that should be joined using OR operator.
+        :param negative: Whether to negate the whole compound condition (wrap it in `NOT (...)`).
         """
-        super().__init__("OR", *conditions)
+        super().__init__("OR", *conditions, negative=negative)
 
     def __str__(self) -> str:
         """
