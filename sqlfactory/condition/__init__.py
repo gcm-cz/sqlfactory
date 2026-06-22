@@ -2,6 +2,7 @@
 
 from sqlfactory.condition.base import And, Condition, ConditionBase, Or
 from sqlfactory.condition.between import Between, NotBetween
+from sqlfactory.condition.exists import Exists, NotExists
 from sqlfactory.condition.in_condition import In, NotIn
 from sqlfactory.condition.like import Like, NotLike
 from sqlfactory.condition.rlike import NotRLike, RLike
@@ -27,6 +28,7 @@ __all__ = [
     "ConditionBase",
     "Eq",
     "Equals",
+    "Exists",
     "Ge",
     "GreaterThan",
     "GreaterThanOrEquals",
@@ -40,6 +42,7 @@ __all__ = [
     "Ne",
     "NotBetween",
     "NotEquals",
+    "NotExists",
     "NotIn",
     "NotLike",
     "NotRLike",
