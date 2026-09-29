@@ -98,7 +98,7 @@ def test_select_from_select_with_join():
 
 
 def test_select_in_join_without_alias():
-    with pytest.raises(AttributeError, match="When joining a subselect, alias must be specified."):
+    with pytest.raises(AttributeError, match="When joining a subselect or JSON_TABLE, alias must be specified."):
         Join(Select(table="test"))
 
 

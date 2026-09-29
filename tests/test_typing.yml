@@ -122,3 +122,13 @@
     
     assert_type(Select(table="test").order_by("id", Direction.ASC), Select)
     assert_type(Select(table="test").ORDER_BY("id", Direction.ASC), Select)
+- case: select_join_json_table
+  main: |
+    from sqlfactory import Select
+    from sqlfactory.func.json import JsonTable, JsonTableColumn
+    from typing import assert_type
+
+    jt = JsonTable("data", "$[*]", JsonTableColumn("name", "VARCHAR(50)", "$.name"))
+
+    assert_type(Select(table="test").join(jt, alias="jt"), Select)
+    assert_type(Select(table="test").JOIN(jt, alias="jt"), Select)
