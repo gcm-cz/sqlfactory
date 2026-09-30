@@ -57,7 +57,7 @@ from sqlfactory.func.info import Collate
 from sqlfactory.func.json import JsonExtract, JsonTable, JsonTableColumn
 from sqlfactory.func.numeric import Round
 from sqlfactory.func.spatial import StDistanceSphere
-from sqlfactory.func.str import Concat
+from sqlfactory.func.str import Char, Concat, Position, Trim, TrimDirection, WeightString
 from sqlfactory.func.window import Lag
 from sqlfactory.statement import operand
 
@@ -321,6 +321,36 @@ def test_function_argument():
 def test_function_family_argument(func, sql, args):
     assert str(func) == sql
     assert func.args == args
+
+
+def test_trim_operand():
+    func = Trim(sub("k1"))
+    assert str(func) == f"TRIM({SUB})"
+    assert func.args == ["k1"]
+
+
+def test_trim_operand_with_remstr_and_str_operand():
+    func = Trim(sub("k1"), sub("k2"), TrimDirection.TRAILING)
+    assert str(func) == f"TRIM(TRAILING {SUB} FROM {SUB})"
+    assert func.args == ["k2", "k1"]
+
+
+def test_char_operand():
+    func = Char(sub("k1"), sub("k2"))
+    assert str(func) == f"CHAR({SUB}, {SUB})"
+    assert func.args == ["k1", "k2"]
+
+
+def test_position_operand():
+    func = Position(sub("k1"), sub("k2"))
+    assert str(func) == f"POSITION({SUB} IN {SUB})"
+    assert func.args == ["k1", "k2"]
+
+
+def test_weight_string_operand():
+    func = WeightString(sub("k1"))
+    assert str(func) == f"WEIGHT_STRING({SUB})"
+    assert func.args == ["k1"]
 
 
 def test_group_concat():
