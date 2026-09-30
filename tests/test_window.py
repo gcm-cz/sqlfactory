@@ -1,5 +1,7 @@
 """Tests for window functions."""
 
+import pytest
+
 from sqlfactory import Aliased, Direction, Select
 from sqlfactory.func.agg import Avg, Count, Max, Min, Std, Sum
 from sqlfactory.func.window import (
@@ -12,9 +14,12 @@ from sqlfactory.func.window import (
     Lag,
     LastValue,
     Lead,
+    Median,
     NthValue,
     Ntile,
     OverClause,
+    PercentileCont,
+    PercentileDisc,
     PercentRank,
     Rank,
     RowNumber,
@@ -215,6 +220,85 @@ def test_nth_value():
     f = NthValue("price", 2).over(partition_by=["category"])
     assert str(f) == "NTH_VALUE(`price`, %s) OVER (PARTITION BY `category`)"
     assert f.args == [2]
+
+
+# ---------------------------------------------------------------------------
+# MEDIAN
+# ---------------------------------------------------------------------------
+
+def test_median_no_partition():
+    m = Median("price")
+    assert str(m) == "MEDIAN(`price`) OVER ()"
+    assert m.args == []
+
+
+def test_median_partition_by():
+    m = Median("price", partition_by=["category"])
+    assert str(m) == "MEDIAN(`price`) OVER (PARTITION BY `category`)"
+    assert m.args == []
+
+
+def test_median_column_and_partition_args_flow():
+    from sqlfactory import Raw
+    m = Median(Raw("`a` + %s", 1), partition_by=[Raw("`b` = %s", 2)])
+    assert str(m) == "MEDIAN(`a` + %s) OVER (PARTITION BY `b` = %s)"
+    assert m.args == [1, 2]
+
+
+# ---------------------------------------------------------------------------
+# PERCENTILE_CONT / PERCENTILE_DISC
+# ---------------------------------------------------------------------------
+
+def test_percentile_cont_basic():
+    f = PercentileCont(0.5, order=("price", Direction.ASC))
+    assert str(f) == "PERCENTILE_CONT(%s) WITHIN GROUP (ORDER BY `price` ASC) OVER ()"
+    assert f.args == [0.5]
+
+
+def test_percentile_cont_partition_by():
+    f = PercentileCont(0.5, order=("price", Direction.ASC), partition_by=["category"])
+    assert str(f) == "PERCENTILE_CONT(%s) WITHIN GROUP (ORDER BY `price` ASC) OVER (PARTITION BY `category`)"
+    assert f.args == [0.5]
+
+
+def test_percentile_disc_basic():
+    f = PercentileDisc(0.25, order=("price", Direction.DESC), partition_by=["category"])
+    assert str(f) == "PERCENTILE_DISC(%s) WITHIN GROUP (ORDER BY `price` DESC) OVER (PARTITION BY `category`)"
+    assert f.args == [0.25]
+
+
+def test_percentile_function_args_order():
+    """Placeholder order must be fraction, then WITHIN GROUP's ORDER BY args, then OVER's PARTITION BY args."""
+    from sqlfactory import Raw
+    f = PercentileCont(0.9, order=(Raw("`a` + %s", 1), Direction.ASC), partition_by=[Raw("`b` = %s", 2)])
+    assert str(f) == "PERCENTILE_CONT(%s) WITHIN GROUP (ORDER BY `a` + %s ASC) OVER (PARTITION BY `b` = %s)"
+    assert f.args == [0.9, 1, 2]
+
+
+def test_percentile_function_rejects_multiple_sort_keys():
+    """WITHIN GROUP (ORDER BY ...) takes exactly one sort key -- MariaDB and PostgreSQL both reject more than
+    one. mypy already rejects this at the type level (see tests/test_typing.yml); this is the runtime backstop
+    for a caller that bypasses typing."""
+    with pytest.raises(ValueError, match="exactly one sort key"):
+        PercentileCont(0.5, order=[("price", Direction.ASC), ("other", Direction.DESC)])  # type: ignore[arg-type]
+
+
+def test_median_and_percentile_in_select():
+    q = Select(
+        "name",
+        Aliased(Median("star_rating", partition_by=["name"]), alias="med"),
+        Aliased(PercentileCont(0.5, order=("star_rating", Direction.ASC), partition_by=["name"]), alias="pc"),
+        Aliased(PercentileDisc(0.5, order=("star_rating", Direction.ASC), partition_by=["name"]), alias="pd"),
+        table="book_rating",
+    )
+    assert str(q) == (
+        "SELECT `name`, "
+        "MEDIAN(`star_rating`) OVER (PARTITION BY `name`) AS `med`, "
+        "PERCENTILE_CONT(%s) WITHIN GROUP (ORDER BY `star_rating` ASC) OVER (PARTITION BY `name`) AS `pc`, "
+        "PERCENTILE_DISC(%s) WITHIN GROUP (ORDER BY `star_rating` ASC) OVER (PARTITION BY `name`) AS `pd` "
+        "FROM `book_rating`"
+    )
+    assert q.args == [0.5, 0.5]
 
 
 # ---------------------------------------------------------------------------

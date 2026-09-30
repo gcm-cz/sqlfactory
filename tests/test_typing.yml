@@ -149,6 +149,13 @@
     
     assert_type(Select(table="test").order_by("id", Direction.ASC), Select)
     assert_type(Select(table="test").ORDER_BY("id", Direction.ASC), Select)
+- case: percentile_within_group_takes_one_sort_key
+  main: |
+    from sqlfactory import Direction
+    from sqlfactory.func.window import PercentileCont
+
+    PercentileCont(0.5, order=("price", Direction.ASC))
+    PercentileCont(0.5, order=[("price", Direction.ASC), ("other", Direction.DESC)])  # E: Argument "order" to "PercentileCont" has incompatible type "list[tuple[str, Direction]]"; expected "tuple[Column | str | Statement, Direction]"  [arg-type]
 - case: select_join_json_table
   main: |
     from sqlfactory import Select
