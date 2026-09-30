@@ -3,16 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, NoReturn, cast, overload
+from typing import Any, NoReturn, cast, overload
 
 from sqlfactory.condition.base import And, ConditionBase, Or, StatementOrColumn
 from sqlfactory.condition.simple import Eq, Ne
 from sqlfactory.entities import Column
-from sqlfactory.statement import Raw, Statement
-
-if TYPE_CHECKING:
-    from sqlfactory.select.cte import With  # pragma: no cover
-    from sqlfactory.select.select import Select  # pragma: no cover
+from sqlfactory.statement import Query, Raw, Statement, operand
 
 
 class In(ConditionBase):
@@ -84,6 +80,8 @@ class In(ConditionBase):
 
     ### Subquery IN
 
+    The subquery can be any `Query` - `Select`, `Union` and its variants, or `With`.
+
     ```python
     In("column", Select("column", table="table", where=Eq("column", 1)))
     ```
@@ -100,7 +98,7 @@ class In(ConditionBase):
         """Provides type definition for statement (`column1`, `column2`) IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
-    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select | With, /, negative: bool = False) -> None:
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Query, /, negative: bool = False) -> None:
         """Provides type definition for statement (`column1`, `column2`) IN (SELECT ...)"""
 
     @overload
@@ -108,13 +106,13 @@ class In(ConditionBase):
         """Provides type definition for statement `column` IN (%s, %s, %s)"""
 
     @overload
-    def __init__(self, column: StatementOrColumn, values: Select | With, /, negative: bool = False) -> None:
+    def __init__(self, column: StatementOrColumn, values: Query, /, negative: bool = False) -> None:
         """Provides type definition for statement `column` IN (SELECT ...)"""
 
     def __init__(
         self,
         column: StatementOrColumn | tuple[StatementOrColumn, ...],
-        values: Collection[Any | tuple[Any, ...]] | Select | With,
+        values: Collection[Any | tuple[Any, ...]] | Query,
         /,
         negative: bool = False,
     ) -> None:
@@ -131,10 +129,7 @@ class In(ConditionBase):
         self._negative = negative
 
     def __str__(self) -> str:
-        from sqlfactory.select.cte import With  # pylint: disable=import-outside-toplevel
-        from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
-
-        if isinstance(self._values, (Select, With)):
+        if isinstance(self._values, Query):
             stmt, _ = self._build_subquery_in(self._column, self._values, negative=self._negative)
 
         elif self._is_multi_column:
@@ -146,10 +141,7 @@ class In(ConditionBase):
 
     @property
     def args(self) -> list[Any]:
-        from sqlfactory.select.cte import With  # pylint: disable=import-outside-toplevel
-        from sqlfactory.select.select import Select  # pylint: disable=import-outside-toplevel
-
-        if isinstance(self._values, (Select, With)):
+        if isinstance(self._values, Query):
             _, args = self._build_subquery_in(self._column, self._values, negative=self._negative)
 
         elif self._is_multi_column:
@@ -161,7 +153,7 @@ class In(ConditionBase):
 
     @staticmethod
     def _build_subquery_in(
-        columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Select | With, *, negative: bool = False
+        columns: StatementOrColumn | tuple[StatementOrColumn, ...], select: Query, *, negative: bool = False
     ) -> tuple[str, list[Any]]:
         # pylint: disable=consider-using-f-string
         args = []
@@ -175,7 +167,7 @@ class In(ConditionBase):
             args.extend(select.args)
 
             in_stmt = "({}) {} ({})".format(
-                ", ".join(map(str, in_columns)),
+                ", ".join(map(operand, in_columns)),
                 "IN" if not negative else "NOT IN",
                 str(select),
             )
@@ -186,7 +178,7 @@ class In(ConditionBase):
 
             args = [*columns.args, *select.args]
             in_stmt = "{} {} ({})".format(
-                str(columns),
+                operand(columns),
                 "IN" if not negative else "NOT IN",
                 str(select),
             )
@@ -208,9 +200,9 @@ class In(ConditionBase):
 
         if values:
             in_stmt = "{} {} ({})".format(
-                str(column),
+                operand(column),
                 "IN" if not negative else "NOT IN",
-                ", ".join([self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in values]),
+                ", ".join([self.dialect.placeholder if not isinstance(value, Statement) else operand(value) for value in values]),
             )
 
             if isinstance(column, Statement):
@@ -226,7 +218,10 @@ class In(ConditionBase):
                 if isinstance(column, Statement):
                     args.extend(column.args)
 
-                return (f"({in_stmt} {'OR' if not negative else 'AND'} {column!s} IS {'NOT ' if negative else ''}NULL)", args)
+                return (
+                    f"({in_stmt} {'OR' if not negative else 'AND'} {operand(column)} IS {'NOT ' if negative else ''}NULL)",
+                    args,
+                )
 
             return (in_stmt, args)
 
@@ -235,7 +230,7 @@ class In(ConditionBase):
             if isinstance(column, Statement):
                 args.extend(column.args)
 
-            return (f"{column!s} IS {'NOT ' if negative else ''}NULL", args)
+            return (f"{operand(column)} IS {'NOT ' if negative else ''}NULL", args)
 
         return "FALSE" if not negative else "TRUE", []
 
@@ -262,13 +257,16 @@ class In(ConditionBase):
                     args.extend(value.args)
 
         multi_in_stmt = "({}) {} ({})".format(
-            ", ".join(map(str, column)),
+            ", ".join(map(operand, cast(tuple[Statement, ...], column))),
             "IN" if not negative else "NOT IN",
             ", ".join(
                 [
                     "("
                     + ", ".join(
-                        [self.dialect.placeholder if not isinstance(value, Statement) else str(value) for value in value_tuple]
+                        [
+                            self.dialect.placeholder if not isinstance(value, Statement) else operand(value)
+                            for value in value_tuple
+                        ]
                     )
                     + ")"
                     for value_tuple in values
@@ -365,7 +363,7 @@ class NotIn(In):
         """Provides type definition for statement (`column1`, `column2`) NOT IN ((%s, %s), (%s, %s), (%s, %s))"""
 
     @overload
-    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Select | With, /) -> None:
+    def __init__(self, columns: tuple[StatementOrColumn, ...], values: Query, /) -> None:
         """Provides type definition for statement (`column1`, `column2`) NOT IN (SELECT ...)"""
 
     @overload
@@ -373,13 +371,13 @@ class NotIn(In):
         """Provides type definition for statement `column` NOT IN (%s, %s, %s)"""
 
     @overload
-    def __init__(self, column: StatementOrColumn, values: Select | With, /) -> None:
+    def __init__(self, column: StatementOrColumn, values: Query, /) -> None:
         """Provides type definition for statement `column` NOT IN (SELECT ...)"""
 
     def __init__(
         self,
         column: StatementOrColumn | tuple[StatementOrColumn, ...],
-        values: Collection[Any | tuple[Any, ...]] | Select | With,
+        values: Collection[Any | tuple[Any, ...]] | Query,
         /,
     ) -> None:
         """

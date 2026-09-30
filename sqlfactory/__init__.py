@@ -285,7 +285,7 @@ from sqlfactory.select import (
     UnionDistinct,
     With,
 )
-from sqlfactory.statement import Raw, Statement, Value
+from sqlfactory.statement import Query, Raw, Statement, Value
 from sqlfactory.update import UPDATE, Update, UpdateColumn
 
 __all__ = [  # noqa: RUF022
@@ -346,6 +346,7 @@ __all__ = [  # noqa: RUF022
     "NotRLike",
     "Or",
     "Order",
+    "Query",
     "Raw",
     "RightJoin",
     "RightOuterJoin",

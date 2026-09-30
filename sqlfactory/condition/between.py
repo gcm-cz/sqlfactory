@@ -4,7 +4,7 @@ from typing import Any, NoReturn
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Between(ConditionBase):
@@ -57,12 +57,12 @@ class Between(ConditionBase):
         upper_bound_s = self.dialect.placeholder
 
         if isinstance(self._lower_bound, Statement):
-            lower_bound_s = str(self._lower_bound)
+            lower_bound_s = operand(self._lower_bound)
 
         if isinstance(self._upper_bound, Statement):
-            upper_bound_s = str(self._upper_bound)
+            upper_bound_s = operand(self._upper_bound)
 
-        return f"{self._column!s} {'NOT ' if self._negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}"
+        return f"{operand(self._column)} {'NOT ' if self._negative else ''}BETWEEN {lower_bound_s} AND {upper_bound_s}"
 
     @property
     def args(self) -> list[Any]:

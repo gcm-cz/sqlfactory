@@ -7,7 +7,7 @@ from typing import Any, NoReturn
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class JsonValueType(str, Enum):
@@ -63,7 +63,7 @@ class IsJson(ConditionBase):
         self._negative = negative
 
     def __str__(self) -> str:
-        parts = [str(self._expr), "IS"]
+        parts = [operand(self._expr), "IS"]
 
         if self._negative:
             parts.append("NOT")

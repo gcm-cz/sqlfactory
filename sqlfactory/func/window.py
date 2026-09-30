@@ -9,7 +9,7 @@ from typing import Any, ClassVar
 from sqlfactory.entities import Column, ColumnArg, Expression
 from sqlfactory.func.base import Function
 from sqlfactory.mixins.order import Order, OrderArg
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class FrameType(str, Enum):
@@ -137,7 +137,7 @@ class OverClause(Statement):
         parts: list[str] = []
 
         if self._partition_by:
-            cols = [str(Column(col)) if isinstance(col, str) else str(col) for col in self._partition_by]
+            cols = [str(Column(col)) if isinstance(col, str) else operand(col) for col in self._partition_by]
             parts.append(f"PARTITION BY {', '.join(cols)}")
 
         if self._order:

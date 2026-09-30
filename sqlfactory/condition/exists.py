@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import Any, NoReturn
 
 from sqlfactory.condition.base import ConditionBase
-
-if TYPE_CHECKING:
-    from sqlfactory.select.cte import With  # pragma: no cover
-    from sqlfactory.select.select import Select  # pragma: no cover
+from sqlfactory.statement import Query
 
 
 class Exists(ConditionBase):
@@ -30,9 +27,9 @@ class Exists(ConditionBase):
     ```
     """
 
-    def __init__(self, select: Select | With, *, negative: bool = False) -> None:
+    def __init__(self, select: Query, *, negative: bool = False) -> None:
         """
-        :param select: Subquery to check for existence of rows.
+        :param select: Subquery to check for existence of rows - any `Query` (`Select`, `Union`, `With`).
         :param negative: Whether to perform negative comparison (NOT EXISTS).
         """
         super().__init__()
@@ -73,7 +70,7 @@ class NotExists(Exists):
     ```
     """
 
-    def __init__(self, select: Select | With) -> None:
+    def __init__(self, select: Query) -> None:
         """
         :param select: Subquery to check for absence of rows.
         """

@@ -5,9 +5,10 @@ from sqlfactory.execute import ExecutableStatement
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.select.select import Select
+from sqlfactory.statement import Query
 
 
-class Union(ExecutableStatement, WithOrder, WithLimit):
+class Union(ExecutableStatement, Query, WithOrder, WithLimit):
     """
     Construct UNION statement by combining multiple SELECTs.
 

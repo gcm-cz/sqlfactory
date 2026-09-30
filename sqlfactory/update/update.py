@@ -12,7 +12,7 @@ from sqlfactory.mixins.join import Join, WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class UpdateColumn(Statement):
@@ -27,7 +27,7 @@ class UpdateColumn(Statement):
         self._value = value
 
     def __str__(self) -> str:
-        return f"{self._column!s} = {str(self._value) if isinstance(self._value, Statement) else self.dialect.placeholder}"
+        return f"{self._column!s} = {operand(self._value) if isinstance(self._value, Statement) else self.dialect.placeholder}"
 
     def __hash__(self) -> int:
         return hash(self._column)

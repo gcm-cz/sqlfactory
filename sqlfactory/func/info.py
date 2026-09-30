@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.func.base import Function
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Benchmark(Function):
@@ -58,7 +58,7 @@ class Collate(Statement):
 
     def __str__(self) -> str:
         return (
-            f"{str(self._expression) if isinstance(self._expression, Statement) else self.dialect.placeholder} "
+            f"{operand(self._expression) if isinstance(self._expression, Statement) else self.dialect.placeholder} "
             f"COLLATE {self._collation}"
         )
 

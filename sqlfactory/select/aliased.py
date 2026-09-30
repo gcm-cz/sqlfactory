@@ -3,7 +3,7 @@
 from typing import Any
 
 from sqlfactory.entities import Column, ColumnArg
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Aliased(Statement):
@@ -36,14 +36,9 @@ class Aliased(Statement):
 
     def __str__(self) -> str:
         if self.alias is None:
-            return str(self._statement)
+            return operand(self._statement)
 
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
-
-        if isinstance(self._statement, Select):
-            return f"({self._statement!s}) AS `{self.alias}`"
-
-        return f"{self._statement!s} AS `{self.alias}`"
+        return f"{operand(self._statement)} AS `{self.alias}`"
 
     @property
     def args(self) -> list[Any]:

@@ -6,7 +6,7 @@ from enum import StrEnum
 from typing import Any, Literal
 
 from sqlfactory.func.base import Function
-from sqlfactory.statement import Raw, Statement
+from sqlfactory.statement import Raw, Statement, operand
 
 
 class Interval(Statement):
@@ -90,7 +90,7 @@ class Interval(Statement):
 
     def __str__(self) -> str:
         return "INTERVAL " + " ".join(
-            f"{self.dialect.placeholder if not isinstance(getattr(self, attr), Statement) else str(getattr(self, attr))} "
+            f"{self.dialect.placeholder if not isinstance(getattr(self, attr), Statement) else operand(getattr(self, attr))} "
             f"{attr.upper()}"
             for attr in reversed(self._ATTRIBUTES)
             if getattr(self, attr) is not None
@@ -297,7 +297,8 @@ class Extract(Statement):
         self._date = date
 
     def __str__(self) -> str:
-        return f"EXTRACT({self._unit} FROM {str(self._date) if isinstance(self._date, Statement) else self.dialect.placeholder})"
+        date = operand(self._date) if isinstance(self._date, Statement) else self.dialect.placeholder
+        return f"EXTRACT({self._unit} FROM {date})"
 
     @property
     def args(self) -> list[Any]:

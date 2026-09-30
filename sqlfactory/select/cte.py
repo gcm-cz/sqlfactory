@@ -5,9 +5,10 @@ from sqlfactory.entities import Column, Table
 from sqlfactory.execute import ExecutableStatement
 from sqlfactory.select.select import Select
 from sqlfactory.select.union import Union
+from sqlfactory.statement import Query
 
 
-class With(ExecutableStatement):
+class With(ExecutableStatement, Query):
     """
     Common Table Expression (CTE) statement.
 

@@ -3,7 +3,7 @@
 from typing import Any
 
 from sqlfactory.entities import Expression
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Function(Expression):
@@ -20,7 +20,7 @@ class Function(Expression):
 
         for arg in self._args:
             if isinstance(arg, Statement):
-                out.append(str(arg))
+                out.append(operand(arg))
             else:
                 out.append(self.dialect.placeholder)
 

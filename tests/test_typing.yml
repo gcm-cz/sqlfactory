@@ -142,3 +142,19 @@
     DistinctAggregateFunction("SUM", "x", distinct=True)
     Std("x", distinct=True)  # E: Unexpected keyword argument "distinct" for "Std"  [call-arg]
     AggregateFunction("STD", "x", distinct=True)  # E: Unexpected keyword argument "distinct" for "AggregateFunction"  [call-arg]
+- case: any_query_where_a_subquery_goes
+  main: |
+    from sqlfactory import Column, Eq, Exists, In, Join, NotExists, NotIn, Select, Union, With
+    from typing import assert_type
+
+    u = Union(Select("a", table="t1"), Select("a", table="t2"))
+    w = With("w").as_(Select("a", table="t1")).select(Select("a", table="w"))
+
+    In("a", u)
+    NotIn(("a", "b"), w)
+    Exists(u)
+    NotExists(w)
+    Join(u, alias="u")
+    assert_type(Select(table="test").join(u, alias="u", on=Eq("u.a", Column("test.a"))), Select)
+    assert_type(Select(table="test").left_join(w, alias="w"), Select)
+    Exists(Column("a"))  # E: Argument 1 to "Exists" has incompatible type "Column"; expected "Query"  [arg-type]

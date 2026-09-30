@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any, Collection, Literal, Optional, Self
 
 from sqlfactory.entities import Column, ColumnArg
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Direction(str, Enum):
@@ -48,7 +48,7 @@ class Order(list[tuple[OrderColumn, Direction | Literal["ASC", "DESC"]]], Statem
             if isinstance(column, str):
                 column = Column(column)
 
-            out.append(f"{column!s} {direction.value if isinstance(direction, Direction) else direction}")
+            out.append(f"{operand(column)} {direction.value if isinstance(direction, Direction) else direction}")
 
         return f"ORDER BY {', '.join(out)}"
 

@@ -8,7 +8,7 @@ from sqlfactory.func.base import Function
 from sqlfactory.func.window import Frame, OverClause, WindowableFunction, WindowFunction
 from sqlfactory.mixins.limit import Limit
 from sqlfactory.mixins.order import Order, OrderArg
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class AggregateFunction(WindowableFunction):
@@ -192,7 +192,7 @@ class GroupConcat(Function):
         self._limit = limit
 
     def __str__(self) -> str:
-        expr = ", ".join(str(c) for c in self._columns)
+        expr = ", ".join(operand(c) for c in self._columns)
         if self._distinct:
             expr = f"DISTINCT {expr}"
 
@@ -270,7 +270,7 @@ class JsonArrayAgg(Function):
         self._limit = limit
 
     def __str__(self) -> str:
-        expr = str(self._column)
+        expr = operand(self._column)
         if self._distinct:
             expr = f"DISTINCT {expr}"
 
