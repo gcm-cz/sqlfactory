@@ -7,6 +7,7 @@ on demand or in your code.
 from sqlfactory.func import (
     agg,
     base,
+    cast,
     control,
     datetime,
     enc,
@@ -23,6 +24,7 @@ from sqlfactory.func import (
 __all__ = [
     "agg",
     "base",
+    "cast",
     "control",
     "datetime",
     "enc",
