@@ -158,3 +158,31 @@
     assert_type(Select(table="test").join(u, alias="u", on=Eq("u.a", Column("test.a"))), Select)
     assert_type(Select(table="test").left_join(w, alias="w"), Select)
     Exists(Column("a"))  # E: Argument 1 to "Exists" has incompatible type "Column"; expected "Query"  [arg-type]
+- case: cast_target_type_is_static
+  main: |
+    from sqlfactory import Column
+    from sqlfactory.func.cast import Cast, CastChar, CastDecimal, CastDouble, CastType, CastVarchar, Convert
+
+    Cast(Column("a"), CastType.UNSIGNED)
+    Cast(Column("a"), CastDecimal(10, 2))
+    Cast(Column("a"), CastChar(10, charset="utf8mb4", collate="utf8mb4_bin"))
+    Cast(Column("a"), CastVarchar(3, charset="latin1", binary=True))
+    Convert(Column("a"), CastType.DATE)
+    Convert(Column("a"), using="utf8mb4")
+    Cast(Column("a"), "UNSIGNED")
+    Cast(Column("a"), CastType.VARCHAR)
+    Cast(Column("a"), CastDouble(10))
+    CastChar(collate="utf8mb4_bin", binary=True)
+    Convert(Column("a"))
+  out: |
+    main:10: error: Argument 2 to "Cast" has incompatible type "str"; expected "CastType | CastBinary | CastChar | CastVarchar | CastNChar | CastDecimal | CastDouble | CastTime | CastDatetime | CastIntervalDaySecond"  [arg-type]
+    main:11: error: "type[CastType]" has no attribute "VARCHAR"  [attr-defined]
+    main:12: error: Missing positional argument "scale" in call to "CastDouble"  [call-arg]
+    main:13: error: No overload variant of "CastChar" matches argument types "str", "bool"  [call-overload]
+    main:13: note: Possible overload variants:
+    main:13: note:     def CastChar(self, length: int | None = ..., *, charset: str | None = ..., collate: str | None = ...) -> CastChar
+    main:13: note:     def CastChar(self, length: int | None = ..., *, charset: str | None = ..., binary: Literal[True]) -> CastChar
+    main:14: error: No overload variant of "Convert" matches argument type "Column"  [call-overload]
+    main:14: note: Possible overload variants:
+    main:14: note:     def Convert(self, expr: Statement | Any, type_: CastType | CastBinary | CastChar | CastVarchar | CastNChar | CastDecimal | CastDouble | CastTime | CastDatetime | CastIntervalDaySecond) -> Convert
+    main:14: note:     def Convert(self, expr: Statement | Any, *, using: str) -> Convert
