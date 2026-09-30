@@ -4,7 +4,21 @@ on demand or in your code.
 """
 
 # pylint: disable=redefined-builtin
-from sqlfactory.func import agg, base, control, datetime, enc, info, json, misc, numeric, spatial, str, window  # noqa: A004
+from sqlfactory.func import (
+    agg,
+    base,
+    control,
+    datetime,
+    enc,
+    geometry,
+    info,
+    json,
+    misc,
+    numeric,
+    spatial,
+    str,  # noqa: A004
+    window,
+)
 
 __all__ = [
     "agg",
@@ -12,6 +26,7 @@ __all__ = [
     "control",
     "datetime",
     "enc",
+    "geometry",
     "info",
     "json",
     "misc",
