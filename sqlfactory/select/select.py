@@ -18,10 +18,10 @@ from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
 from sqlfactory.select.column_list import ColumnList
 from sqlfactory.select.join import Join
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Query, Statement
 
 
-class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
+class Select(ExecutableStatement, Query, WithWhere, WithOrder, WithLimit, WithJoin):
     # pylint: disable=too-many-arguments  # Yes, SELECT is complex.
     """
     `SELECT` statement to create complex select queries.
@@ -55,6 +55,14 @@ class Select(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     ...         Aliased(Select(Aliased(Sum("price"), alias="price"), table="product_prices"), alias="t2")
     ...     ]
     ... )
+
+    A query used as a value (a scalar subquery) is parenthesised, as SQL writes it:
+
+    >>> from sqlfactory import Select, Eq
+    >>> from sqlfactory.func.agg import Max
+    >>>
+    >>> Select("id", table="orders", where=Eq("ts", Select(Max("ts"), table="orders")))
+    >>> "SELECT `id` FROM `orders` WHERE `ts` = (SELECT MAX(`ts`) FROM `orders`)"
 
     Known limitations:
     - JOINs are not checked for uniqueness, so it is possible to add same JOIN multiple times. For now, it is up to

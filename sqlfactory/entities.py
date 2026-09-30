@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from sqlfactory.statement import Raw, Statement
+from sqlfactory.statement import Raw, Statement, operand
 
 if TYPE_CHECKING:
     from sqlfactory.condition.in_condition import In  # pragma: nocover
@@ -124,8 +124,8 @@ class UnaryExpression(Expression):
         self.statement = statement
 
     def __str__(self) -> str:
-        stmt = self.statement if isinstance(self.statement, Statement) else self.dialect.placeholder
-        return f"({self.operator}{stmt!s})"
+        stmt = operand(self.statement) if isinstance(self.statement, Statement) else self.dialect.placeholder
+        return f"({self.operator}{stmt})"
 
     @property
     def args(self) -> list[Any]:
@@ -145,10 +145,10 @@ class BinaryExpression(Expression):
         self.right = right
 
     def __str__(self) -> str:
-        left = self.left if isinstance(self.left, Statement) else self.dialect.placeholder
-        right = self.right if isinstance(self.right, Statement) else self.dialect.placeholder
+        left = operand(self.left) if isinstance(self.left, Statement) else self.dialect.placeholder
+        right = operand(self.right) if isinstance(self.right, Statement) else self.dialect.placeholder
 
-        return f"({left!s} {self.operator} {right!s})"
+        return f"({left} {self.operator} {right})"
 
     @property
     def args(self) -> list[Any]:

@@ -94,6 +94,36 @@ class Statement(ABC):
         return self.__str__()
 
 
+class Query(Statement, ABC):
+    """
+    A query expression - `SELECT`, `UNION` and its variants, `WITH` - which `operand()` wraps in parentheses when it is
+    used as a value of another statement (a scalar subquery, a derived table, ...). Subclass it for your own statement
+    classes that render a query expression.
+    """
+
+
+def operand(statement: Statement) -> str:
+    """
+    Render `statement` as an operand of another statement - a function argument, either side of a comparison or of an
+    arithmetic operator, a value in `UPDATE ... SET`, an `ORDER BY` expression, a selected column, an aliased or joined
+    derived table, ... A `Query` is wrapped in parentheses, which is how SQL writes a subquery; any other statement
+    renders as is.
+
+    >>> operand(Column("a"))
+    >>> "`a`"
+
+    >>> operand(Select(Max("ts"), table="t"))
+    >>> "(SELECT MAX(`ts`) FROM `t`)"
+
+    Positions where a query is a statement body rather than a value (`INSERT ... SELECT`, the parts of a `UNION`,
+    a CTE, `IN (SELECT ...)`, `EXISTS (SELECT ...)`) render it themselves, and so does `str()` of the query itself.
+    """
+    if isinstance(statement, Query):
+        return f"({statement!s})"
+
+    return str(statement)
+
+
 class ConditionalStatement(ABC):
     # pylint: disable=too-few-public-methods  # As this is just an interface.
     """

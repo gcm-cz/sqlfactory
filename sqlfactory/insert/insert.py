@@ -10,7 +10,7 @@ from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.execute import ConditionalExecutableStatement
 from sqlfactory.insert.values import Values
 from sqlfactory.select import Select
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Insert(ConditionalExecutableStatement):
@@ -162,7 +162,7 @@ class Insert(ConditionalExecutableStatement):
         for column, stmt in kwargs.items():
             column_stmt = Column(column)
 
-            self._on_duplicate_key_update_set.append((column_stmt, str(stmt) if isinstance(stmt, Statement) else "%s"))
+            self._on_duplicate_key_update_set.append((column_stmt, operand(stmt) if isinstance(stmt, Statement) else "%s"))
             if isinstance(stmt, Statement):
                 self._on_duplicate_key_update_args.extend(stmt.args)
             elif not isinstance(stmt, Statement):
@@ -207,7 +207,7 @@ class Insert(ConditionalExecutableStatement):
 
                     for value in row:
                         if isinstance(value, Statement):
-                            row_placeholders.append(str(value))
+                            row_placeholders.append(operand(value))
                         else:
                             row_placeholders.append(self.dialect.placeholder)
 

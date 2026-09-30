@@ -3,7 +3,7 @@
 from typing import Any, TypeAlias
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class SimpleCondition(ConditionBase):
@@ -48,9 +48,9 @@ class SimpleCondition(ConditionBase):
 
     def __str__(self) -> str:
         if isinstance(self._value, Statement):
-            return f"{self._column!s} {self._operator} {self._value!s}"
+            return f"{operand(self._column)} {self._operator} {operand(self._value)}"
 
-        return f"{self._column!s} {self._operator} {self.dialect.placeholder}"
+        return f"{operand(self._column)} {self._operator} {self.dialect.placeholder}"
 
     def __bool__(self) -> bool:
         return True

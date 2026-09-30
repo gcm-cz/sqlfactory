@@ -4,7 +4,7 @@ from typing import Any, NoReturn
 
 from sqlfactory.condition.base import StatementOrColumn
 from sqlfactory.condition.like import Like
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class RLike(Like):
@@ -54,9 +54,9 @@ class RLike(Like):
 
     def __str__(self) -> str:
         if isinstance(self._value, Statement):
-            return f"{self._column!s}{' NOT' if self._negative else ''} RLIKE {self._value!s}"
+            return f"{operand(self._column)}{' NOT' if self._negative else ''} RLIKE {operand(self._value)}"
 
-        return f"{self._column!s}{' NOT' if self._negative else ''} RLIKE {self.dialect.placeholder}"
+        return f"{operand(self._column)}{' NOT' if self._negative else ''} RLIKE {self.dialect.placeholder}"
 
     def __invert__(self) -> "RLike":
         """

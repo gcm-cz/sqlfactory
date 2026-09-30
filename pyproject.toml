@@ -45,6 +45,7 @@ build-backend = "poetry.core.masonry.api"
 max-line-length = 130
 max-args = 8
 max-positional-arguments = 8
+max-parents = 8
 disable = [
     "missing-module-docstring",
     "too-few-public-methods",

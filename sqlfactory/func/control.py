@@ -5,7 +5,7 @@ from typing import Any, Self
 
 from sqlfactory.entities import Expression
 from sqlfactory.func.base import Function
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 # Sentinel to distinguish "not provided" from an explicit `None` value, as `None` is a legitimate CASE operand or
 # result (rendered as a bound NULL), while an omitted CASE operand or ELSE clause changes the rendered SQL.
@@ -156,7 +156,7 @@ class Case(Expression):
         return self
 
     def _render(self, value: Statement | Any) -> str:
-        return str(value) if isinstance(value, Statement) else self.dialect.placeholder
+        return operand(value) if isinstance(value, Statement) else self.dialect.placeholder
 
     @staticmethod
     def _arg(value: Statement | Any) -> list[Any]:

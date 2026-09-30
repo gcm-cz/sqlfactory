@@ -15,7 +15,7 @@ from typing import Any, ClassVar, Literal
 from sqlfactory.dialect import SQLDialect
 from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.func.base import Function
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 # A single (path, value) pair, as used by JSON_SET, JSON_INSERT, JSON_REPLACE, JSON_ARRAY_APPEND and JSON_ARRAY_INSERT.
 JsonPathValuePair = tuple[str | Statement, Statement | Any]
@@ -733,7 +733,7 @@ class JsonTable(Statement):
         self.columns: list[JsonTableColumnArg] = [column, *columns]
 
     def __str__(self) -> str:
-        doc = str(self.json_doc)
+        doc = operand(self.json_doc)
         path = str(self.path) if isinstance(self.path, Statement) else self.dialect.placeholder
         cols = ", ".join(str(column) for column in self.columns)
         return f"JSON_TABLE({doc}, {path} COLUMNS ({cols}))"

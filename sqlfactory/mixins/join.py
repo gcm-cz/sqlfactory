@@ -4,11 +4,10 @@ from typing import TYPE_CHECKING, Any, Collection, Self, overload
 
 from sqlfactory.condition import ConditionBase
 from sqlfactory.entities import Table
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Query, Statement, operand
 
 if TYPE_CHECKING:
     from sqlfactory.func.json import JsonTable  # pragma: no cover
-    from sqlfactory.select import Select  # pragma: no cover
 
 
 class Join(Statement):
@@ -25,7 +24,7 @@ class Join(Statement):
     >>> Join("table2", on=Eq("table1.id", "t2.id"), alias="t2")
     >>> "JOIN `table2` AS `t2` ON `table1`.`id` = `t2`.`id`"
 
-    With subquery:
+    With subquery (any `Query` - `Select`, `Union` and its variants, `With`):
 
     >>> from sqlfactory import Join, Eq, Select, Column
     >>> from sqlfactory.func.agg import Sum
@@ -43,9 +42,7 @@ class Join(Statement):
     Note that for subquery or JSON_TABLE join, alias must be always specified.
     """
 
-    def __init__(
-        self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
-    ) -> None:
+    def __init__(self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None) -> None:
         """
         :param table: Table to be joined
         :param on: ON condition
@@ -69,9 +66,8 @@ class Join(Statement):
         """Optional alias for the joined table."""
 
         from sqlfactory.func.json import JsonTable  # pylint: disable=import-outside-toplevel, cyclic-import
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
 
-        if isinstance(self.table, (Select, JsonTable)) and not self.alias:
+        if isinstance(self.table, (Query, JsonTable)) and not self.alias:
             raise AttributeError("When joining a subselect or JSON_TABLE, alias must be specified.")
 
     @property
@@ -83,13 +79,8 @@ class Join(Statement):
         return "JOIN"
 
     def __str__(self) -> str:
-        from sqlfactory.select import Select  # pylint: disable=import-outside-toplevel, cyclic-import
-
         if self.alias:
-            if isinstance(self.table, Select):
-                table = f"({self.table!s}) AS `{self.alias}`"
-            else:
-                table = f"{self.table!s} AS `{self.alias}`"
+            table = f"{operand(self.table)} AS `{self.alias}`"
         else:
             table = str(self.table)
 
@@ -225,7 +216,7 @@ class WithJoin:
         """Append JOIN clause to the query (any Join instance)."""
 
     @overload
-    def join(self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None) -> Self:
+    def join(self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None) -> Self:
         """
         Append JOIN clause to the query.
         JOIN `table` AS <alias> ON (<condition>)
@@ -239,7 +230,7 @@ class WithJoin:
         """
 
     def join(
-        self, table: str | Table | Join | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Join | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         """
         Append JOIN clause to the query.
@@ -265,19 +256,19 @@ class WithJoin:
         """Alias for join() to be more SQL-like with all capitals."""
 
     @overload
-    def JOIN(self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None) -> Self:
+    def JOIN(self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None) -> Self:
         # pylint: disable=invalid-name
         """Alias for join() to be more SQL-like with all capitals."""
 
     def JOIN(
-        self, table: str | Table | Select | Join | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Query | Join | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         # pylint: disable=invalid-name
         """Alias for join() to be more SQL-like with all capitals."""
         return self.join(table, on, alias)  # type: ignore[arg-type]  # mypy searches in overloads
 
     def left_join(
-        self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         """
         Append LEFT JOIN clause to the query.
@@ -292,14 +283,14 @@ class WithJoin:
         return self.join(LeftJoin(table, on, alias))
 
     def LEFT_JOIN(
-        self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         # pylint: disable=invalid-name
         """Alias for left_join() to be more SQL-like with all capitals."""
         return self.left_join(table, on, alias)
 
     def right_join(
-        self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         """
         Append RIGHT JOIN clause to the query.
@@ -314,7 +305,7 @@ class WithJoin:
         return self.join(RightJoin(table, on, alias))
 
     def RIGHT_JOIN(
-        self, table: str | Table | Select | JsonTable, on: ConditionBase | None = None, alias: str | None = None
+        self, table: str | Table | Query | JsonTable, on: ConditionBase | None = None, alias: str | None = None
     ) -> Self:
         # pylint: disable=invalid-name
         """Alias for right_join() to be more SQL-like with all capitals."""

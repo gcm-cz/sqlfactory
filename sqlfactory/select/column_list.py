@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Iterable, Self
 
 from sqlfactory.entities import Column, ColumnArg
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
@@ -112,7 +112,7 @@ class ColumnList(Statement, list[Statement]):  # type: ignore[misc]
         """
         Returns string representation of the column list usable for SELECT statement building.
         """
-        return ", ".join(map(str, self))
+        return ", ".join(map(operand, self))
 
     def __repr__(self) -> str:
         return "[" + ", ".join(map(repr, self)) + "]"

@@ -4,7 +4,7 @@ from typing import Any, NoReturn
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
 from sqlfactory.entities import Column
-from sqlfactory.statement import Statement
+from sqlfactory.statement import Statement, operand
 
 
 class Like(ConditionBase):
@@ -69,9 +69,9 @@ class Like(ConditionBase):
 
     def __str__(self) -> str:
         if isinstance(self._value, Statement):
-            return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self._value!s}"
+            return f"{operand(self._column)}{' NOT' if self._negative else ''} LIKE {operand(self._value)}"
 
-        return f"{self._column!s}{' NOT' if self._negative else ''} LIKE {self.dialect.placeholder}"
+        return f"{operand(self._column)}{' NOT' if self._negative else ''} LIKE {self.dialect.placeholder}"
 
     @property
     def args(self) -> list[Any]:
