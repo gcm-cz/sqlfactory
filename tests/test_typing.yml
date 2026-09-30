@@ -115,6 +115,33 @@
     
     assert_type(Select(table="test").where(Eq("id", 1)), Select)
     assert_type(Select(table="test").WHERE(Eq("id", 1)), Select)
+- case: aes_and_kdf_later_args_are_positionally_gated
+  main: |
+    from sqlfactory.func.enc import AesDecrypt, AesEncrypt, Kdf
+
+    AesEncrypt("value", "key")
+    AesEncrypt("value", "key", "iv")
+    AesEncrypt("value", "key", "iv", "aes-256-cbc")
+    AesDecrypt("value", "key", "iv", "aes-256-cbc")
+    Kdf("key", "salt")
+    Kdf("key", "salt", "info")
+    Kdf("key", "salt", "info", "hkdf")
+    Kdf("key", "salt", "info", "hkdf", 32)
+
+    AesEncrypt("value", "key", mode="aes-256-cbc")
+    Kdf("key", "salt", width=256)
+  out: |
+    main:12: error: No overload variant of "AesEncrypt" matches argument types "str", "str", "str"  [call-overload]
+    main:12: note: Possible overload variants:
+    main:12: note:     def AesEncrypt(self, value: Any, key: Any) -> AesEncrypt
+    main:12: note:     def AesEncrypt(self, value: Any, key: Any, iv: Any) -> AesEncrypt
+    main:12: note:     def AesEncrypt(self, value: Any, key: Any, iv: Any, mode: Any) -> AesEncrypt
+    main:13: error: No overload variant of "Kdf" matches argument types "str", "str", "int"  [call-overload]
+    main:13: note: Possible overload variants:
+    main:13: note:     def Kdf(self, key: Any, salt: Any) -> Kdf
+    main:13: note:     def Kdf(self, key: Any, salt: Any, info_or_iterations: Any) -> Kdf
+    main:13: note:     def Kdf(self, key: Any, salt: Any, info_or_iterations: Any, kdf_name: Literal['hkdf', 'pbkdf2_hmac'] | Statement | None) -> Kdf
+    main:13: note:     def Kdf(self, key: Any, salt: Any, info_or_iterations: Any, kdf_name: Literal['hkdf', 'pbkdf2_hmac'] | Statement | None, width: Any) -> Kdf
 - case: select_with_order
   main: |
     from sqlfactory import Select, Direction
