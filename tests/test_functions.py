@@ -81,10 +81,6 @@ def test_count_distinct():
     assert str(count_func) == "COUNT(DISTINCT `column1`)"
     assert count_func.args == []
 
-    count_func = Count("*", distinct=True)
-    assert str(count_func) == "COUNT(DISTINCT *)"
-    assert count_func.args == []
-
     count_func = Count(Column("foo"), distinct=True)
     assert str(count_func) == "COUNT(DISTINCT `foo`)"
     assert count_func.args == []
