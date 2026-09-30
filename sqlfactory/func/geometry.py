@@ -8,7 +8,7 @@ MariaDB does not check the geometry type for the ``*FromText`` / ``*FromWKB`` co
 intent; MariaDB does not enforce it.
 
 Spatial functions (relations, measurements, accessors, operations and output - ST_AsText, ST_AsGeoJSON, ST_GeoHash,
-ST_Buffer, ST_Union, and friends) are not part of this module; they live in a separate spatial-functions module.
+ST_Buffer, ST_Union, and friends) are not part of this module; they live in :mod:`sqlfactory.func.spatial`.
 """
 
 from typing import Any

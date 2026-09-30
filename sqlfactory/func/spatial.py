@@ -2,13 +2,13 @@
 Spatial functions (https://mariadb.com/kb/en/geographic-geometric-features/).
 
 Geometry *constructors* (POINT, ST_GeomFromText, ST_GeomFromWKB, ST_GeomFromGeoJSON, ...) are not here - they live
-in a separate geometry-constructors module, added by another change.
+in :mod:`sqlfactory.func.geometry`.
 """
 
 from typing import Any, overload
 
 from sqlfactory.entities import ColumnArg
-from sqlfactory.func.agg import AggregateFunction
+from sqlfactory.func.agg import DistinctAggregateFunction
 from sqlfactory.func.base import Function
 from sqlfactory.statement import Statement
 
@@ -793,7 +793,7 @@ class Validate(StValidate):
         self.function = "VALIDATE"
 
 
-class StCollect(AggregateFunction):
+class StCollect(DistinctAggregateFunction):
     """
     - ST_COLLECT(g)
     - ST_COLLECT(DISTINCT g)
