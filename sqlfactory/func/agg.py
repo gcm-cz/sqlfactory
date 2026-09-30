@@ -14,12 +14,25 @@ from sqlfactory.statement import Statement
 class AggregateFunction(WindowableFunction):
     """Base class for aggregate functions"""
 
-    #: Whether MariaDB accepts ``<agg>(DISTINCT ...) OVER (...)``. It rejects it (error 1235) for every aggregate
-    #: except ``MIN`` and ``MAX``, where ``DISTINCT`` makes no difference to the result.
+    def __init__(self, agg: str, column: ColumnArg | Statement, *columns: ColumnArg | Statement):
+        super().__init__(agg, *(Column(c) if isinstance(c, str) else c for c in (column, *columns)))
+
+
+class DistinctAggregateFunction(AggregateFunction):
+    """
+    Base class for the aggregate functions MariaDB accepts ``DISTINCT`` for - ``<agg>([DISTINCT] <column>, ...)``.
+
+    Only those aggregates derive from it, so passing ``distinct=`` to any other one is a type error rather than
+    invalid SQL.
+    """
+
+    #: Whether MariaDB accepts ``<agg>(DISTINCT ...) OVER (...)``. It rejects it (error 1235) for ``AVG``, ``COUNT``
+    #: and ``SUM``; ``MIN`` and ``MAX`` (where ``DISTINCT`` makes no difference to the result) and ``ST_COLLECT``
+    #: allow it.
     _distinct_over: ClassVar[bool] = False
 
     def __init__(self, agg: str, column: ColumnArg | Statement, *columns: ColumnArg | Statement, distinct: bool = False):
-        super().__init__(agg, *(Column(c) if isinstance(c, str) else c for c in (column, *columns)))
+        super().__init__(agg, column, *columns)
         self._distinct = distinct
 
     def _args_placeholders(self) -> list[str]:
@@ -49,7 +62,7 @@ class AggregateFunction(WindowableFunction):
         return super().over(over, partition_by=partition_by, order=order, frame=frame)
 
 
-class Avg(AggregateFunction):
+class Avg(DistinctAggregateFunction):
     """
     ``AVG([DISTINCT] <column>)``
 
@@ -82,7 +95,7 @@ class BitXor(AggregateFunction):
         super().__init__("BIT_XOR", column)
 
 
-class Count(AggregateFunction):
+class Count(DistinctAggregateFunction):
     """
     - ``COUNT(<column>)``
     - ``COUNT(DISTINCT <column>)``
@@ -300,7 +313,7 @@ class JsonObjectAgg(Function):
         super().__init__("JSON_OBJECTAGG", key_stmt, value_stmt)
 
 
-class Max(AggregateFunction):
+class Max(DistinctAggregateFunction):
     """MAX([DISTINCT] <column>)"""
 
     _distinct_over = True
@@ -309,7 +322,7 @@ class Max(AggregateFunction):
         super().__init__("MAX", column, distinct=distinct)
 
 
-class Min(AggregateFunction):
+class Min(DistinctAggregateFunction):
     """MIN([DISTINCT] <column>)"""
 
     _distinct_over = True
@@ -349,7 +362,7 @@ class StddevSamp(AggregateFunction):
         super().__init__("STDDEV_SAMP", column)
 
 
-class Sum(AggregateFunction):
+class Sum(DistinctAggregateFunction):
     """
     ``SUM([DISTINCT] <column>)``
 

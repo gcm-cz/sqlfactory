@@ -132,3 +132,13 @@
 
     assert_type(Select(table="test").join(jt, alias="jt"), Select)
     assert_type(Select(table="test").JOIN(jt, alias="jt"), Select)
+- case: distinct_only_on_aggregates_that_take_it
+  main: |
+    from sqlfactory.func.agg import AggregateFunction, DistinctAggregateFunction, Std, Sum
+    from sqlfactory.func.spatial import StCollect
+
+    Sum("x", distinct=True)
+    StCollect("g", distinct=True)
+    DistinctAggregateFunction("SUM", "x", distinct=True)
+    Std("x", distinct=True)  # E: Unexpected keyword argument "distinct" for "Std"  [call-arg]
+    AggregateFunction("STD", "x", distinct=True)  # E: Unexpected keyword argument "distinct" for "AggregateFunction"  [call-arg]
