@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sqlfactory.entities import Column
+from sqlfactory.entities import Column, ColumnArg
 from sqlfactory.func.base import Function
 from sqlfactory.statement import Statement
 
@@ -15,30 +15,35 @@ class Benchmark(Function):
 
 
 class BinlogGtidPos(Function):
-    """Returns a string representation of the corresponding GTID position."""
+    """
+    `BINLOG_GTID_POS(binlog_filename, binlog_offset)`
 
-    def __init__(self) -> None:
-        super().__init__("BINLOG_GTID_POS")
+    Takes an old-style binary log position (a file name and a file offset) and returns a string representation
+    of the corresponding GTID position, or NULL if the position is not found in the current binlog.
+    """
+
+    def __init__(self, binlog_filename: Statement | Any, binlog_offset: Statement | Any) -> None:
+        super().__init__("BINLOG_GTID_POS", binlog_filename, binlog_offset)
 
 
 class Charset(Function):
-    """Returns the character set."""
+    """`CHARSET(str)` -- returns the character set of the string argument."""
 
-    def __init__(self) -> None:
-        super().__init__("CHARSET")
+    def __init__(self, expression: Statement | Any) -> None:
+        super().__init__("CHARSET", expression)
 
 
 class Coercibility(Function):
     """Returns the collation coercibility value of the string expression."""
 
-    def __init__(self, expression: str) -> None:
+    def __init__(self, expression: Statement | Any) -> None:
         super().__init__("COERCIBILITY", expression)
 
 
 class Collation(Function):
     """Collation of the string argument"""
 
-    def __init__(self, expression: str) -> None:
+    def __init__(self, expression: Statement | Any) -> None:
         super().__init__("COLLATION", expression)
 
 
@@ -98,10 +103,10 @@ class DecodeHistogram(Function):
 
 
 class Default(Function):
-    """Returns the default value for a table column"""
+    """`DEFAULT(col_name)` -- returns the default value for a table column."""
 
-    def __init__(self, column: Column) -> None:
-        super().__init__("DEFAULT", column)
+    def __init__(self, column: ColumnArg) -> None:
+        super().__init__("DEFAULT", Column(column) if isinstance(column, str) else column)
 
 
 class FoundRows(Function):
@@ -112,17 +117,36 @@ class FoundRows(Function):
 
 
 class LastInsertId(Function):
-    """Returns the value generated for an AUTO_INCREMENT column by the previous INSERT statement."""
+    """
+    `LAST_INSERT_ID()`, `LAST_INSERT_ID(expr)`
 
-    def __init__(self) -> None:
-        super().__init__("LAST_INSERT_ID")
+    With no argument, returns the first automatically generated AUTO_INCREMENT value from the most recent INSERT
+    statement. With `expr`, sets the value that the next call to `LAST_INSERT_ID()` returns, without touching any
+    AUTO_INCREMENT sequence -- used e.g. as `INSERT ... ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)` to recover
+    the id of the row that was updated, or `seq = LAST_INSERT_ID(seq + 1)` to hand out a value from a self-maintained
+    sequence column.
+    """
+
+    def __init__(self, expr: Statement | Any = None) -> None:
+        if expr is not None:
+            super().__init__("LAST_INSERT_ID", expr)
+        else:
+            super().__init__("LAST_INSERT_ID")
 
 
 class LastValue(Function):
     """Evaluates expression and returns the last."""
 
-    def __init__(self, expr: Statement, *exprs: Statement) -> None:
+    def __init__(self, expr: Statement | Any, *exprs: Statement | Any) -> None:
         super().__init__("LAST_VALUE", expr, *exprs)
+
+
+class RowCount(Function):
+    """`ROW_COUNT()` -- returns the number of rows updated, inserted or deleted by the preceding statement, or -1
+    if the preceding statement did not affect any rows the way those do (e.g. a SELECT)."""
+
+    def __init__(self) -> None:
+        super().__init__("ROW_COUNT")
 
 
 class RowNumber(Function):
