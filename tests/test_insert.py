@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import INSERT, Column, Insert, Values, Select, Eq, SELECT
+from sqlfactory import INSERT, Column, Insert, MySQLDialect, OracleSQLDialect, Values, Select, Eq, SELECT
 from sqlfactory.func.control import IfNull
 from sqlfactory.func.datetime import Now
 from sqlfactory.func.str import Concat
@@ -46,6 +46,51 @@ def test_insert_on_duplicate_key_update_with_args():
     assert (
         str(insert_condition)
         == "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) ON DUPLICATE KEY UPDATE `column1` = CONCAT(VALUES(`column1`), %s), `column2` = %s"
+    )
+    assert insert_condition.args == [1, 2, "foo", 4]
+
+
+def test_insert_on_duplicate_key_update_oracle_dialect():
+    """Locks args/placeholder order under OracleSQLDialect's numbered, stateful placeholders -- the same bug class
+    the aggregate DISTINCT had: ON_DUPLICATE_KEY_UPDATE's placeholders must be rendered lazily at str() time (in
+    the dialect active then), not baked in eagerly (as a hard-coded "%s") at on_duplicate_key_update() call time.
+    """
+    insert_condition = (
+        Insert.into("table")("column1", "column2")
+        .values((1, 2))
+        .on_duplicate_key_update(column1=Concat(Values("column1"), "foo"), column2=4)
+    )
+
+    with OracleSQLDialect():
+        assert str(insert_condition) == (
+            'INSERT INTO "table" ("column1", "column2") VALUES (:1, :2) '
+            'ON DUPLICATE KEY UPDATE "column1" = CONCAT(VALUES("column1"), :3), "column2" = :4'
+        )
+        assert insert_condition.args == [1, 2, "foo", 4]
+
+
+def test_insert_on_duplicate_key_update_dialect_switched_after_construction():
+    """Regression: previously, on_duplicate_key_update() rendered its plain-value placeholder as a hard-coded
+    "%s" and any Statement value via operand() immediately when called, freezing both to whichever dialect was
+    active at that point. Switching the statement's dialect afterwards must still be honoured when str() is
+    finally called."""
+    insert_condition = (
+        Insert("table", dialect=OracleSQLDialect())("column1", "column2")
+        .values((1, 2))
+        .on_duplicate_key_update(column1=Concat(Values("column1"), "foo"), column2=4)
+    )
+
+    assert str(insert_condition) == (
+        'INSERT INTO "table" ("column1", "column2") VALUES (:1, :2) '
+        'ON DUPLICATE KEY UPDATE "column1" = CONCAT(VALUES("column1"), :3), "column2" = :4'
+    )
+    assert insert_condition.args == [1, 2, "foo", 4]
+
+    insert_condition.dialect = MySQLDialect()
+
+    assert str(insert_condition) == (
+        "INSERT INTO `table` (`column1`, `column2`) VALUES (%s, %s) "
+        "ON DUPLICATE KEY UPDATE `column1` = CONCAT(VALUES(`column1`), %s), `column2` = %s"
     )
     assert insert_condition.args == [1, 2, "foo", 4]
 
