@@ -14,8 +14,6 @@ from sqlfactory.statement import Statement, operand
 
 
 class Insert(ConditionalExecutableStatement):
-    # pylint: disable=too-many-instance-attributes
-
     """
     INSERT statement
 
@@ -59,8 +57,7 @@ class Insert(ConditionalExecutableStatement):
         self._columns: list[Column] = []
         self._values: list[Collection[Any]] = []
         self._select: Select | None = None
-        self._on_duplicate_key_update_set: list[tuple[Column, str]] = []
-        self._on_duplicate_key_update_args: list[Any] = []
+        self._on_duplicate_key_update_set: list[tuple[Column, Statement | Any]] = []
 
     @classmethod
     def into(cls, table: Table | str, *, ignore: bool = False, replace: bool = False) -> Self:
@@ -160,13 +157,7 @@ class Insert(ConditionalExecutableStatement):
         >>> )
         """
         for column, stmt in kwargs.items():
-            column_stmt = Column(column)
-
-            self._on_duplicate_key_update_set.append((column_stmt, operand(stmt) if isinstance(stmt, Statement) else "%s"))
-            if isinstance(stmt, Statement):
-                self._on_duplicate_key_update_args.extend(stmt.args)
-            elif not isinstance(stmt, Statement):
-                self._on_duplicate_key_update_args.append(stmt)
+            self._on_duplicate_key_update_set.append((Column(column), stmt))
 
         return self
 
@@ -217,7 +208,12 @@ class Insert(ConditionalExecutableStatement):
 
             if self._on_duplicate_key_update_set:
                 q.append("ON DUPLICATE KEY UPDATE")
-                q.append(", ".join([f"{update_set[0]!s} = {update_set[1]}" for update_set in self._on_duplicate_key_update_set]))
+                q.append(
+                    ", ".join(
+                        f"{column!s} = {operand(value) if isinstance(value, Statement) else self.dialect.placeholder}"
+                        for column, value in self._on_duplicate_key_update_set
+                    )
+                )
 
             return " ".join(q)
 
@@ -236,7 +232,11 @@ class Insert(ConditionalExecutableStatement):
                     elif not isinstance(v, Statement):
                         out.append(v)
 
-        out.extend(self._on_duplicate_key_update_args)
+        for _, value in self._on_duplicate_key_update_set:
+            if isinstance(value, Statement):
+                out.extend(value.args)
+            else:
+                out.append(value)
 
         return out
 
