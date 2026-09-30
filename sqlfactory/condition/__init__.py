@@ -4,6 +4,7 @@ from sqlfactory.condition.base import And, Condition, ConditionBase, Or
 from sqlfactory.condition.between import Between, NotBetween
 from sqlfactory.condition.exists import Exists, NotExists
 from sqlfactory.condition.in_condition import In, NotIn
+from sqlfactory.condition.is_json import IsJson, IsNotJson, JsonValueType
 from sqlfactory.condition.like import Like, NotLike
 from sqlfactory.condition.rlike import NotRLike, RLike
 from sqlfactory.condition.simple import (
@@ -34,6 +35,9 @@ __all__ = [
     "GreaterThanOrEquals",
     "Gt",
     "In",
+    "IsJson",
+    "IsNotJson",
+    "JsonValueType",
     "Le",
     "LessThan",
     "LessThanOrEquals",
