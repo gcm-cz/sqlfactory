@@ -10,6 +10,7 @@ from sqlfactory.mixins.join import WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
+from sqlfactory.select.aliased import Aliased, TableReference, table_reference
 from sqlfactory.select.join import Join
 
 
@@ -28,11 +29,27 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
     >>> from sqlfactory import Delete, Join, Eq
     >>> Delete("table", delete=["table"], join=[Join("table2", on=Eq("table.id", "table2.id"))], where=Eq("table2.value", 10))
     >>> "DELETE `table` FROM `table` JOIN `table2` ON `table`.`id` = `table2`.`id` WHERE `table2`.`value` = 10"
+
+    The table can be aliased. With JOINs, list the alias in `delete` (multi-table syntax, supported by MySQL and MariaDB):
+
+    >>> from sqlfactory import Delete, Aliased, Table, LeftJoin, Eq, Gt, Column, IsNotNull
+    >>> Delete(
+    ...     Aliased(Table("h"), alias="t"),
+    ...     delete=["t"],
+    ...     join=[LeftJoin("h", alias="x", on=Eq("x.grp", Column("t.grp")) & Gt("x.ver", Column("t.ver")))],
+    ...     where=IsNotNull("x.id"),
+    ... )
+    >>> "DELETE `t` FROM `h` AS `t` LEFT JOIN `h` AS `x` ON (`x`.`grp` = `t`.`grp` AND `x`.`ver` > `t`.`ver`) "
+    ... "WHERE `x`.`id` IS NOT NULL"
+
+    Without `delete`, an aliased table renders the single-table form `DELETE FROM <table> AS <alias> ...`, which not every
+    server accepts (MySQL supports it since 8.0.16, check your MariaDB version) - use the multi-table form above
+    (`delete=["<alias>"]`) for portability.
     """
 
     def __init__(
         self,
-        table: Table | str,
+        table: TableReference,
         where: ConditionBase | None = None,
         order: OrderArg | None = None,
         limit: Limit | None = None,
@@ -42,14 +59,14 @@ class Delete(ExecutableStatement, WithWhere, WithOrder, WithLimit, WithJoin):
         dialect: SQLDialect | None = None,
     ) -> None:
         """
-        :param table: Table to delete from
+        :param table: Table to delete from (name, `Table` or `Aliased(Table(...), alias=...)`).
         :param where: WHERE condition
         :param order: Ordering of matched rows, usefull when limiting number of deleted rows.
         :param limit: Limit number of deleted rows.
         """
         super().__init__(where=where, order=order, limit=limit, join=join, dialect=dialect)
 
-        self.table = table if isinstance(table, Table) else Table(table)
+        self.table: Table | Aliased = table_reference(table, "DELETE")
         """Main table to delete from."""
 
         if delete is not None and (not isinstance(delete, Collection) or isinstance(delete, (str, bytes))):

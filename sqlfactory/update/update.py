@@ -12,6 +12,7 @@ from sqlfactory.mixins.join import Join, WithJoin
 from sqlfactory.mixins.limit import Limit, WithLimit
 from sqlfactory.mixins.order import OrderArg, WithOrder
 from sqlfactory.mixins.where import WithWhere
+from sqlfactory.select.aliased import Aliased, TableReference, table_reference
 from sqlfactory.statement import Statement, operand
 
 
@@ -103,7 +104,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
     >>> from sqlfactory import Update, Join, Eq
     >>> upd = Update(
     ...     "table1",
-    ...     join=[Join("table2", Eq("table1.id", "table2.id"))],
+    ...     join=[Join("table2", Eq("table1.id", Column("table2.id")))],
     ...     set={"table1.value": "foo", "table2.value": "bar"}
     ... )
     >>> str(upd)
@@ -111,11 +112,43 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
     >>> upd.args
     ['foo', 'bar']
 
+    The target table can be aliased (`UPDATE <table> AS <alias>`, valid in single- and multi-table UPDATE in MySQL / MariaDB).
+    Once aliased, reference its columns through the alias:
+
+    >>> from sqlfactory import Update, Aliased, Table, Eq
+    >>> upd = Update(Aliased(Table("h"), alias="t"), set={"t.col": 1}, where=Eq("t.id", 5))
+    >>> str(upd)
+    'UPDATE `h` AS `t` SET `t`.`col` = %s WHERE `t`.`id` = %s'
+    >>> upd.args
+    [1, 5]
+
+    **Recipe - guarded UPDATE via self-join (anti-join):** to update only rows for which no "newer" row of the same table
+    exists, LEFT JOIN the target table to itself under an alias and keep the rows where the joined side is missing
+    (`WHERE x.id IS NULL`). The target may be aliased (below) or left unaliased (`Update("h", ...)`, referencing `h.<column>`);
+    the joined copy must be aliased. This form is valid in MySQL / MariaDB, whereas the same guard written as a subquery on the
+    target table (`WHERE NOT EXISTS (SELECT ... FROM h ...)`, `WHERE id IN (SELECT ... FROM h ...)`) is rejected with
+    error 1093 ("You can't specify target table 'h' for update in FROM clause").
+
+    >>> from sqlfactory import Update, Aliased, Table, LeftJoin, Eq, Gt, Column, IsNull
+    >>> upd = Update(
+    ...     Aliased(Table("h"), alias="t"),
+    ...     join=[LeftJoin("h", alias="x", on=Eq("x.grp", Column("t.grp")) & Gt("x.ver", Column("t.ver")))],
+    ...     set={"t.latest": True},
+    ...     where=IsNull("x.id"),
+    ... )
+    >>> str(upd)  # doctest: +NORMALIZE_WHITESPACE
+    'UPDATE `h` AS `t` LEFT JOIN `h` AS `x` ON (`x`.`grp` = `t`.`grp` AND `x`.`ver` > `t`.`ver`)
+     SET `t`.`latest` = %s WHERE `x`.`id` IS NULL'
+    >>> upd.args
+    [True]
+
+    Note: `Eq`, `Gt` and other conditions read a bare `str` as a column name on the left side, but bind it as a value on the
+    right side - hence `Column("t.grp")` above. See the package documentation for the full rule.
     """
 
     def __init__(
         self,
-        table: Table | str | Collection[Table | str],
+        table: TableReference | Collection[TableReference],
         *fields: UpdateColumn,
         join: Collection[Join] | None = None,
         set: Optional[Mapping[str | Column, Any]] = None,  # noqa: A002
@@ -126,7 +159,8 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
     ) -> None:
         # pylint: disable=redefined-builtin
         """
-        :param table: Table to update. Or multiple tables, if collection is used.
+        :param table: Table to update (name, `Table` or `Aliased(Table(...), alias=...)`). Or multiple tables, if collection is
+            used.
         :param fields: List of UpdateColumn instances containing columns to be updated. This is not very pleasant way
             to create the statement, use set() method instead.
         :param join: Optional join to update multiple tables.
@@ -138,10 +172,10 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
         """
         super().__init__(join=join, where=where, order=order, limit=limit, dialect=dialect)
 
-        if isinstance(table, (Table, str)):
-            table = [table]
+        # Elements are validated by table_reference(), so the collection itself does not need precise type here.
+        tables: Collection[Any] = [table] if isinstance(table, (str, Statement)) or not isinstance(table, Collection) else table
 
-        self.table = [t if isinstance(t, Table) else Table(t) for t in table]
+        self.table: list[Table | Aliased] = [table_reference(t, "UPDATE") for t in tables]
         """Tables that should be updated."""
 
         self.fields: list[UpdateColumn] = list(fields)

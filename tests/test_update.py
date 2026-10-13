@@ -1,6 +1,6 @@
 import pytest
 
-from sqlfactory import And, Column, Direction, Eq, Join, Limit, Table, Update
+from sqlfactory import Aliased, And, Column, Direction, Eq, Gt, IsNull, Join, LeftJoin, Limit, Table, Update
 from sqlfactory.func.str import Concat
 from sqlfactory.update.update import UPDATE, UpdateColumn
 
@@ -130,3 +130,65 @@ def test_update_join():
 
     assert str(update) == "UPDATE `table1` JOIN `table2` ON (`table1`.`id` = `table2`.`table1_id` AND `table2`.`id` = %s) SET `table1`.`column` = %s WHERE `table2`.`value` = %s"
     assert update.args == [3, "foo", 10]
+
+
+def test_update_aliased_table():
+    update = Update(Aliased(Table("h"), alias="t"), set={"t.col": "foo"}, where=Eq("t.id", 5))
+
+    assert str(update) == "UPDATE `h` AS `t` SET `t`.`col` = %s WHERE `t`.`id` = %s"
+    assert update.args == ["foo", 5]
+
+
+def test_update_aliased_table_with_database():
+    update = Update(Aliased(Table("db.h"), alias="t"), set={"t.col": 1})
+
+    assert str(update) == "UPDATE `db`.`h` AS `t` SET `t`.`col` = %s"
+    assert update.args == [1]
+
+
+def test_update_aliased_tables_in_collection():
+    update = Update(
+        [Aliased(Table("table1"), alias="a"), "table2"],
+        set={"a.column": "foo", "table2.column": "bar"},
+        where=Eq("a.id", Column("table2.id")),
+    )
+
+    assert str(update) == "UPDATE `table1` AS `a`, `table2` SET `a`.`column` = %s, `table2`.`column` = %s WHERE `a`.`id` = `table2`.`id`"
+    assert update.args == ["foo", "bar"]
+
+
+def test_update_self_join_guard():
+    """Guarded UPDATE: mark rows that have no newer row in the same group (anti-join on the target table itself)."""
+    update = Update(
+        Aliased(Table("h"), alias="t"),
+        join=[
+            LeftJoin(
+                "h",
+                alias="x",
+                on=And(Eq("x.grp", Column("t.grp")), Gt("x.version", Column("t.version")), Eq("x.kind", "a")),
+            )
+        ],
+        set={"t.is_latest": 1},
+        where=IsNull("x.id") & Eq("t.grp", 7),
+    )
+
+    assert str(update) == (
+        "UPDATE `h` AS `t` "
+        "LEFT JOIN `h` AS `x` ON (`x`.`grp` = `t`.`grp` AND `x`.`version` > `t`.`version` AND `x`.`kind` = %s) "
+        "SET `t`.`is_latest` = %s "
+        "WHERE (`x`.`id` IS NULL AND `t`.`grp` = %s)"
+    )
+    assert update.args == ["a", 1, 7]
+
+
+def test_update_aliased_table_with_order_and_limit():
+    update = Update(Aliased(Table("h"), alias="t"), set={"t.col": 1}, order=[("t.id", Direction.ASC)], limit=Limit(10))
+
+    assert str(update) == "UPDATE `h` AS `t` SET `t`.`col` = %s ORDER BY `t`.`id` ASC LIMIT %s"
+    assert update.args == [1, 10]
+
+
+@pytest.mark.parametrize("table", [123, [123], Column("h"), [Column("h")]])
+def test_update_invalid_table(table):
+    with pytest.raises(TypeError, match="Aliased"):
+        Update(table, set={"a": 1})
