@@ -233,6 +233,12 @@ from sqlfactory.condition import (
 from sqlfactory.delete import DELETE, Delete
 from sqlfactory.dialect import MySQLDialect, OracleSQLDialect, PostgreSQLDialect, SQLDialect, SQLiteDialect
 from sqlfactory.entities import Column, Table
+from sqlfactory.func.agg import Avg, Count, GroupConcat, Max, Min, Sum
+from sqlfactory.func.base import Function
+from sqlfactory.func.cast import Cast, CastType, Convert
+from sqlfactory.func.control import Case, Coalesce, If, IfNull, NullIf
+from sqlfactory.func.datetime import Now
+from sqlfactory.func.str import Concat, Lower, Upper
 from sqlfactory.func.window import (
     CumeDist,
     DenseRank,
@@ -378,6 +384,26 @@ __all__ = [  # noqa: RUF022
     "SQLiteDialect",
     "PostgreSQLDialect",
     "OracleSQLDialect",
+    # Commonly used functions (the full set lives in `sqlfactory.func.*`)
+    "Avg",
+    "Count",
+    "GroupConcat",
+    "Max",
+    "Min",
+    "Sum",
+    "Cast",
+    "CastType",
+    "Convert",
+    "Case",
+    "Coalesce",
+    "If",
+    "IfNull",
+    "NullIf",
+    "Concat",
+    "Lower",
+    "Upper",
+    "Now",
+    "Function",
     # Window functions
     "CumeDist",
     "DenseRank",

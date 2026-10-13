@@ -229,3 +229,8 @@
     Update([t, "other", Table("third")], set={"t.col": 1})
     Delete(t, delete=["t"])
     Update(1, set={"a": 1})  # E: Argument 1 to "Update" has incompatible type "int"; expected "Table | str | Aliased | Collection[Table | str | Aliased]"  [arg-type]
+- case: update_set_alias_accepts_column
+  main: |
+    from sqlfactory import Column, Now, Update
+
+    Update("t").SET(Column("t.a"), Now()).SET("b", 1)

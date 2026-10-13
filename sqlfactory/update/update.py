@@ -261,7 +261,7 @@ class Update(ConditionalExecutableStatement, WithWhere, WithLimit, WithOrder, Wi
         """
         return self.append(UpdateColumn(field, value))
 
-    def SET(self, field: str, value: Any) -> Self:
+    def SET(self, field: ColumnArg, value: Statement | Any) -> Self:
         # pylint: disable=invalid-name
         """Alias for `Update.set()` for better SQL compatibility (SQL is often written in all caps)."""
         return self.set(field, value)
