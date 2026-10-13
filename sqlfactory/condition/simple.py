@@ -3,7 +3,7 @@
 from typing import Any, TypeAlias
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
-from sqlfactory.statement import Statement, operand
+from sqlfactory.statement import Statement, ValueArg, operand
 
 
 class SimpleCondition(ConditionBase):
@@ -15,7 +15,7 @@ class SimpleCondition(ConditionBase):
     And if you want literal value on the left side, you must explicitely use `Value()` function.
     """
 
-    def __init__(self, column: StatementOrColumn, operator: str, value: Statement | Any) -> None:
+    def __init__(self, column: StatementOrColumn, operator: str, value: ValueArg) -> None:
         # pylint: disable=duplicate-code   # It does not make sense to generalize two-row statement used on two places.
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
@@ -116,7 +116,7 @@ class Equals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg | None) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -187,7 +187,7 @@ class NotEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg | None) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -246,7 +246,7 @@ class GreaterThanOrEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -302,7 +302,7 @@ class GreaterThan(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -358,7 +358,7 @@ class LessThanOrEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -414,7 +414,7 @@ class LessThan(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).

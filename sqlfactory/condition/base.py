@@ -10,12 +10,23 @@ from typing import Any, Self, overload
 from sqlfactory.statement import ConditionalStatement, Raw, Statement
 
 StatementOrColumn = str | Statement
+"""
+Left-hand operand of a condition: a bare `str` is a column name (converted to `Column`), any `Statement` is used as is. Wrap
+a literal in `Value(...)` to put a value on the left side. Compare with `sqlfactory.statement.ValueArg`.
+"""
 
 
 class ConditionBase(Statement, ConditionalStatement, ABC):
     """
     Generic condition interface, that can be chained with other conditions using `&` or `|` operators. All condition
     classes should inherit from this one, as there are checks through the library for instances of this class.
+
+    **Bare `str` rule:** the first (left-hand) argument of a condition is a column - `Eq("t.a", 5)` renders
+    ``` `t`.`a` = %s ```. Every other argument (the compared value, `In` list items, `Between` bounds, `Like` pattern) is a
+    value - `Eq("t.a", "t.b")` renders ``` `t`.`a` = %s ``` with args `["t.b"]`. Use `Column("t.b")` to compare two columns
+    and `Value(...)` to put a literal on the left side. Scalar functions (`sqlfactory.func.base.Function`) bind a bare `str`
+    as a value, too. `None` as the compared value of `Eq` / `Ne` turns into `IS %s` / `IS NOT %s` - prefer `IsNull` /
+    `IsNotNull`.
 
     For example:
 

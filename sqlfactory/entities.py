@@ -214,6 +214,17 @@ class Column(Expression):
     >>> from sqlfactory import Column
     >>> Column("table.column") + 5
     >>> # Produces Expression("`table`.`column` + %s", 5)
+
+    **Unsigned subtraction:** in MySQL / MariaDB, subtracting integers where either operand is `UNSIGNED` (e.g.
+    `BIGINT UNSIGNED` columns) produces an unsigned result, so `Column("a") - Column("b")` fails with error 1690
+    ("BIGINT UNSIGNED value is out of range") whenever `b > a`. Cast the operands - casting the result is too late:
+
+    >>> from sqlfactory import Cast, CastType, Column
+    >>> Cast(Column("a"), CastType.SIGNED) - Cast(Column("b"), CastType.SIGNED)
+    >>> "(CAST(`a` AS SIGNED) - CAST(`b` AS SIGNED))"
+
+    (Values above 2^63 - 1 do not fit `SIGNED`. Alternatively, the `NO_UNSIGNED_SUBTRACTION` SQL mode makes the result
+    signed.)
     """
 
     def __init__(self, column: str) -> None:
@@ -352,3 +363,7 @@ class Table(Statement):
 
 # Alias for column that can be passed as instance of column or as string.
 ColumnArg = Column | str
+"""
+Argument used as a **column**: a bare `str` is a column name (`"table.column"`), converted to `Column`. Compare with
+`sqlfactory.statement.ValueArg`, where a bare `str` is bound as a value.
+"""

@@ -68,9 +68,9 @@ def test_common_builders_are_reexported(name, home):
 def test_top_level_import_works_for_common_builders():
     from sqlfactory import Cast, CastType, Column, Count, Select
 
-    assert str(Select(Count("id"), Cast(Column("a") - Column("b"), CastType.SIGNED), table="t")) == (
-        "SELECT COUNT(`id`), CAST((`a` - `b`) AS SIGNED) FROM `t`"
-    )
+    # The documented workaround for subtracting UNSIGNED columns (MySQL error 1690): cast the operands.
+    diff = Cast(Column("a"), CastType.SIGNED) - Cast(Column("b"), CastType.SIGNED)
+    assert str(Select(Count("id"), diff, table="t")) == "SELECT COUNT(`id`), (CAST(`a` AS SIGNED) - CAST(`b` AS SIGNED)) FROM `t`"
 
 
 def _all_modules() -> list[str]:
