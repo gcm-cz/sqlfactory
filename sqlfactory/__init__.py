@@ -24,7 +24,8 @@ query.where(Eq("id", 1))
 **Note:** Multiple where method calls are chained using AND operator. If you need to use OR operator, you can use `Or` class.
 
 **Note:** `Eq` and other conditions expects column name as first argument and value as second argument. If you need to compare
-column with another column, you can use `Column` class as a second argument.
+column with another column, you can use `Column` class as a second argument. See "Rules and pitfalls" below for the
+complete rule.
 
 **Note:** Method chaining modifies the original statement in place, it does not return copy.
 
@@ -161,6 +162,90 @@ query = Delete("products", where=Eq("enabled", False))
 - Developer who knows SQL should understand query written using SQLFactory without explicitly knowing SQLFactory API. Library
   tries to mimic SQL syntax as much as possible.
 
+## Rules and pitfalls
+
+### Bare `str`: column or value?
+
+The meaning of a plain `str` depends on *where* you pass it, never on its content. Getting it wrong produces valid SQL
+that silently compares against a string literal.
+
+| Where the `str` goes | It is a | Example | Renders (args) |
+|---|---|---|---|
+| condition, first argument (1) | column | `Eq("t.a", 5)` | `` `t`.`a` = %s `` (`[5]`) |
+| condition, other arguments (2) | value | `Eq("t.a", "t.b")` | `` `t`.`a` = %s `` (`["t.b"]`) |
+| scalar function argument (3) | value | `Lower("x")` | `LOWER(%s)` (`["x"]`) |
+| aggregate / window function column (4) | column | `Count("id")` | ``COUNT(`id`)`` |
+| select column, group / order by, `set` key | column | `Select("a", table="t")` | ``SELECT `a` FROM `t` `` |
+| table, join, `Update` / `Delete` target | table | `Join("t2")` | ``JOIN `t2` `` |
+| `Update.set` / `Insert.values` value | value | `Update("t").set("a", "b")` | ``UPDATE `t` SET `a` = %s`` (`["b"]`) |
+| item of `And` / `Or` | raw SQL | `And("a = 1")` | `a = 1` |
+
+1. `Eq`, `Ne`, `Gt`, `Ge`, `Lt`, `Le`, `In`, `Like`, `RLike`, `Between`, `IsNull`, `IsJson`, ...
+2. The compared value, `In` items, `Between` bounds, `Like` pattern.
+3. `Lower`, `Concat`, `Coalesce`, `If`, `Cast`, `JsonValue`, ..., and `Case`.
+4. `Count`, `Sum`, `Max`, `GroupConcat`, `Lag`, ..., and window `partition_by`.
+
+To override: wrap a column name in `Column("t.b")` (e.g. `Eq("t.a", Column("t.b"))`, `Lower(Column("t.x"))`), a literal
+in `Value(...)` (e.g. `Eq(Value(10), Column("t.a"))`), and raw SQL in `Raw(...)`.
+
+The type hints say the same: parameters typed `ColumnArg` / `StatementOrColumn` read a `str` as a column name, parameters
+typed `Statement | Any` (alias `ValueArg`) bind it as a value.
+
+### `None` in `Eq` / `Ne`: use `IsNull` / `IsNotNull`
+
+`Eq("a", None)` silently switches to `IS` and renders `` `a` IS %s `` with args `[None]` (`Ne` renders `IS NOT %s`). That
+works only when the driver substitutes placeholders on the client side, and hides the intent when the value is a variable
+that happens to be `None`. Say it explicitly instead:
+
+```python
+from sqlfactory import IsNull, IsNotNull
+
+IsNull("t.deleted_at")     # `t`.`deleted_at` IS NULL
+IsNotNull("t.deleted_at")  # `t`.`deleted_at` IS NOT NULL
+```
+
+### Subtracting `UNSIGNED` columns
+
+In MySQL / MariaDB, integer subtraction where either operand is `UNSIGNED` (e.g. `BIGINT UNSIGNED`) has an unsigned
+result, so `Column("a") - Column("b")` fails with error 1690 ("BIGINT UNSIGNED value is out of range") whenever `b > a`.
+Cast the operands, not the result (the subtraction fails before an outer cast applies):
+
+```python
+from sqlfactory import Cast, CastType, Column
+
+Cast(Column("a"), CastType.SIGNED) - Cast(Column("b"), CastType.SIGNED)
+# (CAST(`a` AS SIGNED) - CAST(`b` AS SIGNED))
+```
+
+Values above 2^63 - 1 do not fit `SIGNED`; alternatively, the `NO_UNSIGNED_SUBTRACTION` SQL mode makes the result signed.
+
+### Aliased UPDATE / DELETE target and the self-join guard
+
+`Update` and `Delete` accept an aliased target, `Aliased(Table("h"), alias="t")`; reference its columns through the alias.
+To update only rows that have no "newer" row of the same table, LEFT JOIN the table to itself and keep the rows without a
+match. MySQL / MariaDB reject the equivalent subquery on the target table (error 1093, "You can't specify target table
+for update in FROM clause"), the join form works:
+
+```python
+from sqlfactory import Aliased, Column, Eq, Gt, IsNull, LeftJoin, Table, Update
+
+Update(
+    Aliased(Table("h"), alias="t"),
+    join=[LeftJoin("h", alias="x", on=Eq("x.grp", Column("t.grp")) & Gt("x.ver", Column("t.ver")))],
+    set={"t.latest": True},
+    where=IsNull("x.id"),
+)
+# UPDATE `h` AS `t` LEFT JOIN `h` AS `x` ON (`x`.`grp` = `t`.`grp` AND `x`.`ver` > `t`.`ver`)
+# SET `t`.`latest` = %s WHERE `x`.`id` IS NULL
+```
+
+### Where things live
+
+The statements, conditions and the commonly used functions (`Count`, `Sum`, `Avg`, `Max`, `Min`, `GroupConcat`, `Cast`,
+`CastType`, `Convert`, `Case`, `Coalesce`, `If`, `IfNull`, `NullIf`, `Concat`, `Lower`, `Upper`, `Now`, window
+functions, `Function` for custom ones) are importable from `sqlfactory` directly. The complete set of functions lives in
+`sqlfactory.func.*` (`sqlfactory.func.str`, `sqlfactory.func.json`, `sqlfactory.func.datetime`, ...).
+
 ## SQL Dialect
 
 SQLFactory supports multiple SQL dialects. By default, it uses MySQL / MariaDB dialect, but it can be changed to SQLite,
@@ -212,6 +297,8 @@ from sqlfactory.condition import (
     In,
     IsJson,
     IsNotJson,
+    IsNotNull,
+    IsNull,
     JsonValueType,
     Le,
     LessThan,
@@ -231,6 +318,12 @@ from sqlfactory.condition import (
 from sqlfactory.delete import DELETE, Delete
 from sqlfactory.dialect import MySQLDialect, OracleSQLDialect, PostgreSQLDialect, SQLDialect, SQLiteDialect
 from sqlfactory.entities import Column, Table
+from sqlfactory.func.agg import Avg, Count, GroupConcat, Max, Min, Sum
+from sqlfactory.func.base import Function
+from sqlfactory.func.cast import Cast, CastType, Convert
+from sqlfactory.func.control import Case, Coalesce, If, IfNull, NullIf
+from sqlfactory.func.datetime import Now
+from sqlfactory.func.str import Concat, Lower, Upper
 from sqlfactory.func.window import (
     CumeDist,
     DenseRank,
@@ -330,6 +423,8 @@ __all__ = [  # noqa: RUF022
     "INTERSECT_DISTINCT",
     "IsJson",
     "IsNotJson",
+    "IsNotNull",
+    "IsNull",
     "Join",
     "JsonValueType",
     "Le",
@@ -374,6 +469,26 @@ __all__ = [  # noqa: RUF022
     "SQLiteDialect",
     "PostgreSQLDialect",
     "OracleSQLDialect",
+    # Commonly used functions (the full set lives in `sqlfactory.func.*`)
+    "Avg",
+    "Count",
+    "GroupConcat",
+    "Max",
+    "Min",
+    "Sum",
+    "Cast",
+    "CastType",
+    "Convert",
+    "Case",
+    "Coalesce",
+    "If",
+    "IfNull",
+    "NullIf",
+    "Concat",
+    "Lower",
+    "Upper",
+    "Now",
+    "Function",
     # Window functions
     "CumeDist",
     "DenseRank",

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypeAlias
 
 from sqlfactory.dialect import MySQLDialect, SQLDialect
 
@@ -164,7 +164,12 @@ class Raw(Statement):
 
 class Value(Statement):
     """
-    To provide literal value for places expecting statement, you can use `Value` class.
+    To provide literal value for places expecting statement, you can use `Value` class. Needed where a bare `str` would be
+    read as a column name, such as the left side of a condition:
+
+    >>> from sqlfactory import Eq, Value, Column
+    >>> Eq(Value(10), Column("a"))
+    >>> "%s = `a`"  # args [10]
     """
 
     def __init__(self, value: Any) -> None:
@@ -178,3 +183,11 @@ class Value(Statement):
     @property
     def args(self) -> list[Any]:
         return [self._value]
+
+
+ValueArg: TypeAlias = Statement | Any
+"""
+Argument used as a **value**: anything that is not a `Statement` - including a bare `str` - is bound as a placeholder
+argument (`Lower("x")` renders `LOWER(%s)` with args `["x"]`). To pass a column, wrap it in `Column(...)`. Compare with
+`sqlfactory.entities.ColumnArg` / `sqlfactory.condition.base.StatementOrColumn`, where a bare `str` is a column name.
+"""

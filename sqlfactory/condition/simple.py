@@ -3,7 +3,7 @@
 from typing import Any, TypeAlias
 
 from sqlfactory.condition.base import ConditionBase, StatementOrColumn
-from sqlfactory.statement import Statement, operand
+from sqlfactory.statement import Statement, ValueArg, operand
 
 
 class SimpleCondition(ConditionBase):
@@ -15,7 +15,7 @@ class SimpleCondition(ConditionBase):
     And if you want literal value on the left side, you must explicitely use `Value()` function.
     """
 
-    def __init__(self, column: StatementOrColumn, operator: str, value: Statement | Any) -> None:
+    def __init__(self, column: StatementOrColumn, operator: str, value: ValueArg) -> None:
         # pylint: disable=duplicate-code   # It does not make sense to generalize two-row statement used on two places.
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
@@ -67,6 +67,12 @@ class Equals(SimpleCondition):
 
     ```Eq("column1", "column2")``` produces ``` `column1` = %s ``` with arguments ```["column2"]```.
 
+    **Warning - `None`:** `Eq(column, None)` silently switches the operator to `IS` and renders ``` `column` IS %s ``` with
+    argument `[None]`. That becomes `IS NULL` only when the driver substitutes placeholders on the client side (as the common
+    MySQL / MariaDB drivers do); with server-side prepared statements (or a database that does not accept a placeholder after
+    `IS`) it fails. It also hides the intent when the value is a variable that happens to be `None`. Use the explicit
+    `IsNull(column)` instead (renders a literal ``` `column` IS NULL ``` without arguments).
+
     You can also use column's operator overloading:
 
     ```python
@@ -86,9 +92,9 @@ class Equals(SimpleCondition):
         ```
     - Comparison column to None
         ```python
-        # `column` IS NULL
+        # `column` IS NULL (once the driver substitutes the None argument)
         Eq("column", None)
-        "`column` IS NULL"
+        "`column` IS %s", [None]
         ```
     - Comparison of generic statement to value
         ```python
@@ -98,9 +104,9 @@ class Equals(SimpleCondition):
         ```
     - Comparison of generic statement to None
         ```python
-        # <statement> IS NULL
+        # <statement> IS NULL (once the driver substitutes the None argument)
         Eq(Date(), None)
-        "DATE() IS NULL"
+        "DATE() IS %s", [None]
         ```
     - Comparison of statement to statement
         ```python
@@ -110,7 +116,7 @@ class Equals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg | None) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -131,6 +137,12 @@ class NotEquals(SimpleCondition):
     (`Ne(Value(10), "column")` to produce ``` %s != `column` ``` (with args `[10]`)).
 
     ```Ne("column1", "column2")``` produces ``` `column1` != %s ``` with arguments ```["column2"]```.
+
+    **Warning - `None`:** `Ne(column, None)` silently switches the operator to `IS NOT` and renders
+    ``` `column` IS NOT %s ``` with argument `[None]`. That becomes `IS NOT NULL` only when the driver substitutes placeholders
+    on the client side (as the common MySQL / MariaDB drivers do); with server-side prepared statements (or a database that
+    does not accept a placeholder after `IS`) it fails. It also hides the intent when the value is a variable that happens to
+    be `None`. Use the explicit `IsNotNull(column)` instead (renders a literal ``` `column` IS NOT NULL ``` without arguments).
 
     You can also use column's operator overloading:
 
@@ -157,15 +169,15 @@ class NotEquals(SimpleCondition):
         ```
     - Column is not None
         ```python
-        # `column` IS NOT NULL
+        # `column` IS NOT NULL (once the driver substitutes the None argument)
         Ne("column", None)
-        "`column` IS NOT NULL"
+        "`column` IS NOT %s", [None]
         ```
     - Statement is not None
         ```python
-        # <statement> IS NOT NULL
+        # <statement> IS NOT NULL (once the driver substitutes the None argument)
         Ne(Date(), None)
-        "DATE() IS NOT NULL"
+        "DATE() IS NOT %s", [None]
         ```
     - Statement not equals statement
         ```python
@@ -175,7 +187,7 @@ class NotEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | None | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg | None) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -234,7 +246,7 @@ class GreaterThanOrEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -290,7 +302,7 @@ class GreaterThan(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -346,7 +358,7 @@ class LessThanOrEquals(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).
@@ -402,7 +414,7 @@ class LessThan(SimpleCondition):
         ```
     """
 
-    def __init__(self, column: StatementOrColumn, value: Any | Statement) -> None:
+    def __init__(self, column: StatementOrColumn, value: ValueArg) -> None:
         """
         :param column: Column to compare (string or instance of Column) or Statement to use on left side of comparison.
         :param value: Value to compare column value to (or statement to use on right side of comparison).

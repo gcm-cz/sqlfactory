@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sqlfactory.entities import Column, ColumnArg
+from sqlfactory.entities import Column, ColumnArg, Table
 from sqlfactory.statement import Statement, operand
 
 
@@ -84,3 +84,23 @@ class SelectColumn(Aliased):
             return f"DISTINCT {super().__str__()}"
 
         return super().__str__()
+
+
+TableReference = Table | str | Aliased
+"""Target table of `UPDATE` / `DELETE`: table name, `Table` instance or aliased table (`Aliased(Table("t"), alias="a")`)."""
+
+
+def table_reference(table: TableReference, statement: str) -> Table | Aliased:
+    """
+    Normalise target table of `UPDATE` / `DELETE` statement (str is converted to `Table`).
+    @private
+    """
+    if isinstance(table, str):
+        return Table(table)
+
+    if isinstance(table, (Table, Aliased)):
+        return table
+
+    raise TypeError(
+        f"{statement} target table must be a table name (str), Table or Aliased(Table(...), alias=...), got {table!r}."
+    )

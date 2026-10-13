@@ -220,3 +220,17 @@
     main:14: note: Possible overload variants:
     main:14: note:     def Convert(self, expr: Statement | Any, type_: CastType | CastBinary | CastChar | CastVarchar | CastNChar | CastDecimal | CastDouble | CastTime | CastDatetime | CastIntervalDaySecond) -> Convert
     main:14: note:     def Convert(self, expr: Statement | Any, *, using: str) -> Convert
+- case: update_and_delete_accept_aliased_target_table
+  main: |
+    from sqlfactory import Aliased, Delete, Table, Update
+
+    t = Aliased(Table("h"), alias="t")
+    Update(t, set={"t.col": 1})
+    Update([t, "other", Table("third")], set={"t.col": 1})
+    Delete(t, delete=["t"])
+    Update(1, set={"a": 1})  # E: Argument 1 to "Update" has incompatible type "int"; expected "Table | str | Aliased | Collection[Table | str | Aliased]"  [arg-type]
+- case: update_set_alias_accepts_column
+  main: |
+    from sqlfactory import Column, Now, Update
+
+    Update("t").SET(Column("t.a"), Now()).SET("b", 1)
