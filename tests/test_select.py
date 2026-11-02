@@ -316,6 +316,42 @@ def test_select_for_update():
     assert sel.args == []
 
 
+def test_select_straight_join():
+    sel = Select("a", "b", table=["t1", "t2"], straight_join=True)
+    assert str(sel) == "SELECT STRAIGHT_JOIN `a`, `b` FROM `t1`, `t2`"
+    assert sel.args == []
+
+
+def test_select_straight_join_default_off():
+    sel = Select("a", table="tbl", straight_join=False)
+    assert str(sel) == "SELECT `a` FROM `tbl`"
+
+
+def test_select_straight_join_star():
+    sel = Select(table="tbl", straight_join=True)
+    assert str(sel) == "SELECT STRAIGHT_JOIN * FROM `tbl`"
+
+
+def test_select_straight_join_full():
+    sel = Select(
+        SelectColumn("t1.a", distinct=True),
+        table="t1",
+        straight_join=True,
+        for_update=True,
+    ).join("t2", on=Eq("t1.id", Column("t2.id")))
+    sel.where(Eq("t1.b", 1)).limit(5)
+
+    assert str(sel) == (
+        "SELECT STRAIGHT_JOIN DISTINCT `t1`.`a` FROM `t1` JOIN `t2` ON `t1`.`id` = `t2`.`id` "
+        "WHERE `t1`.`b` = %s LIMIT %s FOR UPDATE"
+    )
+    assert sel.args == [1, 5]
+
+
+def test_select_straight_join_no_columns_no_table():
+    assert str(Select(straight_join=True)) == ""
+
+
 def test_distinct():
     col = SelectColumn("table.column", distinct=True)
     assert str(col) == "DISTINCT `table`.`column`"
