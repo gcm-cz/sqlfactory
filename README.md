@@ -26,6 +26,7 @@ API documentation with more examples is available at [GitLab Pages](https://gcm-
     - Having
     - Ordering
     - Limit
+    - `STRAIGHT_JOIN` modifier
     - Common Table Expressions (CTE)
 - `INSERT` statements
     - Multiple rows at once

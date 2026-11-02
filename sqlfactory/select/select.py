@@ -82,6 +82,7 @@ class Select(ExecutableStatement, Query, WithWhere, WithOrder, WithLimit, WithJo
         order: OrderArg | None = None,
         limit: Limit | None = None,
         for_update: bool = False,
+        straight_join: bool = False,
         dialect: SQLDialect | None = None,
     ) -> None:
         """
@@ -95,6 +96,8 @@ class Select(ExecutableStatement, Query, WithWhere, WithOrder, WithLimit, WithJo
         :param order: Order by columns
         :param limit: Limit results
         :param for_update: Lock rows for update
+        :param straight_join: Add `STRAIGHT_JOIN` modifier, forcing the optimizer to join tables in the order they
+            are listed (MySQL / MariaDB)
         """
         super().__init__(where=where, order=order, limit=limit, join=join, dialect=dialect)
 
@@ -116,6 +119,7 @@ class Select(ExecutableStatement, Query, WithWhere, WithOrder, WithLimit, WithJo
         self._group_by = ColumnList(group_by) if group_by is not None and not isinstance(group_by, ColumnList) else group_by
         self._having = having
         self._for_update = for_update
+        self._straight_join = straight_join
 
     def add(self, column: Statement | Any) -> Self:
         """Add new statement or column to the set of selected columns"""
@@ -174,7 +178,12 @@ class Select(ExecutableStatement, Query, WithWhere, WithOrder, WithLimit, WithJo
             if not self.columns and not self.table:
                 return ""
 
-            out: list[str] = ["SELECT", str(self.columns) if self.columns else "*"]
+            out: list[str] = ["SELECT"]
+
+            if self._straight_join:
+                out.append("STRAIGHT_JOIN")
+
+            out.append(str(self.columns) if self.columns else "*")
 
             if self.table:
                 out.append(f"FROM {', '.join(map(str, self.table))}")
