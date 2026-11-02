@@ -1,3 +1,7 @@
+# Package downloads from PyPI fail intermittently on the runner, so retry only the install.
+.poetry-install: &poetry-install
+  - for attempt in 1 2 3 4 5; do poetry install --with=dev && break; if [ "$attempt" = 5 ]; then exit 1; fi; echo "poetry install failed (attempt $attempt), retrying"; sleep $((attempt * 10)); done
+
 stages:
   - test
   - build
@@ -7,7 +11,7 @@ test:
   image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run pytest --cov=sqlfactory --cov-report=xml --cov-report=term
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
@@ -20,28 +24,28 @@ pylint:
   image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run pylint sqlfactory
 
 mypy:
   image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run mypy sqlfactory
 
 ruff-check:
   image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run ruff check sqlfactory
 
 ruff-format:
   image: harbor.srv.gcm.cz/baseimage/python:3.11
   stage: test
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run ruff format --diff sqlfactory
 
 build-wheel:
@@ -58,7 +62,7 @@ build-docs:
   stage: build
   pages: true
   script:
-    - poetry install --with=dev
+    - *poetry-install
     - poetry run pdoc -o ./public sqlfactory
   artifacts:
     paths:
