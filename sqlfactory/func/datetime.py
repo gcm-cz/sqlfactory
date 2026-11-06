@@ -631,11 +631,14 @@ class ToSeconds(Function):
 
 class UnixTimestamp(Function):
     """
-    Returns UNIX timestamp.
+    Returns UNIX timestamp of the date, or of the current time when no date is given.
     """
 
-    def __init__(self) -> None:
-        super().__init__("UNIX_TIMESTAMP")
+    def __init__(self, date: Any = None) -> None:
+        if date is not None:
+            super().__init__("UNIX_TIMESTAMP", date)
+        else:
+            super().__init__("UNIX_TIMESTAMP")
 
 
 class UtcDate(Function):

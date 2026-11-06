@@ -419,6 +419,24 @@ def test_unix_timestamp():
     assert unix_timestamp_func.args == []
 
 
+def test_unix_timestamp_of_value():
+    unix_timestamp_func = UnixTimestamp("2022-01-01 01:00:00")
+    assert str(unix_timestamp_func) == "UNIX_TIMESTAMP(%s)"
+    assert unix_timestamp_func.args == ["2022-01-01 01:00:00"]
+
+
+def test_unix_timestamp_of_column():
+    unix_timestamp_func = UnixTimestamp(Column("t.date"))
+    assert str(unix_timestamp_func) == "UNIX_TIMESTAMP(`t`.`date`)"
+    assert unix_timestamp_func.args == []
+
+
+def test_unix_timestamp_of_function():
+    unix_timestamp_func = UnixTimestamp(Now())
+    assert str(unix_timestamp_func) == "UNIX_TIMESTAMP(NOW())"
+    assert unix_timestamp_func.args == []
+
+
 def test_utc_date():
     utc_date_func = UtcDate()
     assert str(utc_date_func) == "UTC_DATE()"
